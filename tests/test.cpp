@@ -3,35 +3,41 @@
 #include <complex>
 #include <cxxduals/dual>
 
+#define PRECISION (1e-16)
+
+typedef std::complex<double> complexd;
+typedef std::complex<float> complexf;
+
 using namespace cxxduals;
 
-TEST (DualTest, Construct)
+template <typename DUALTYPE, typename Scalar>
+void construct()
 {
-  dual<double> x = 1.1;
-  EXPECT_EQ(x.realpart(), 1.1);
-  EXPECT_EQ(realpart(x), 1.1);
-  EXPECT_EQ(x.epart(), 0.0);
-  EXPECT_EQ(epart(x), 0.0);
+  DUALTYPE x = (Scalar)1.1;
+  EXPECT_EQ(x.realpart(), (Scalar)1.1);
+  EXPECT_EQ(realpart(x), (Scalar)1.1);
+  EXPECT_EQ(x.epart(), (Scalar)0.0);
+  EXPECT_EQ(epart(x), (Scalar)0.0);
 
-  dual<double> z(1.1);
-  EXPECT_EQ(z.realpart(), 1.1);
-  EXPECT_EQ(realpart(z), 1.1);
-  EXPECT_EQ(z.epart(), 0.0);
-  EXPECT_EQ(epart(z), 0.0);
+  DUALTYPE z(1.1);
+  EXPECT_EQ(z.realpart(), (Scalar)1.1);
+  EXPECT_EQ(realpart(z), (Scalar)1.1);
+  EXPECT_EQ(z.epart(), (Scalar)0.0);
+  EXPECT_EQ(epart(z), (Scalar)0.0);
 
-  dual<double> y(1.1, 2.2);
-  EXPECT_EQ(y.realpart(), 1.1);
-  EXPECT_EQ(realpart(y), 1.1);
-  EXPECT_EQ(y.epart(), 2.2);
-  EXPECT_EQ(epart(y), 2.2);
+  DUALTYPE y(1.1, 2.2);
+  EXPECT_EQ(y.realpart(), (Scalar)1.1);
+  EXPECT_EQ(realpart(y), (Scalar)1.1);
+  EXPECT_EQ(y.epart(), (Scalar)2.2);
+  EXPECT_EQ(epart(y), (Scalar)2.2);
 
-  dual<double> w = {1.1, 2.2};
-  EXPECT_EQ(w.realpart(), 1.1);
-  EXPECT_EQ(w.epart(), 2.2);
+  DUALTYPE w = {1.1, 2.2};
+  EXPECT_EQ(w.realpart(), (Scalar)1.1);
+  EXPECT_EQ(w.epart(), (Scalar)2.2);
 
-  dual<double> a{1.1, 2.2};
-  EXPECT_EQ(a.realpart(), 1.1);
-  EXPECT_EQ(a.epart(), 2.2);
+  DUALTYPE a{1.1, 2.2};
+  EXPECT_EQ(a.realpart(), (Scalar)1.1);
+  EXPECT_EQ(a.epart(), (Scalar)2.2);
 }
 
 template <typename DUALTYPE, typename Scalar>
@@ -52,7 +58,6 @@ void equality()
   EXPECT_NE(f, (Scalar)1.2);
   EXPECT_NE((Scalar)1.2, f);
   EXPECT_EQ(j*j, k);
-  EXPECT_EQ(pow(j,(Scalar)2.0), k);
   EXPECT_EQ(sqrt(l), j);
   EXPECT_EQ(abs(h), g);
   EXPECT_EQ(abs(-h), g);
@@ -70,10 +75,12 @@ void compare()
   DUALTYPE f{1.1, 2.21};
   DUALTYPE g{2.2, 2.21};
   DUALTYPE h{-2.2, -2.21};
-  DUALTYPE j{3, 0};
+  DUALTYPE j{3, 1};
   DUALTYPE k{9, 6};
   DUALTYPE l{9, 1};
-  EXPECT_NEAR(epart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)), (Scalar)1e-15);
+  EXPECT_NEAR(epart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)), (Scalar)PRECISION);
+  EXPECT_NEAR(realpart(pow(j,(Scalar)2.0)), 9.0, (Scalar)PRECISION);
+  EXPECT_NEAR(epart(pow(j,(Scalar)2.0)), 6.0, (Scalar)PRECISION);
   EXPECT_GT((Scalar)1.2, d);
   EXPECT_GT(d,(Scalar)1.0);
   EXPECT_GT(g,f);
@@ -98,11 +105,48 @@ void compare()
   EXPECT_TRUE(min(g,f) == f);
 }
 
-TEST (Duald, Equality)
+template <typename DUALTYPE, typename Scalar>
+void arithmetic()
 {
-  equality<duald, double>();
-  //compare<duald, float>();
+  DUALTYPE a;
+  // +
+  // -
+  // *
+  // /
 }
+
+template <typename DUALTYPE, typename Scalar>
+void transcendental()
+{
+  DUALTYPE a;
+  // pow
+  // sqrt
+  // log
+  // exp
+  // sin
+  // cos
+  // tan
+  // asin
+  // acos
+  // atan
+  // atan2
+}
+
+#define TESTALL(func) \
+  TEST (duald, func) { func<duald, double>(); } \
+  TEST (dualf, func) { func<dualf, float>(); } \
+  TEST (dualcd, func) { func<dualcd, complexd>(); } \
+  TEST (dualdf, func) { func<dualcf, complexf>(); }
+
+#define TESTREAL(func) \
+  TEST (duald, func) { func<duald, double>(); } \
+  TEST (dualf, func) { func<dualf, float>(); }
+
+TESTALL(construct)
+TESTALL(equality)
+TESTREAL(compare)
+TESTALL(arithmetic)
+TESTALL(transcendental)
 
 int main(int argc, char **argv)
 {

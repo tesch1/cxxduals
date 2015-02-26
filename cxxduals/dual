@@ -26,15 +26,15 @@
 //  THE SOFTWARE.
 // 
 //
-#ifndef LIB_DUAL
-#define LIB_DUAL 1
+#ifndef LIB_CXXDUALX
+#define LIB_CXXDUALS 1
 
 //#include <bits/c++config.h>
 //#include <bits/cpp_type_traits.h>
 //#include <ext/type_traits.h>
 #include <cmath>
 #include <sstream>
-//#include <complex>
+#include <complex>
 
 /* dual-numbers implementation for calculation of differentials */
 
@@ -47,8 +47,8 @@ template <typename _Tp> class dual;
 #ifndef CXXDUALS_NO_TYPEDEFS
 typedef dual<double> duald;
 typedef dual<float> dualf;
-//typedef dual<std::complex<double> > dualcd;
-//typedef dual<std::complex<float> > dualcf;
+typedef dual<std::complex<double> > dualcd;
+typedef dual<std::complex<float> > dualcf;
 #endif
 
 // dual number class
@@ -440,6 +440,7 @@ template <typename eeT>
 inline dual<eeT>
 abs(const dual<eeT> & x)
 {
+  // wrong for complex
   return std::abs(x.realpart()) == x.realpart() ? x : -x;
 }
 
@@ -589,6 +590,6 @@ operator<<(std::basic_ostream<_CharT, _Traits>& __os, const dual<_Tp>& rhs)
   return __os << __s.str();
 }
 
-} // namespace duals
+} // namespace cxxduals
 
-#endif // LIB_DUAL
+#endif // LIB_CXXDUALS
