@@ -1,7 +1,6 @@
 language: cpp
 compiler:
-  - g++
-  - clang++
+  - gcc
 
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
@@ -12,10 +11,9 @@ before_install:
   - sudo apt-get update -qq;
 
 install:
-  - make install
+  - cmake .
+  - make
 
 script: 
-  - cmake .
-  - make 
   - make test
   - cat Testing/Temporary/*.log
