@@ -51,18 +51,32 @@ typedef dual<std::complex<double> > dualcd;
 typedef dual<std::complex<long double> > dualcld;
 
 #ifndef CXXDUALS_NO_LIMITS
-}
+} // cxxduals
+
 // this is allowed by C++03 17.4.3.1/1, and C++11 18.3.2.3/1
 namespace std {
-
-template<> class numeric_limits<cxxduals::dualf> : public std::numeric_limits<float> {};
-template<> class numeric_limits<cxxduals::duald> : public std::numeric_limits<double> {};
-template<> class numeric_limits<cxxduals::dualld> : public std::numeric_limits<long double> {};
+//template<> class numeric_limits<cxxduals::duald> {};
+//template<> class numeric_limits<cxxduals::dualld> {};
 // TODO: cv-specializations (C++11 18.3.2.3/2)
-}
+} // std
 namespace cxxduals {
 #endif // CXXDUALS_NO_LIMITS
 #endif // CXXDUALS_NO_TYPEDEFS
+
+// useful type extraction
+template <typename _Tp> class dual_trait_helper;
+template <> struct dual_trait_helper<float> { typedef float scalar_type; };
+template <> struct dual_trait_helper<double> { typedef double scalar_type; };
+template <> struct dual_trait_helper<long double> { typedef long double scalar_type; };
+template <> struct dual_trait_helper<std::complex<float> > { typedef float scalar_type; };
+template <> struct dual_trait_helper<std::complex<double> > { typedef double scalar_type; };
+template <> struct dual_trait_helper<std::complex<long double> > { typedef long double scalar_type; };
+template <> struct dual_trait_helper<dualf> { typedef float scalar_type; };
+template <> struct dual_trait_helper<duald> { typedef double scalar_type; };
+template <> struct dual_trait_helper<dualld> { typedef long double scalar_type; };
+template <> struct dual_trait_helper<dualcf> { typedef float scalar_type; };
+template <> struct dual_trait_helper<dualcd> { typedef double scalar_type; };
+template <> struct dual_trait_helper<dualcld> { typedef long double scalar_type; };
 
 // dual number class
 template <typename _Tp>
@@ -74,6 +88,7 @@ private:
 public:
 
   typedef _Tp value_type;
+  typedef typename dual_trait_helper<dual<_Tp>>::scalar_type scalar_type;
   // todo? - scalar type of value_type ?
 
   inline dual() : _f0(), _f1() {}
