@@ -3,6 +3,7 @@ Template library for [dual numbers](http://en.wikipedia.org/wiki/Dual_number) in
 
 [![Build Status](https://api.travis-ci.org/tesch1/cxxduals.svg?branch=master)](http://travis-ci.org/tesch1/cxxduals)
 
+
 Using dual numbers in place of basic types provides a simple way to compute the derivative of a function, because:
 
 f(x + &epsilon; y) = f(x) + &epsilon; f'(x) y
@@ -23,6 +24,10 @@ Thus, to calculate f'(3), set z = (3 + &epsilon; 1) and take the &epsilon;-part 
   std::cout << "x*x=" << x*x << "\n";
   std::cout << "epart(x*x) = d(x*x)/dx = " << epart(x*x) << "\n";
 ```
+
+You may add the following #define's to modify what's defined:
+- CXXDUALS_NO_LIMITS : disable specialization of std::numeric_limits<> for the ```dualf,duald...``` types
+- CXXDUALS_NO_TYPEDEFS : disable typedefs for ```dualf,duald,dualld,dualcf,dualcd,dualcld```
 
 ## TODO
 - *decide whether to rename epart to ipart* for consistency with hyper-dual notation

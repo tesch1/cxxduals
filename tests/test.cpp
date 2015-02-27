@@ -23,13 +23,15 @@
 //
 #include "gtest/gtest.h"
 #include <iostream>
+#include <limits>
 #include <complex>
 #include <cxxduals/dual>
 
 #define PRECISION (1e-16)
 
-typedef std::complex<double> complexd;
 typedef std::complex<float> complexf;
+typedef std::complex<double> complexd;
+typedef std::complex<long double> complexld;
 
 using namespace cxxduals;
 
@@ -62,6 +64,40 @@ void construct()
   EXPECT_EQ(a.realpart(), (Scalar)1.1);
   EXPECT_EQ(a.epart(), (Scalar)2.2);
 }
+
+template <typename SCALAR>
+bool expect_near(const SCALAR & A, const SCALAR & B, 
+                 double PREC = 5.0 * std::numeric_limits<SCALAR>::epsilon() );
+
+template <>
+bool expect_near(const double & A, const double & B, double PREC)
+{
+  return std::abs(A - B) < PREC && std::abs(A - B) < PREC;
+}
+template <>
+bool expect_near(const float & A, const float & B, double PREC)
+{
+  return std::abs(A - B) < PREC && std::abs(A - B) < PREC;
+}
+template <>
+bool expect_near(const std::complex<double> & A, const std::complex<double> & B, double PREC)
+{
+  return expect_near(A.real(), B.real()) && expect_near(A.imag(), B.imag());
+}
+template <>
+bool expect_near(const std::complex<float> & A, const std::complex<float> & B, double PREC)
+{
+  return expect_near(A.real(), B.real()) && expect_near(A.imag(), B.imag());
+}
+template <typename SCALAR>
+bool expect_near_dual(const dual<SCALAR> & A, const dual<SCALAR> & B,
+                      double PREC = std::numeric_limits<dual<SCALAR> >::epsilon())
+{
+  return expect_near(A.realpart(), B.realpart()) && expect_near(A.epart(), B.epart());
+}
+
+#define MY_EXPECT_NEAR(A,B) if (!expect_near(A,B)) do { ADD_FAILURE_AT(__FILE__, __LINE__); } while (0)
+#define DU_EXPECT_NEAR(A,B) if (!expect_near_dual(A,B)) do { ADD_FAILURE_AT(__FILE__, __LINE__); } while (0)
 
 template <typename DUALTYPE, typename Scalar>
 void equality()
@@ -101,9 +137,9 @@ void compare()
   DUALTYPE j{3, 1};
   DUALTYPE k{9, 6};
   DUALTYPE l{9, 1};
-  EXPECT_NEAR(epart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)), (Scalar)PRECISION);
-  EXPECT_NEAR(realpart(pow(j,(Scalar)2.0)), 9.0, (Scalar)PRECISION);
-  EXPECT_NEAR(epart(pow(j,(Scalar)2.0)), 6.0, (Scalar)PRECISION);
+  MY_EXPECT_NEAR(epart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)));
+  DU_EXPECT_NEAR(pow(j,(Scalar)2.0), DUALTYPE(9.,6.));
+  MY_EXPECT_NEAR(epart(pow(j,(Scalar)2.0)), (Scalar)6.0);
   EXPECT_GT((Scalar)1.2, d);
   EXPECT_GT(d,(Scalar)1.0);
   EXPECT_GT(g,f);
@@ -156,10 +192,12 @@ void transcendental()
 }
 
 #define TESTALL(func) \
-  TEST (duald, func) { func<duald, double>(); } \
   TEST (dualf, func) { func<dualf, float>(); } \
+  TEST (duald, func) { func<duald, double>(); } \
+  TEST (dualld, func) { func<dualld, long double>(); } \
+  TEST (dualdf, func) { func<dualcf, complexf>(); } \
   TEST (dualcd, func) { func<dualcd, complexd>(); } \
-  TEST (dualdf, func) { func<dualcf, complexf>(); }
+  TEST (dualcld, func) { func<dualcld, complexld>(); }
 
 #define TESTREAL(func) \
   TEST (duald, func) { func<duald, double>(); } \

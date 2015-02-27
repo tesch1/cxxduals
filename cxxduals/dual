@@ -32,6 +32,7 @@
 #include <cmath>
 #include <sstream>
 #include <complex>
+#include <limits>
 
 /* dual-numbers implementation for calculation of differentials */
 
@@ -42,11 +43,26 @@ template <typename _Tp> class dual;
 
 // useful typedefs
 #ifndef CXXDUALS_NO_TYPEDEFS
-typedef dual<double> duald;
 typedef dual<float> dualf;
-typedef dual<std::complex<double> > dualcd;
+typedef dual<double> duald;
+typedef dual<long double> dualld;
 typedef dual<std::complex<float> > dualcf;
-#endif
+typedef dual<std::complex<double> > dualcd;
+typedef dual<std::complex<long double> > dualcld;
+
+#ifndef CXXDUALS_NO_LIMITS
+}
+// this is allowed by C++03 17.4.3.1/1, and C++11 18.3.2.3/1
+namespace std {
+
+template<> class numeric_limits<cxxduals::dualf> : public std::numeric_limits<float> {};
+template<> class numeric_limits<cxxduals::duald> : public std::numeric_limits<double> {};
+template<> class numeric_limits<cxxduals::dualld> : public std::numeric_limits<long double> {};
+// TODO: cv-specializations (C++11 18.3.2.3/2)
+}
+namespace cxxduals {
+#endif // CXXDUALS_NO_LIMITS
+#endif // CXXDUALS_NO_TYPEDEFS
 
 // dual number class
 template <typename _Tp>
