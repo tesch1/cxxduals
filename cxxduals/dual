@@ -64,7 +64,7 @@ namespace cxxduals {
 #endif // CXXDUALS_NO_TYPEDEFS
 
 // useful type extraction
-template <typename _Tp> class dual_trait_helper;
+template <typename _Tp> struct dual_trait_helper;
 template <> struct dual_trait_helper<float> { typedef float scalar_type; };
 template <> struct dual_trait_helper<double> { typedef double scalar_type; };
 template <> struct dual_trait_helper<long double> { typedef long double scalar_type; };
