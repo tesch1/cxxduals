@@ -1,6 +1,4 @@
 // -*-c++-*-
-// This file is part of Eigen, a lightweight C++ template library
-// for linear algebra. 
 //
 // The MIT License (MIT)
 // 
@@ -24,7 +22,6 @@
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
-// 
 //
 #ifndef LIB_CXXDUALX
 #define LIB_CXXDUALS 1
