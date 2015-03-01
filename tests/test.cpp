@@ -213,6 +213,9 @@ void casting()
 
   a = dual<TYPE1>{1,2};
   b = 1;
+  b = 1.0f;
+  b = 1.0;
+  b = (TYPE2)1.0;
 
   dual<TYPE1> c(b);
   dual<TYPE1> d = dual<TYPE1>(b);
@@ -263,15 +266,15 @@ TEST (generic, generic)
 typedef long double longdouble;
 
 // simple types
-TEST_TYPEMIX(casting, float, float);
-TEST_TYPEMIX(casting, float, double);
-TEST_TYPEMIX(casting, float, longdouble);
-TEST_TYPEMIX(casting, double, float);
-TEST_TYPEMIX(casting, double, double);
-TEST_TYPEMIX(casting, double, longdouble);
-TEST_TYPEMIX(casting, longdouble, float);
-TEST_TYPEMIX(casting, longdouble, double);
-TEST_TYPEMIX(casting, longdouble, longdouble);
+TEST_TYPEMIX(casting, float, float)
+TEST_TYPEMIX(casting, float, double)
+TEST_TYPEMIX(casting, float, longdouble)
+TEST_TYPEMIX(casting, double, float)
+TEST_TYPEMIX(casting, double, double)
+TEST_TYPEMIX(casting, double, longdouble)
+TEST_TYPEMIX(casting, longdouble, float)
+TEST_TYPEMIX(casting, longdouble, double)
+TEST_TYPEMIX(casting, longdouble, longdouble)
 
 // complex types
 #define TYPEMIX6(RTYPE)                         \
@@ -282,9 +285,9 @@ TEST_TYPEMIX(casting, longdouble, longdouble);
   TEST_TYPEMIX(casting, RTYPE, complexd)        \
   TEST_TYPEMIX(casting, RTYPE, complexld)
 
-TYPEMIX6(complexf);
-TYPEMIX6(complexd);
-TYPEMIX6(complexld);
+TYPEMIX6(complexf)
+TYPEMIX6(complexd)
+TYPEMIX6(complexld)
 
 TESTALL(construct)
 TESTALL(equality)
