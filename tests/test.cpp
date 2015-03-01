@@ -39,30 +39,30 @@ template <typename DUALTYPE, typename Scalar>
 void construct()
 {
   DUALTYPE x = (Scalar)1.1;
-  EXPECT_EQ(x.realpart(), (Scalar)1.1);
-  EXPECT_EQ(realpart(x), (Scalar)1.1);
-  EXPECT_EQ(x.epart(), (Scalar)0.0);
-  EXPECT_EQ(epart(x), (Scalar)0.0);
+  EXPECT_EQ(x.rpart(), (Scalar)1.1);
+  EXPECT_EQ(rpart(x), (Scalar)1.1);
+  EXPECT_EQ(x.ipart(), (Scalar)0.0);
+  EXPECT_EQ(ipart(x), (Scalar)0.0);
 
   DUALTYPE z(1.1);
-  EXPECT_EQ(z.realpart(), (Scalar)1.1);
-  EXPECT_EQ(realpart(z), (Scalar)1.1);
-  EXPECT_EQ(z.epart(), (Scalar)0.0);
-  EXPECT_EQ(epart(z), (Scalar)0.0);
+  EXPECT_EQ(z.rpart(), (Scalar)1.1);
+  EXPECT_EQ(rpart(z), (Scalar)1.1);
+  EXPECT_EQ(z.ipart(), (Scalar)0.0);
+  EXPECT_EQ(ipart(z), (Scalar)0.0);
 
   DUALTYPE y(1.1, 2.2);
-  EXPECT_EQ(y.realpart(), (Scalar)1.1);
-  EXPECT_EQ(realpart(y), (Scalar)1.1);
-  EXPECT_EQ(y.epart(), (Scalar)2.2);
-  EXPECT_EQ(epart(y), (Scalar)2.2);
+  EXPECT_EQ(y.rpart(), (Scalar)1.1);
+  EXPECT_EQ(rpart(y), (Scalar)1.1);
+  EXPECT_EQ(y.ipart(), (Scalar)2.2);
+  EXPECT_EQ(ipart(y), (Scalar)2.2);
 
   DUALTYPE w = {1.1, 2.2};
-  EXPECT_EQ(w.realpart(), (Scalar)1.1);
-  EXPECT_EQ(w.epart(), (Scalar)2.2);
+  EXPECT_EQ(w.rpart(), (Scalar)1.1);
+  EXPECT_EQ(w.ipart(), (Scalar)2.2);
 
   DUALTYPE a{1.1, 2.2};
-  EXPECT_EQ(a.realpart(), (Scalar)1.1);
-  EXPECT_EQ(a.epart(), (Scalar)2.2);
+  EXPECT_EQ(a.rpart(), (Scalar)1.1);
+  EXPECT_EQ(a.ipart(), (Scalar)2.2);
 }
 
 // need the 100.0 factor in epsilon for 'long double'
@@ -80,7 +80,7 @@ bool expect_near(const UNOTYPE & A, const UNOTYPE & B,
 template <typename UNOTYPE>
 bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
 {
-  return expect_near(A.realpart(), B.realpart()) && expect_near(A.epart(), B.epart());
+  return expect_near(A.rpart(), B.rpart()) && expect_near(A.ipart(), B.ipart());
 }
 
 #define MY_EXPECT_NEAR(A,B) \
@@ -133,8 +133,8 @@ void compare()
   DUALTYPE j{3, 1};
   DUALTYPE k{9, 6};
   DUALTYPE l{9, 1};
-  MY_EXPECT_NEAR(epart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)));
-  MY_EXPECT_NEAR(epart(pow(j,(Scalar)2.0)), (Scalar)6.0);
+  MY_EXPECT_NEAR(ipart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)));
+  MY_EXPECT_NEAR(ipart(pow(j,(Scalar)2.0)), (Scalar)6.0);
   EXPECT_GT((Scalar)1.2, d);
   EXPECT_GT(d,(Scalar)1.0);
   EXPECT_GT(g,f);
@@ -162,7 +162,16 @@ void compare()
 template <typename DUALTYPE, typename Scalar>
 void arithmetic()
 {
-  DUALTYPE a;
+  DUALTYPE a, b;
+  a = (Scalar)1;
+  b = (Scalar)2;
+  b = a = b = a;
+  a = b + (Scalar)1.0; // 2
+  //a = b + 1.0; // 2
+  a = (Scalar)1.0 + b; // 2
+  a = a + a; // 4
+  a = a + b; // 5
+  EXPECT_EQ(a, (Scalar)5);
   // +
   // -
   // *
@@ -186,6 +195,55 @@ void transcendental()
   // atan2
 }
 
+void takes_dualcd(dualcd blah)
+{
+  
+}
+
+void takes_dualcd_ref(dualcd & blah)
+{
+  
+}
+
+template <typename TYPE1, typename TYPE2>
+void casting()
+{
+  dual<TYPE1> a;
+  dual<TYPE2> b;
+
+  a = dual<TYPE1>{1,2};
+  b = 1;
+
+  dual<TYPE1> c(b);
+  dual<TYPE1> d = dual<TYPE1>(b);
+
+  c = d;
+  d = c;
+
+  c += d;
+  d += c;
+  c -= d;
+  d -= c;
+  c *= d;
+  d *= c;
+  c /= d;
+  d /= c;
+
+  // illegal
+  //dual<TYPE1> e = b;
+  //dual<TYPE2> f = a;
+}
+
+TEST (generic, generic)
+{
+  dualcd a;
+  dualcf b;
+  takes_dualcd_ref(a);
+  //takes_dualcd(b);
+  takes_dualcd(dualcd(b));
+  //takes_dualcd_ref(dualcd(b));
+}
+
 #define TESTALL(func) \
   TEST (dualf, func) { func<dualf, float>(); } \
   TEST (duald, func) { func<duald, double>(); } \
@@ -196,7 +254,37 @@ void transcendental()
 
 #define TESTREAL(func) \
   TEST (duald, func) { func<duald, double>(); } \
-  TEST (dualf, func) { func<dualf, float>(); }
+  TEST (dualf, func) { func<dualf, float>(); } \
+  TEST (dualld, func) { func<dualld, long double>(); }
+
+#define TEST_TYPEMIX(func, type1, type2) \
+  TEST (func, type1##_##type2) { func<type1,type2>(); }
+
+typedef long double longdouble;
+
+// simple types
+TEST_TYPEMIX(casting, float, float);
+TEST_TYPEMIX(casting, float, double);
+TEST_TYPEMIX(casting, float, longdouble);
+TEST_TYPEMIX(casting, double, float);
+TEST_TYPEMIX(casting, double, double);
+TEST_TYPEMIX(casting, double, longdouble);
+TEST_TYPEMIX(casting, longdouble, float);
+TEST_TYPEMIX(casting, longdouble, double);
+TEST_TYPEMIX(casting, longdouble, longdouble);
+
+// complex types
+#define TYPEMIX6(RTYPE)                         \
+  TEST_TYPEMIX(casting, RTYPE, float)           \
+  TEST_TYPEMIX(casting, RTYPE, double)          \
+  TEST_TYPEMIX(casting, RTYPE, longdouble)      \
+  TEST_TYPEMIX(casting, RTYPE, complexf)        \
+  TEST_TYPEMIX(casting, RTYPE, complexd)        \
+  TEST_TYPEMIX(casting, RTYPE, complexld)
+
+TYPEMIX6(complexf);
+TYPEMIX6(complexd);
+TYPEMIX6(complexld);
 
 TESTALL(construct)
 TESTALL(equality)
