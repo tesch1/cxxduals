@@ -39,8 +39,10 @@ You may add the following #define's to modify what's defined:
   - (&epsilon; * &epsilon;) = 0
 
 ## History
-This started as a simple non-templated class found here: 
+This started as a simple non-templated class by Jeff A. Pike found here: 
 [http://adl.stanford.edu/hyperdual/](http://adl.stanford.edu/hyperdual/).
+
+Another nice paper on duals and C++ [Piponi, D. (2004). Automatic Differentiation, C++ Templates, and Photogrammetry. Journal of Graphics Tools, 9(4), 41–55. doi:10.1080/10867651.2004.10504901](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.89.7749&rep=rep1&type=pdf)
 
 ## License
 MIT, same as the Fike code.

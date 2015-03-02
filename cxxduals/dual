@@ -26,13 +26,13 @@
 #ifndef LIB_CXXDUALX
 #define LIB_CXXDUALS 1
 
-//#include <bits/c++config.h>
-//#include <bits/cpp_type_traits.h>
-//#include <ext/type_traits.h>
 #include <cmath>
 #include <sstream>
 #include <complex>
 #include <limits>
+#include <type_traits>
+#include <bits/c++config.h>
+#include <bits/cpp_type_traits.h>
 
 // check if constexpr exists
 #if __cplusplus >= 201103L
@@ -84,6 +84,8 @@ template <> struct dual_trait_helper<dualld> { typedef long double scalar_type; 
 template <> struct dual_trait_helper<dualcf> { typedef float scalar_type; };
 template <> struct dual_trait_helper<dualcd> { typedef double scalar_type; };
 template <> struct dual_trait_helper<dualcld> { typedef long double scalar_type; };
+template <typename _Up> struct dual_trait_helper<dual<_Up> > {
+  typedef typename dual_trait_helper<_Up>::scalar_type scalar_type; };
 
 // dual number class
 template <typename _Tp>
@@ -233,12 +235,19 @@ public:
 #else
     typedef _Tp higher_t;
 #endif
+#if 0
     higher_t deriv;
     deriv = higher_t(-1) * std::pow(higher_t(rhs.rpart()), higher_t(-2));
     dual<higher_t> inv;
     inv.rpart() = higher_t(1) / rhs.rpart();
     inv.ipart() = rhs.ipart() * deriv;
     *this *= inv;
+#else
+    dual<higher_t> tmp;
+    tmp.rpart() = _f0 / rhs.rpart();
+    tmp.ipart() = (_f1 * rhs.rpart() - _f0 * rhs.ipart()) / (rhs.rpart() * rhs.rpart());
+    *this = tmp;
+#endif
     return *this;
   }
 
@@ -272,6 +281,7 @@ ipart(const dual<eeT> & d)
     d OP##= rhs;                                                \
     return d;                                                   \
   }                                                             \
+  /* down one */                                                \
   template <typename _Tp>                                       \
   inline dual<_Tp>                                              \
   operator OP(const dual<_Tp> & lhs, const _Tp & rhs)           \
@@ -282,12 +292,29 @@ ipart(const dual<eeT> & d)
   }                                                             \
   template <typename _Tp>                                       \
   inline dual<_Tp>                                              \
-  operator OP(const _Tp lhs, const dual<_Tp> rhs)               \
+  operator OP(const _Tp & lhs, const dual<_Tp> & rhs)           \
   {                                                             \
-    dual<_Tp> d = lhs;                                          \
+    dual<_Tp> d(lhs);                                           \
     d OP##= rhs;                                                \
     return d;                                                   \
   }                                                             \
+  /* nesting */                                                 \
+  template <typename _Tp>                                       \
+  inline dual<_Tp>                                              \
+  operator OP(const dual<_Tp> & lhs, const typename _Tp::value_type & rhs) \
+  {                                                             \
+    dual<_Tp> d(lhs);                                           \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }                                                             \
+  template <typename _Tp>                                       \
+  inline dual<_Tp>                                              \
+  operator OP(const typename _Tp::value_type lhs, const dual<_Tp> & rhs) \
+  {                                                             \
+    dual<_Tp> d(lhs);                                           \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }
 
 //@{
 ///  Addition
@@ -311,38 +338,76 @@ DUALH_DEFINE_BASIC_OP_TEMPLATES(/)
 
 #undef DUALH_DEFINE_BASIC_OP_TEMPLATES
 
-///  
+///
+#if 0
+// fix emacs auto formatting for me
+  ;
+#endif
 
-template <typename _Tp>
+template <typename _Tp, typename _Up>
 dual<_Tp>
-pow(const dual<_Tp> & x, _Tp a)
+pow(const dual<_Tp> & xx, const _Up & aa)
 {
+  using std::pow;
+  using std::abs;
   dual<_Tp> temp;
+#if 0
   _Tp deriv, xval, tol;
-  xval = x.rpart();
-  tol = _Tp(1e-15); // TODO- should use type traits of _Tp instead of 1e-15
-  if (std::abs(xval) > 0 && std::abs(xval) < std::abs(tol)) {
-    xval = x.rpart() / (std::abs(x.rpart()) / tol);
+  xval = xx.rpart();
+  // TODO- should use numeric traits of _Tp instead of 1e-15
+  tol = _Tp(1e-15);
+  if (abs(xval) > 0 && abs(xval) < abs(tol)) {
+    xval = xx.rpart() / (abs(xx.rpart()) / tol);
     //if (xval >= 0)
     //  xval = tol;
     //if (xval < 0)
     //  xval = -tol;
   }
-  deriv = a * std::pow(xval, (a - _Tp(1.0)));
-  temp.rpart() = std::pow(x.rpart(), a);  //Use actual x value, only use tol for derivs
-  temp.ipart() = x.ipart() * deriv;
+  deriv = aa * pow(xval, (aa - _Tp(1.0)));
+  temp.rpart() = pow(xx.rpart(), aa);  //Use actual x value, only use tol for derivs
+  temp.ipart() = xx.ipart() * deriv;
+#else
+  temp.rpart() = pow(xx.rpart(), aa);
+  temp.ipart() = xx.ipart() * aa * pow(xx.rpart(), aa - _Up(1));
+#endif
+  return temp;
+}
+#if 1
+template <typename _Tp>
+dual<_Tp>
+pow(const _Tp & aa, const dual<_Tp> & xx)
+{
+  using std::pow;
+  using std::log;
+  dual<_Tp> temp;
+  temp.rpart() = pow(aa, xx.rpart());
+  temp.ipart() = xx.ipart() * pow(aa, xx.rpart()) * log(aa);
   return temp;
 }
 
+template <typename _Tp>
+dual<_Tp>
+pow(const dual<_Tp> & xx, const dual<_Tp> & yy)
+{
+  using std::pow;
+  using std::log;
+  dual<_Tp> temp;
+  temp.rpart() = pow(xx.rpart(), yy.rpart());
+  temp.ipart() = xx.ipart() * pow(xx.rpart(), yy.rpart()) * log(xx.rpart());
+  return temp;
+}
+#endif
 //template <typename eeT> dual<eeT> pow(dual<eeT> x, dual<eeT> a) {
 //
 //}
 
 template <typename eeT>
-dual<eeT> exp(dual<eeT> x)
+dual<eeT>
+exp(const dual<eeT> & x)
 {
+  using std::exp;
   eeT deriv;
-  deriv = std::exp(x.rpart());
+  deriv = exp(x.rpart());
   return dual<eeT>(deriv, deriv * x.ipart());
 }
 
@@ -350,6 +415,7 @@ template <typename eeT>
 dual<eeT>
 log(dual<eeT> x)
 {
+  using std::log;
   eeT deriv1;
   deriv1 = x.ipart() / x.rpart();
   return dual<eeT>(log(x.rpart()), deriv1);
@@ -359,6 +425,8 @@ template <typename eeT>
 dual<eeT>
 sin(dual<eeT> x)
 {
+  using std::sin;
+  using std::cos;
   dual<eeT> temp;
   eeT funval, deriv;
   funval = sin(x.rpart());
@@ -372,6 +440,8 @@ template <typename eeT>
 dual<eeT>
 cos(dual<eeT> x)
 {
+  using std::sin;
+  using std::cos;
   dual<eeT> temp;
   eeT funval, deriv;
   funval = cos(x.rpart());
@@ -398,6 +468,8 @@ template <typename eeT>
 dual<eeT>
 asin(dual<eeT> x)
 {
+  using std::asin;
+  using std::sqrt;
   dual<eeT> temp;
   eeT funval, deriv1, deriv;
   funval = asin(x.rpart());
@@ -413,6 +485,8 @@ template <typename eeT>
 dual<eeT>
 acos(dual<eeT> x)
 {
+  using std::acos;
+  using std::sqrt;
   dual<eeT> temp;
   eeT funval, deriv1, deriv;
   funval = acos(x.rpart());
@@ -428,6 +502,7 @@ template <typename eeT>
 dual<eeT>
 atan(dual<eeT> x)
 {
+  using std::atan;
   dual<eeT> temp;
   eeT funval, deriv1, deriv;
   funval = atan(x.rpart());
@@ -442,6 +517,7 @@ template <typename eeT>
 dual<eeT>
 atan2(dual<eeT> y, dual<eeT> x)
 {
+  using std::atan2;
   dual<eeT> temp;
   eeT funval, deriv1, deriv;
   funval = atan2(y.rpart(), x.rpart());
@@ -457,6 +533,7 @@ template <typename eeT>
 dual<eeT>
 sqrt(dual<eeT> x)
 {
+  using std::pow;
   return pow(x, (eeT)0.5);
 }
 

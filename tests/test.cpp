@@ -1,7 +1,7 @@
 //
 // The MIT License (MIT)
 // 
-// Copyright (C) 2015 Michael Tesch tesch a tum de
+// Copyright (C) 2015 Michael Tesch tesch1 a gmail com
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -27,13 +27,7 @@
 #include <complex>
 #include <cxxduals/dual>
 
-#define PRECISION (1e-16)
-
-typedef std::complex<float> complexf;
-typedef std::complex<double> complexd;
-typedef std::complex<long double> complexld;
-
-using namespace cxxduals;
+#include "test_helpers.h"
 
 template <typename DUALTYPE, typename Scalar>
 void construct()
@@ -64,35 +58,6 @@ void construct()
   EXPECT_EQ(a.rpart(), (Scalar)1.1);
   EXPECT_EQ(a.ipart(), (Scalar)2.2);
 }
-
-// need the 100.0 factor in epsilon for 'long double'
-template <typename UNOTYPE>
-bool expect_near(const UNOTYPE & A, const UNOTYPE & B, 
-                 typename dual_trait_helper<UNOTYPE>::scalar_type PREC 
-                 = 100.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon()
-                 )
-{
-  if (std::abs(A - B) >= PREC)
-    std::cout << "std::abs(A - B) = " << std::abs(A - B) << " PREC= " << PREC << "\n";
-  return std::abs(A - B) < PREC;
-}
-
-template <typename UNOTYPE>
-bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
-{
-  return expect_near(A.rpart(), B.rpart()) && expect_near(A.ipart(), B.ipart());
-}
-
-#define MY_EXPECT_NEAR(A,B) \
-  if (!expect_near(A,B))                  \
-    do {                                  \
-      ADD_FAILURE_AT(__FILE__, __LINE__) << #A << " !~= " << #B << "\n (" << A << " !~= " << B; \
-    } while (0)
-#define DU_EXPECT_NEAR(A,B)                                             \
-  if (!expect_near_dual(A,B))                                           \
-    do {                                                                \
-      ADD_FAILURE_AT(__FILE__, __LINE__) << #A << " !~= " << #B << "\n (" << A << " !~= " << B; \
-    } while (0)
 
 template <typename DUALTYPE, typename Scalar>
 void equality()
@@ -247,23 +212,12 @@ TEST (generic, generic)
   //takes_dualcd_ref(dualcd(b));
 }
 
-#define TESTALL(func) \
-  TEST (dualf, func) { func<dualf, float>(); } \
-  TEST (duald, func) { func<duald, double>(); } \
-  TEST (dualld, func) { func<dualld, long double>(); } \
-  TEST (dualdf, func) { func<dualcf, complexf>(); } \
-  TEST (dualcd, func) { func<dualcd, complexd>(); } \
-  TEST (dualcld, func) { func<dualcld, complexld>(); }
-
-#define TESTREAL(func) \
-  TEST (duald, func) { func<duald, double>(); } \
-  TEST (dualf, func) { func<dualf, float>(); } \
-  TEST (dualld, func) { func<dualld, long double>(); }
-
-#define TEST_TYPEMIX(func, type1, type2) \
-  TEST (func, type1##_##type2) { func<type1,type2>(); }
-
-typedef long double longdouble;
+// basics
+TESTALL(construct)
+TESTALL(equality)
+TESTREAL(compare)
+TESTALL(arithmetic)
+TESTALL(transcendental)
 
 // simple types
 TEST_TYPEMIX(casting, float, float)
@@ -276,24 +230,12 @@ TEST_TYPEMIX(casting, longdouble, float)
 TEST_TYPEMIX(casting, longdouble, double)
 TEST_TYPEMIX(casting, longdouble, longdouble)
 
-// complex types
-#define TYPEMIX6(RTYPE)                         \
-  TEST_TYPEMIX(casting, RTYPE, float)           \
-  TEST_TYPEMIX(casting, RTYPE, double)          \
-  TEST_TYPEMIX(casting, RTYPE, longdouble)      \
-  TEST_TYPEMIX(casting, RTYPE, complexf)        \
-  TEST_TYPEMIX(casting, RTYPE, complexd)        \
-  TEST_TYPEMIX(casting, RTYPE, complexld)
+// lhs is complex, casts to it
+TYPEMIX6(complexf, casting)
+TYPEMIX6(complexd, casting)
+TYPEMIX6(complexld, casting)
 
-TYPEMIX6(complexf)
-TYPEMIX6(complexd)
-TYPEMIX6(complexld)
-
-TESTALL(construct)
-TESTALL(equality)
-TESTREAL(compare)
-TESTALL(arithmetic)
-TESTALL(transcendental)
+// lhs is dual<real> and dual<complex> - ie, hyperdual
 
 int main(int argc, char **argv)
 {

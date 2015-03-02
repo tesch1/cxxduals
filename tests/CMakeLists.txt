@@ -19,6 +19,10 @@ include_directories (${CMAKE_SOURCE_DIR}/)
 add_executable (test1 test.cpp)
 target_link_libraries (test1 gtest)
 
+add_executable (test2 test2.cpp)
+target_link_libraries (test2 gtest)
+
 # individual tests
 add_test (basic test1)
+add_test (basic test2)
 
