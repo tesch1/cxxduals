@@ -36,5 +36,5 @@ int main(int argc, char **argv)
 
   std::cout << "x=" << x << "\n";
   std::cout << "x*x=" << x*x << "\n";
-  std::cout << "epart(x*x) = d(x*x)/dx = " << epart(x*x) << "\n";
+  std::cout << "ipart(x*x) = d(x*x)/dx = " << ipart(x*x) << "\n";
 }

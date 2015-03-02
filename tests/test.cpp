@@ -1,7 +1,7 @@
 //
 // The MIT License (MIT)
 // 
-// Copyright (C) 2015 Michael Tesch tesch a tum de
+// Copyright (C) 2015 Michael Tesch tesch1 a gmail com
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -27,72 +27,37 @@
 #include <complex>
 #include <cxxduals/dual>
 
-#define PRECISION (1e-16)
-
-typedef std::complex<float> complexf;
-typedef std::complex<double> complexd;
-typedef std::complex<long double> complexld;
-
-using namespace cxxduals;
+#include "test_helpers.h"
 
 template <typename DUALTYPE, typename Scalar>
 void construct()
 {
   DUALTYPE x = (Scalar)1.1;
-  EXPECT_EQ(x.realpart(), (Scalar)1.1);
-  EXPECT_EQ(realpart(x), (Scalar)1.1);
-  EXPECT_EQ(x.epart(), (Scalar)0.0);
-  EXPECT_EQ(epart(x), (Scalar)0.0);
+  EXPECT_EQ(x.rpart(), (Scalar)1.1);
+  EXPECT_EQ(rpart(x), (Scalar)1.1);
+  EXPECT_EQ(x.ipart(), (Scalar)0.0);
+  EXPECT_EQ(ipart(x), (Scalar)0.0);
 
   DUALTYPE z(1.1);
-  EXPECT_EQ(z.realpart(), (Scalar)1.1);
-  EXPECT_EQ(realpart(z), (Scalar)1.1);
-  EXPECT_EQ(z.epart(), (Scalar)0.0);
-  EXPECT_EQ(epart(z), (Scalar)0.0);
+  EXPECT_EQ(z.rpart(), (Scalar)1.1);
+  EXPECT_EQ(rpart(z), (Scalar)1.1);
+  EXPECT_EQ(z.ipart(), (Scalar)0.0);
+  EXPECT_EQ(ipart(z), (Scalar)0.0);
 
   DUALTYPE y(1.1, 2.2);
-  EXPECT_EQ(y.realpart(), (Scalar)1.1);
-  EXPECT_EQ(realpart(y), (Scalar)1.1);
-  EXPECT_EQ(y.epart(), (Scalar)2.2);
-  EXPECT_EQ(epart(y), (Scalar)2.2);
+  EXPECT_EQ(y.rpart(), (Scalar)1.1);
+  EXPECT_EQ(rpart(y), (Scalar)1.1);
+  EXPECT_EQ(y.ipart(), (Scalar)2.2);
+  EXPECT_EQ(ipart(y), (Scalar)2.2);
 
   DUALTYPE w = {1.1, 2.2};
-  EXPECT_EQ(w.realpart(), (Scalar)1.1);
-  EXPECT_EQ(w.epart(), (Scalar)2.2);
+  EXPECT_EQ(w.rpart(), (Scalar)1.1);
+  EXPECT_EQ(w.ipart(), (Scalar)2.2);
 
   DUALTYPE a{1.1, 2.2};
-  EXPECT_EQ(a.realpart(), (Scalar)1.1);
-  EXPECT_EQ(a.epart(), (Scalar)2.2);
+  EXPECT_EQ(a.rpart(), (Scalar)1.1);
+  EXPECT_EQ(a.ipart(), (Scalar)2.2);
 }
-
-// need the 100.0 factor in epsilon for 'long double'
-template <typename UNOTYPE>
-bool expect_near(const UNOTYPE & A, const UNOTYPE & B, 
-                 typename dual_trait_helper<UNOTYPE>::scalar_type PREC 
-                 = 100.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon()
-                 )
-{
-  if (std::abs(A - B) >= PREC)
-    std::cout << "std::abs(A - B) = " << std::abs(A - B) << " PREC= " << PREC << "\n";
-  return std::abs(A - B) < PREC;
-}
-
-template <typename UNOTYPE>
-bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
-{
-  return expect_near(A.realpart(), B.realpart()) && expect_near(A.epart(), B.epart());
-}
-
-#define MY_EXPECT_NEAR(A,B) \
-  if (!expect_near(A,B))                  \
-    do {                                  \
-      ADD_FAILURE_AT(__FILE__, __LINE__) << #A << " !~= " << #B << "\n (" << A << " !~= " << B; \
-    } while (0)
-#define DU_EXPECT_NEAR(A,B)                                             \
-  if (!expect_near_dual(A,B))                                           \
-    do {                                                                \
-      ADD_FAILURE_AT(__FILE__, __LINE__) << #A << " !~= " << #B << "\n (" << A << " !~= " << B; \
-    } while (0)
 
 template <typename DUALTYPE, typename Scalar>
 void equality()
@@ -133,8 +98,8 @@ void compare()
   DUALTYPE j{3, 1};
   DUALTYPE k{9, 6};
   DUALTYPE l{9, 1};
-  MY_EXPECT_NEAR(epart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)));
-  MY_EXPECT_NEAR(epart(pow(j,(Scalar)2.0)), (Scalar)6.0);
+  MY_EXPECT_NEAR(ipart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)));
+  MY_EXPECT_NEAR(ipart(pow(j,(Scalar)2.0)), (Scalar)6.0);
   EXPECT_GT((Scalar)1.2, d);
   EXPECT_GT(d,(Scalar)1.0);
   EXPECT_GT(g,f);
@@ -162,7 +127,16 @@ void compare()
 template <typename DUALTYPE, typename Scalar>
 void arithmetic()
 {
-  DUALTYPE a;
+  DUALTYPE a, b;
+  a = (Scalar)1;
+  b = (Scalar)2;
+  b = a = b = a;
+  a = b + (Scalar)1.0; // 2
+  //a = b + 1.0; // 2
+  a = (Scalar)1.0 + b; // 2
+  a = a + a; // 4
+  a = a + b; // 5
+  EXPECT_EQ(a, (Scalar)5);
   // +
   // -
   // *
@@ -186,23 +160,82 @@ void transcendental()
   // atan2
 }
 
-#define TESTALL(func) \
-  TEST (dualf, func) { func<dualf, float>(); } \
-  TEST (duald, func) { func<duald, double>(); } \
-  TEST (dualld, func) { func<dualld, long double>(); } \
-  TEST (dualdf, func) { func<dualcf, complexf>(); } \
-  TEST (dualcd, func) { func<dualcd, complexd>(); } \
-  TEST (dualcld, func) { func<dualcld, complexld>(); }
+void takes_dualcd(dualcd blah)
+{
+  
+}
 
-#define TESTREAL(func) \
-  TEST (duald, func) { func<duald, double>(); } \
-  TEST (dualf, func) { func<dualf, float>(); }
+void takes_dualcd_ref(dualcd & blah)
+{
+  
+}
 
+template <typename TYPE1, typename TYPE2>
+void casting()
+{
+  dual<TYPE1> a;
+  dual<TYPE2> b;
+
+  a = dual<TYPE1>{1,2};
+  b = 1;
+  b = 1.0f;
+  b = 1.0;
+  b = (TYPE2)1.0;
+
+  dual<TYPE1> c(b);
+  dual<TYPE1> d = dual<TYPE1>(b);
+
+  c = d;
+  d = c;
+
+  c += d;
+  d += c;
+  c -= d;
+  d -= c;
+  c *= d;
+  d *= c;
+  c /= d;
+  d /= c;
+
+  // illegal
+  //dual<TYPE1> e = b;
+  //dual<TYPE2> f = a;
+}
+
+TEST (generic, generic)
+{
+  dualcd a;
+  dualcf b;
+  takes_dualcd_ref(a);
+  //takes_dualcd(b);
+  takes_dualcd(dualcd(b));
+  //takes_dualcd_ref(dualcd(b));
+}
+
+// basics
 TESTALL(construct)
 TESTALL(equality)
 TESTREAL(compare)
 TESTALL(arithmetic)
 TESTALL(transcendental)
+
+// simple types
+TEST_TYPEMIX(casting, float, float)
+TEST_TYPEMIX(casting, float, double)
+TEST_TYPEMIX(casting, float, longdouble)
+TEST_TYPEMIX(casting, double, float)
+TEST_TYPEMIX(casting, double, double)
+TEST_TYPEMIX(casting, double, longdouble)
+TEST_TYPEMIX(casting, longdouble, float)
+TEST_TYPEMIX(casting, longdouble, double)
+TEST_TYPEMIX(casting, longdouble, longdouble)
+
+// lhs is complex, casts to it
+TYPEMIX6(complexf, casting)
+TYPEMIX6(complexd, casting)
+TYPEMIX6(complexld, casting)
+
+// lhs is dual<real> and dual<complex> - ie, hyperdual
 
 int main(int argc, char **argv)
 {

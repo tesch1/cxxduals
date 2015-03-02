@@ -8,7 +8,7 @@ Using dual numbers in place of basic types provides a simple way to compute the 
 
 f(x + &epsilon; y) = f(x) + &epsilon; f'(x) y
 
-Thus, to calculate f'(3), set z = (3 + &epsilon; 1) and take the &epsilon;-part of f(z) => epart(f(z)) := f'(3)
+Thus, to calculate f'(3), set z = (3 + &epsilon; 1) and take the &epsilon;-part of f(z) => ipart(f(z)) := f'(3)
 
 ## Usage
 
@@ -22,7 +22,7 @@ Thus, to calculate f'(3), set z = (3 + &epsilon; 1) and take the &epsilon;-part 
 
   std::cout << "x=" << x << "\n";
   std::cout << "x*x=" << x*x << "\n";
-  std::cout << "epart(x*x) = d(x*x)/dx = " << epart(x*x) << "\n";
+  std::cout << "ipart(x*x) = d(x*x)/dx = " << ipart(x*x) << "\n";
 ```
 
 You may #define some things to modify what's defined by the header:
@@ -42,10 +42,11 @@ You may #define some things to modify what's defined by the header:
   - (&epsilon; * &epsilon;) = 0
 
 ## History
-This started as a simple non-templated class found here: 
-[http://adl.stanford.edu/hyperdual/](http://adl.stanford.edu/hyperdual/), and 
+This started as a simple non-templated class by Jeff A. Pike found here: 
+[http://adl.stanford.edu/hyperdual/](http://adl.stanford.edu/hyperdual/), also, 
 [Fike's thesis](http://purl.stanford.edu/jw107zn5044) has some nice numerical demonstrations.
 
+Another nice paper on duals and C++ [Piponi, D. (2004). Automatic Differentiation, C++ Templates, and Photogrammetry. Journal of Graphics Tools, 9(4), 41–55. doi:10.1080/10867651.2004.10504901](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.89.7749&rep=rep1&type=pdf)
 
 ## License
 MIT, same as the original Fike code.

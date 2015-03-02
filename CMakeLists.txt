@@ -13,7 +13,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 # Project Name
 #
 project (cxxduals CXX)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -Wall")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -Wall -Wpedantic")
 
 enable_testing ()
 
