@@ -77,7 +77,21 @@ struct pike_f1 {
   TYPE
   dddf(const TYPE & x) {
     typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
-    return exp(x)*fp_t(1.0)/pow(sin(x)+pow(cos(x),fp_t(3.0))-pow(cos(x),fp_t(2.0))*sin(x),fp_t(7.0)/fp_t(2.0))*(cos(x)*-fp_t(186.0)+sin(x)*fp_t(68.0)+pow(cos(x),fp_t(3.0))*fp_t(171.0)-pow(cos(x),fp_t(5.0))*fp_t(42.0)-pow(cos(x),fp_t(7.0))*fp_t(33.0)+pow(cos(x),fp_t(9.0))*fp_t(110.0)+pow(cos(x),fp_t(2.0))*sin(x)*fp_t(256.0)-pow(cos(x),fp_t(4.0))*sin(x)*fp_t(495.0)+pow(cos(x),fp_t(6.0))*sin(x)*fp_t(139.0)+pow(cos(x),fp_t(8.0))*sin(x)*fp_t(74.0))*(fp_t(1.0)/fp_t(8.0));
+    return exp(x)*fp_t(1.0)
+      / pow(sin(x)
+            + pow(cos(x),fp_t(3.0))
+            - pow(cos(x),fp_t(2.0)) * sin(x), fp_t(7.0)/fp_t(2.0))
+      * (cos(x) *
+         - fp_t(186.0)
+         + sin(x)*fp_t(68.0)
+         + pow(cos(x),fp_t(3.0))*fp_t(171.0)
+         - pow(cos(x),fp_t(5.0))*fp_t(42.0) 
+         - pow(cos(x),fp_t(7.0))*fp_t(33.0)
+         + pow(cos(x),fp_t(9.0))*fp_t(110.0)
+         + pow(cos(x),fp_t(2.0))*sin(x)*fp_t(256.0) 
+         - pow(cos(x),fp_t(4.0))*sin(x)*fp_t(495.0)
+         + pow(cos(x),fp_t(6.0))*sin(x)*fp_t(139.0)
+         + pow(cos(x),fp_t(8.0))*sin(x)*fp_t(74.0))*(fp_t(1.0)/fp_t(8.0));
   }
 
 };
@@ -90,6 +104,7 @@ fike_example1()
   pike_f1 f1;
   typedef dual<UNOTYPE> DUALTYPE;
   typedef dual<dual<UNOTYPE> > HDUALTYPE;
+  typedef dual<dual<dual<UNOTYPE> > > TDUALTYPE;
   srand48(1);
 
   for (int ii = 0; ii < reps; ii++) {
@@ -103,7 +118,12 @@ fike_example1()
     // calculate f, f' and f'' and f'' and f''' using duals
     DUALTYPE dfp = f1.f(DUALTYPE(x,1));
     DUALTYPE ddfp = f1.df(DUALTYPE(x,1));
-    HDUALTYPE dfpp = f1.f(HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,1)));
+    UNOTYPE x4 = 0;
+    HDUALTYPE dfpp = f1.f(HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,x4)));
+    TDUALTYPE dfppp = f1.f(TDUALTYPE(HDUALTYPE(DUALTYPE(x,1),
+                                               DUALTYPE(1,1)),
+                                     HDUALTYPE(DUALTYPE(1,1),
+                                               DUALTYPE(1,x4))));
 
     // compare analytic and dual results
     MY_EXPECT_NEAR(f, rpart(dfp)) << " x=" << x;
@@ -113,8 +133,11 @@ fike_example1()
     MY_EXPECT_NEAR(fp, rpart(ipart(dfpp))) << " x=" << x;
     MY_EXPECT_NEAR(fp, ipart(rpart(dfpp))) << " x=" << x;
     MY_EXPECT_NEAR(fpp, ipart(ddfp)) << " x=" << x;
-    UNOTYPE DDf = ipart(ipart(dfpp)) - ipart(rpart(dfpp));
+    UNOTYPE DDf = ipart(ipart(dfpp)) - x4 * ipart(rpart(dfpp));
     MY_EXPECT_NEAR(fpp, DDf) << " ::" << DDf;
+    std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
+    std::cout << "hd=" << dfpp << "\n\n";
+    std::cout << "td=" << dfppp << "\n";
 #if 0
     std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
     std::cout << "hd=" << dfpp << "\n";

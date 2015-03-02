@@ -1,8 +1,7 @@
 ## cxxduals
-Template library for [dual numbers](http://en.wikipedia.org/wiki/Dual_number) in c++, akin to complex but &epsilon; is nilpotent.
+Template header library for nesting [dual numbers](http://en.wikipedia.org/wiki/Dual_number) in c++, akin to complex numbers, but &epsilon; is nilpotent.  Nesting provides hyperdual numbers, and hyperhyperdual numbers, etc...
 
 [![Build Status](https://api.travis-ci.org/tesch1/cxxduals.svg?branch=master)](http://travis-ci.org/tesch1/cxxduals)
-
 
 Using dual numbers in place of basic types provides a simple way to compute the derivative of a function, because:
 
@@ -25,21 +24,23 @@ Thus, to calculate f'(3), set z = (3 + &epsilon; 1) and take the &epsilon;-part 
   std::cout << "ipart(x*x) = d(x*x)/dx = " << ipart(x*x) << "\n";
 ```
 
-You may #define some things to modify what's defined by the header:
-- CXXDUALS_NO_LIMITS : disable specialization of std::numeric_limits<> for the ```dualf,duald...``` types
-- CXXDUALS_NO_TYPEDEFS : disable typedefs for ```dualf,duald,dualld,dualcf,dualcd,dualcld```
+Before including the header, some #defines will modify what's done by the header:
+```cpp
+#define CXXDUALS_NO_LIMITS   // disable specialization of std::numeric_limits<> for the ```dualf,duald...``` types
+#define CXXDUALS_NO_TYPEDEFS // disable typedefs for ```dualf,duald,dualld,dualcf,dualcd,dualcld```
+```
 
 ## TODO
 - lots more tests
-- hyperdual
-  - maybe support the many variations of hyperdual, just for shi. and gi.
-- *decide whether to rename epart to ipart* for consistency with hyper-dual notation
-- *decide whether to rename realpart to rpart* for orthogonality
 - define ```dot(dual<complex<> >, dual<complex<> >)``` and ```norm(dual<complex<> >)```
-- maybe support the other possibilities (?), 
+- currently only tested on c++11, should make sure older c++ works as much as possible too
+- maybe support the other possibilities for: (how easy would this be?!?!? maybe super-easy!)
   - (&epsilon; * &epsilon;) = -1  ("complex")
   - (&epsilon; * &epsilon;) = 1
   - (&epsilon; * &epsilon;) = 0
+- dual vector support: let the value_type be a vector
+- try to minimize subtractive cancellation within the library
+- support & test multi-precision container types
 
 ## History
 This started as a simple non-templated class by Jeff A. Pike found here: 

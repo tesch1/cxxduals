@@ -3,7 +3,7 @@
 // The MIT License (MIT)
 // 
 // Copyright (c) 2006 Jeffrey A. Fike
-// Copyright (C) 2015 Michael Tesch tesch a tum de
+// Copyright (C) 2015 Michael Tesch tesch1 a gmail com
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -31,8 +31,6 @@
 #include <complex>
 #include <limits>
 #include <type_traits>
-#include <bits/c++config.h>
-#include <bits/cpp_type_traits.h>
 
 // check if constexpr exists
 #if __cplusplus >= 201103L
@@ -56,6 +54,15 @@ typedef dual<long double> dualld;
 typedef dual<std::complex<float> > dualcf;
 typedef dual<std::complex<double> > dualcd;
 typedef dual<std::complex<long double> > dualcld;
+#if __cplusplus >= 201103L
+template <class _Tp> using hyperdual = dual<dual<_Tp> >;
+typedef hyperdual<float> hyperdualf;
+typedef hyperdual<double> hyperduald;
+typedef hyperdual<long double> hyperdualld;
+typedef hyperdual<std::complex<float> > hyperdualcf;
+typedef hyperdual<std::complex<double> > hyperdualcd;
+typedef hyperdual<std::complex<long double> > hyperdualcld;
+#endif
 
 #ifndef CXXDUALS_NO_LIMITS
 } // cxxduals
@@ -71,21 +78,30 @@ namespace cxxduals {
 #endif // CXXDUALS_NO_TYPEDEFS
 
 // useful type extraction
+template <typename _Tp>
+struct dual_traits_basic {
+  static const int depth = 0;
+  static const int num_elem = 1;
+  typedef std::false_type is_nested;
+};
 template <typename _Tp> struct dual_trait_helper;
-template <> struct dual_trait_helper<float> { typedef float scalar_type; };
-template <> struct dual_trait_helper<double> { typedef double scalar_type; };
-template <> struct dual_trait_helper<long double> { typedef long double scalar_type; };
-template <> struct dual_trait_helper<std::complex<float> > { typedef float scalar_type; };
-template <> struct dual_trait_helper<std::complex<double> > { typedef double scalar_type; };
-template <> struct dual_trait_helper<std::complex<long double> > { typedef long double scalar_type; };
-template <> struct dual_trait_helper<dualf> { typedef float scalar_type; };
-template <> struct dual_trait_helper<duald> { typedef double scalar_type; };
-template <> struct dual_trait_helper<dualld> { typedef long double scalar_type; };
-template <> struct dual_trait_helper<dualcf> { typedef float scalar_type; };
-template <> struct dual_trait_helper<dualcd> { typedef double scalar_type; };
-template <> struct dual_trait_helper<dualcld> { typedef long double scalar_type; };
-template <typename _Up> struct dual_trait_helper<dual<_Up> > {
-  typedef typename dual_trait_helper<_Up>::scalar_type scalar_type; };
+template <> struct dual_trait_helper<float> : public dual_traits_basic { typedef float scalar_type; };
+template <> struct dual_trait_helper<double> : public dual_traits_basic { typedef double scalar_type; };
+template <> struct dual_trait_helper<long double> : public dual_traits_basic {
+  typedef long double scalar_type; };
+template <> struct dual_trait_helper<std::complex<float> > : public dual_traits_basic {
+  typedef float scalar_type; };
+template <> struct dual_trait_helper<std::complex<double> > : public dual_traits_basic {
+  typedef double scalar_type; };
+template <> struct dual_trait_helper<std::complex<long double> > : public dual_traits_basic {
+  typedef long double scalar_type; };
+template <typename _Up> struct dual_trait_helper<dual<_Up> > : public dual_traits_basic {
+  typedef typename dual_trait_helper<_Up>::scalar_type scalar_type;
+  typedef typename dual<_Up> value_type;
+  static const int depth = dual_trait_helper<_Up>::depth + 1;
+  static const int num_elem = dual_trait_helper<_Up>::num_elem * 2;
+  typedef std::true_type is_nested;
+};
 
 // dual number class
 template <typename _Tp>
@@ -97,12 +113,22 @@ private:
 public:
 
   typedef _Tp value_type;
-  typedef typename dual_trait_helper<dual<_Tp>>::scalar_type scalar_type;
-  // todo? - scalar type of value_type ?
+  typedef typename dual_trait_helper<_Tp>::scalar_type scalar_type;
 
   // Constructors
-  CXXDUALS_CONSTEXPR dual(const _Tp & f0 = _Tp(), const _Tp & f1 = _Tp())
+  CXXDUALS_CONSTEXPR dual()
+    : _f0(), _f1() { }
+
+  template <typename _Up>
+  CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Up & f1 = _Up())
     : _f0(f0), _f1(f1) { }
+
+  template <typename _Up, typename _Vp>
+  CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Vp & f1)
+    : _f0(f0), _f1(f1) { }
+
+  //CXXDUALS_CONSTEXPR dual(const scalar_type & f0)
+  //  : _f0(f0), _f1() { }
 
   template<typename _Up>
   explicit CXXDUALS_CONSTEXPR dual(const dual<_Up> & rhs)
@@ -115,6 +141,24 @@ public:
 
   constexpr _Tp 
   ipart() const { return _f1; }
+
+private:
+  constexpr value_type
+  private_part(int p, std::false_type) {
+    // p had better be either 0 or 1
+    return p == 0 ? _f0 : _f1;
+  }
+  constexpr value_type
+  private_part(int p, std::true_type) {
+    return p < (dual_trait_helper<_Tp>::num_elem / 2)
+      ? _f0.part(p)
+      : _f1.part(p - (dual_trait_helper<_Tp>::num_elem / 2));    
+  }
+public:
+  constexpr value_type
+  part(int p) const {
+    return private_part(p, typename dual_trait_helper<_Tp>::is_nested());
+  }
 #else
   inline const _Tp &
   rpart() const { return _f0; }
@@ -137,9 +181,10 @@ public:
   ipart(_Tp f1) { _f1 = f1; }
 
   /// Assignment
+#if 0
   inline dual<_Tp> &
   operator=(const _Tp & rhs) { _f0 = rhs; _f1 = _Tp(); return *this; }
-
+#endif
   inline dual<_Tp> &
   operator=(const dual<_Tp> & rhs) { _f0 = rhs._f0; _f1 = rhs._f1; return *this; }
 
@@ -255,16 +300,16 @@ public:
 
 /// Value extraction
 //@{
-template <typename eeT>
-inline eeT
-rpart(const dual<eeT> & d)
+template <typename _Tp>
+inline _Tp
+rpart(const dual<_Tp> & d)
 {
   return d.rpart();
 }
 
-template <typename eeT>
-inline eeT
-ipart(const dual<eeT> & d)
+template <typename _Tp>
+inline _Tp
+ipart(const dual<_Tp> & d)
 {
   return d.ipart();
 }
@@ -406,38 +451,38 @@ pow(const dual<_Tp> & xx, const dual<_Tp> & yy)
 #endif
 }
 #endif
-//template <typename eeT> dual<eeT> pow(dual<eeT> x, dual<eeT> a) {
+//template <typename _Tp> dual<_Tp> pow(dual<_Tp> x, dual<_Tp> a) {
 //
 //}
 
-template <typename eeT>
-dual<eeT>
-exp(const dual<eeT> & x)
+template <typename _Tp>
+dual<_Tp>
+exp(const dual<_Tp> & x)
 {
   using std::exp;
-  eeT deriv;
+  _Tp deriv;
   deriv = exp(x.rpart());
-  return dual<eeT>(deriv, deriv * x.ipart());
+  return dual<_Tp>(deriv, deriv * x.ipart());
 }
 
-template <typename eeT>
-dual<eeT>
-log(dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+log(dual<_Tp> x)
 {
   using std::log;
-  eeT deriv1;
+  _Tp deriv1;
   deriv1 = x.ipart() / x.rpart();
-  return dual<eeT>(log(x.rpart()), deriv1);
+  return dual<_Tp>(log(x.rpart()), deriv1);
 }
 
-template <typename eeT>
-dual<eeT>
-sin(dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+sin(dual<_Tp> x)
 {
   using std::sin;
   using std::cos;
-  dual<eeT> temp;
-  eeT funval, deriv;
+  dual<_Tp> temp;
+  _Tp funval, deriv;
   funval = sin(x.rpart());
   deriv = cos(x.rpart());
   temp.rpart() = funval;
@@ -445,14 +490,14 @@ sin(dual<eeT> x)
   return temp;
 }
 
-template <typename eeT>
-dual<eeT>
-cos(dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+cos(dual<_Tp> x)
 {
   using std::sin;
   using std::cos;
-  dual<eeT> temp;
-  eeT funval, deriv;
+  dual<_Tp> temp;
+  _Tp funval, deriv;
   funval = cos(x.rpart());
   deriv = -sin(x.rpart());
   temp.rpart() = funval;
@@ -460,12 +505,12 @@ cos(dual<eeT> x)
   return temp;
 }
 
-template <typename eeT>
-dual<eeT>
-tan(dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+tan(dual<_Tp> x)
 {
-  dual<eeT> temp;
-  eeT funval, deriv;
+  dual<_Tp> temp;
+  _Tp funval, deriv;
   funval = tan(x.rpart());
   deriv  = funval*funval + 1.0;
   temp.rpart() = funval;
@@ -473,14 +518,14 @@ tan(dual<eeT> x)
   return temp;
 }
 
-template <typename eeT>
-dual<eeT>
-asin(dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+asin(dual<_Tp> x)
 {
   using std::asin;
   using std::sqrt;
-  dual<eeT> temp;
-  eeT funval, deriv1, deriv;
+  dual<_Tp> temp;
+  _Tp funval, deriv1, deriv;
   funval = asin(x.rpart());
   deriv1 = 1.0-x.rpart()*x.rpart();
   deriv = 1.0/sqrt(deriv1);
@@ -490,14 +535,14 @@ asin(dual<eeT> x)
 }
 
 #if 0
-template <typename eeT>
-dual<eeT>
-acos(dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+acos(dual<_Tp> x)
 {
   using std::acos;
   using std::sqrt;
-  dual<eeT> temp;
-  eeT funval, deriv1, deriv;
+  dual<_Tp> temp;
+  _Tp funval, deriv1, deriv;
   funval = acos(x.rpart());
   deriv1 = 1.0 - x.rpart() * x.rpart();
   deriv = 1.0 / sqrt(deriv1);
@@ -507,13 +552,13 @@ acos(dual<eeT> x)
 }
 #endif
 
-template <typename eeT>
-dual<eeT>
-atan(dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+atan(dual<_Tp> x)
 {
   using std::atan;
-  dual<eeT> temp;
-  eeT funval, deriv1, deriv;
+  dual<_Tp> temp;
+  _Tp funval, deriv1, deriv;
   funval = atan(x.rpart());
   deriv1 = 1.0 + x.rpart() * x.rpart();
   deriv = 1.0 / deriv1;
@@ -522,13 +567,13 @@ atan(dual<eeT> x)
   return temp;
 }
 
-template <typename eeT>
-dual<eeT>
-atan2(dual<eeT> y, dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+atan2(dual<_Tp> y, dual<_Tp> x)
 {
   using std::atan2;
-  dual<eeT> temp;
-  eeT funval, deriv1, deriv;
+  dual<_Tp> temp;
+  _Tp funval, deriv1, deriv;
   funval = atan2(y.rpart(), x.rpart());
   // unsure from here on...
   deriv1 = 1.0 + x.rpart() * x.rpart();
@@ -538,221 +583,221 @@ atan2(dual<eeT> y, dual<eeT> x)
   return temp;
 }
 
-template <typename eeT>
-dual<eeT>
-sqrt(dual<eeT> x)
+template <typename _Tp>
+dual<_Tp>
+sqrt(dual<_Tp> x)
 {
   using std::pow;
-  return pow(x, (eeT)0.5);
+  return pow(x, _Tp(0.5));
 }
 
-template <typename eeT>
-dual<eeT>
-max(dual<eeT> x1, dual<eeT> x2)
+template <typename _Tp>
+dual<_Tp>
+max(dual<_Tp> x1, dual<_Tp> x2)
 {
   return x1.rpart() >= x2.rpart() ? x1 : x2;
 }
 
-template <typename eeT>
-dual<eeT>
-max(dual<eeT> x1, eeT x2)
+template <typename _Tp>
+dual<_Tp>
+max(dual<_Tp> x1, _Tp x2)
 {
-  return x1.rpart() >= x2 ? x1 : dual<eeT>(x2);
+  return x1.rpart() >= x2 ? x1 : dual<_Tp>(x2);
 }
 
-template <typename eeT>
-dual<eeT>
-max(eeT x1, dual<eeT> x2)
+template <typename _Tp>
+dual<_Tp>
+max(_Tp x1, dual<_Tp> x2)
 {
-  return x1 >= x2.rpart() ? dual<eeT>(x1) : x2;
+  return x1 >= x2.rpart() ? dual<_Tp>(x1) : x2;
 }
 
-template <typename eeT>
-dual<eeT>
-min(dual<eeT> x1, dual<eeT> x2)
+template <typename _Tp>
+dual<_Tp>
+min(dual<_Tp> x1, dual<_Tp> x2)
 {
   return x1.rpart() <= x2.rpart() ? x1 : x2;
 }
 
-template <typename eeT>
-dual<eeT>
-min(dual<eeT> x1, eeT x2)
+template <typename _Tp>
+dual<_Tp>
+min(dual<_Tp> x1, _Tp x2)
 {
-  return x1.rpart() <= x2 ? x1 : dual<eeT>(x2);
+  return x1.rpart() <= x2 ? x1 : dual<_Tp>(x2);
 }
 
-template <typename eeT>
-dual<eeT>
-min(eeT x1, dual<eeT> x2)
+template <typename _Tp>
+dual<_Tp>
+min(_Tp x1, dual<_Tp> x2)
 {
-  return x1 <= x2.rpart() ? dual<eeT>(x1) : x2;
+  return x1 <= x2.rpart() ? dual<_Tp>(x1) : x2;
 }
 
 #if 0
-template <typename eeT>
-dual<eeT>
-conj(const dual<eeT> & x)
+template <typename _Tp>
+dual<_Tp>
+conj(const dual<_Tp> & x)
 {
   // todo - dont just make things up
-  return dual<eeT>(conj(x.rpart()), conj(x.ipart()));
+  return dual<_Tp>(conj(x.rpart()), conj(x.ipart()));
 }
 #endif
 
-template <typename eeT>
-dual<eeT>
-real(const dual<eeT> & x)
+template <typename _Tp>
+dual<_Tp>
+real(const dual<_Tp> & x)
 {
   // todo - dont just make things up
-  return dual<eeT>(real(x.rpart()), real(x.ipart()));
+  return dual<_Tp>(real(x.rpart()), real(x.ipart()));
 }
 
-template <typename eeT>
-dual<eeT>
-imag(const dual<eeT> & x)
+template <typename _Tp>
+dual<_Tp>
+imag(const dual<_Tp> & x)
 {
   // todo - dont just make things up
-  return dual<eeT>(imag(x.rpart()), imag(x.ipart()));
+  return dual<_Tp>(imag(x.rpart()), imag(x.ipart()));
 }
 
-template <typename eeT>
-inline dual<eeT>
-abs(const dual<eeT> & x)
+template <typename _Tp>
+inline dual<_Tp>
+abs(const dual<_Tp> & x)
 {
   using std::abs;
   // wrong for complex
   return abs(x.rpart()) == x.rpart() ? x : -x;
 }
 
-template <typename eeT>
-dual<eeT>
-abs2(const dual<eeT> & x)
+template <typename _Tp>
+dual<_Tp>
+abs2(const dual<_Tp> & x)
 {
   return x * x;
 }
 
 /// comparison
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator>(dual<eeT> lhs, dual<eeT> rhs)
+operator>(dual<_Tp> lhs, dual<_Tp> rhs)
 {
   return lhs.rpart() > rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator>(eeT lhs, dual<eeT> rhs)
+operator>(_Tp lhs, dual<_Tp> rhs)
 {
   return lhs > rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator>(dual<eeT> lhs, eeT rhs)
+operator>(dual<_Tp> lhs, _Tp rhs)
 {
   return lhs.rpart() > rhs;
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator>=(dual<eeT> lhs, dual<eeT> rhs)
+operator>=(dual<_Tp> lhs, dual<_Tp> rhs)
 {
   return lhs.rpart() >= rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator>=(eeT lhs, dual<eeT> rhs)
+operator>=(_Tp lhs, dual<_Tp> rhs)
 {
   return lhs >= rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator>=(dual<eeT> lhs, eeT rhs)
+operator>=(dual<_Tp> lhs, _Tp rhs)
 {
   return lhs.rpart() >= rhs;
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator<(dual<eeT> lhs, dual<eeT> rhs)
+operator<(dual<_Tp> lhs, dual<_Tp> rhs)
 {
   return lhs.rpart() < rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator<(eeT lhs, dual<eeT> rhs)
+operator<(_Tp lhs, dual<_Tp> rhs)
 {
   return lhs < rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator<(dual<eeT> lhs, eeT rhs)
+operator<(dual<_Tp> lhs, _Tp rhs)
 {
   return lhs.rpart() < rhs;
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator<=(dual<eeT> lhs, dual<eeT> rhs)
+operator<=(dual<_Tp> lhs, dual<_Tp> rhs)
 {
   return lhs.rpart() <= rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator<=(eeT lhs, dual<eeT> rhs)
+operator<=(_Tp lhs, dual<_Tp> rhs)
 {
   return lhs <= rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator<=(dual<eeT> lhs, eeT rhs)
+operator<=(dual<_Tp> lhs, _Tp rhs)
 {
   return lhs.rpart() <= rhs;
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator==(dual<eeT> lhs, dual<eeT> rhs)
+operator==(dual<_Tp> lhs, dual<_Tp> rhs)
 {
   return lhs.rpart() == rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator==(eeT lhs, dual<eeT> rhs)
+operator==(_Tp lhs, dual<_Tp> rhs)
 {
   return lhs == rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator==(dual<eeT> lhs, eeT rhs)
+operator==(dual<_Tp> lhs, _Tp rhs)
 {
   return lhs.rpart() == rhs;
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator!=(dual<eeT> lhs, dual<eeT> rhs)
+operator!=(dual<_Tp> lhs, dual<_Tp> rhs)
 {
   return lhs.rpart() != rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator!=(eeT lhs, dual<eeT> rhs)
+operator!=(_Tp lhs, dual<_Tp> rhs)
 {
   return lhs != rhs.rpart();
 }
 
-template <typename eeT>
+template <typename _Tp>
 inline bool
-operator!=(dual<eeT> lhs, eeT rhs)
+operator!=(dual<_Tp> lhs, _Tp rhs)
 {
   return lhs.rpart() != rhs;
 }
@@ -765,7 +810,13 @@ operator<<(std::basic_ostream<_CharT, _Traits>& __os, const dual<_Tp>& rhs)
   __s.flags(__os.flags());
   __s.imbue(__os.getloc());
   __s.precision(__os.precision());
-  __s << "(" << rhs.rpart() << " + e*" << rhs.ipart() << ")";
+  __s << "(";
+  for (int ii = 0; ii < dual_trait_helper<dual<_Tp> >::num_elem; ii++) {
+    if (ii)
+      __s << " + e" << ii << "*";
+    __s << rhs.part(ii);
+  }
+  __s << ")";
   return __os << __s.str();
 }
 

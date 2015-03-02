@@ -46,4 +46,17 @@ int main(int argc, char **argv)
             << b << "\n"
             << a+b << "\n"
             << a*b << "\n";
+
+  std::cout << "double<> depth:" << dual_trait_helper<double>::depth
+            << " num_elem: " << dual_trait_helper<double>::num_elem
+            << " is_nested: " << dual_trait_helper<double>::is_nested::value
+            << "\n";
+  std::cout << "dual<> depth:" << dual_trait_helper<DUALTYPE>::depth
+            << " num_elem: " << dual_trait_helper<DUALTYPE>::num_elem
+            << " is_nested: " << dual_trait_helper<DUALTYPE>::is_nested::value
+            << "\n";
+  std::cout << "dual<dual<>> depth:" << dual_trait_helper<HDUALTYPE>::depth
+            << " num_elem: " << dual_trait_helper<HDUALTYPE>::num_elem
+            << " is_nested: " << dual_trait_helper<HDUALTYPE>::is_nested::value
+            << "\n";
 }
