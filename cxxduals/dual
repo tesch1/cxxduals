@@ -78,11 +78,11 @@ namespace cxxduals {
 #endif // CXXDUALS_NO_TYPEDEFS
 
 // useful type extraction
-template <typename _Tp>
 struct dual_traits_basic {
   static const int depth = 0;
   static const int num_elem = 1;
   typedef std::false_type is_nested;
+  typedef std::false_type is_dual;
 };
 template <typename _Tp> struct dual_trait_helper;
 template <> struct dual_trait_helper<float> : public dual_traits_basic { typedef float scalar_type; };
@@ -97,10 +97,10 @@ template <> struct dual_trait_helper<std::complex<long double> > : public dual_t
   typedef long double scalar_type; };
 template <typename _Up> struct dual_trait_helper<dual<_Up> > : public dual_traits_basic {
   typedef typename dual_trait_helper<_Up>::scalar_type scalar_type;
-  typedef typename dual<_Up> value_type;
   static const int depth = dual_trait_helper<_Up>::depth + 1;
   static const int num_elem = dual_trait_helper<_Up>::num_elem * 2;
-  typedef std::true_type is_nested;
+  typedef std::true_type is_dual;
+  typedef typename dual_trait_helper<_Up>::is_dual is_nested;
 };
 
 // dual number class
@@ -143,21 +143,21 @@ public:
   ipart() const { return _f1; }
 
 private:
-  constexpr value_type
+  constexpr _Tp
   private_part(int p, std::false_type) {
     // p had better be either 0 or 1
     return p == 0 ? _f0 : _f1;
   }
-  constexpr value_type
+  constexpr _Tp
   private_part(int p, std::true_type) {
     return p < (dual_trait_helper<_Tp>::num_elem / 2)
       ? _f0.part(p)
       : _f1.part(p - (dual_trait_helper<_Tp>::num_elem / 2));    
   }
 public:
-  constexpr value_type
+  constexpr _Tp
   part(int p) const {
-    return private_part(p, typename dual_trait_helper<_Tp>::is_nested());
+    return private_part(p, typename dual_trait_helper<dual<_Tp> >::is_nested());
   }
 #else
   inline const _Tp &
