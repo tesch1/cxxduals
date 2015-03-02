@@ -340,7 +340,7 @@ DUALH_DEFINE_BASIC_OP_TEMPLATES(/)
 
 ///
 #if 0
-// fix emacs auto formatting for me
+// fix emacs auto formatting below this point for me
   ;
 #endif
 
@@ -367,6 +367,7 @@ pow(const dual<_Tp> & xx, const _Up & aa)
   temp.rpart() = pow(xx.rpart(), aa);  //Use actual x value, only use tol for derivs
   temp.ipart() = xx.ipart() * deriv;
 #else
+  //return exp(aa * log(xx));
   temp.rpart() = pow(xx.rpart(), aa);
   temp.ipart() = xx.ipart() * aa * pow(xx.rpart(), aa - _Up(1));
 #endif
@@ -379,10 +380,14 @@ pow(const _Tp & aa, const dual<_Tp> & xx)
 {
   using std::pow;
   using std::log;
+#if 1
+  return exp(aa * log(xx));
+#else
   dual<_Tp> temp;
   temp.rpart() = pow(aa, xx.rpart());
   temp.ipart() = xx.ipart() * pow(aa, xx.rpart()) * log(aa);
   return temp;
+#endif
 }
 
 template <typename _Tp>
@@ -391,10 +396,14 @@ pow(const dual<_Tp> & xx, const dual<_Tp> & yy)
 {
   using std::pow;
   using std::log;
+#if 1
+  return exp(yy * log(xx));
+#else
   dual<_Tp> temp;
   temp.rpart() = pow(xx.rpart(), yy.rpart());
   temp.ipart() = xx.ipart() * pow(xx.rpart(), yy.rpart()) * log(xx.rpart());
   return temp;
+#endif
 }
 #endif
 //template <typename eeT> dual<eeT> pow(dual<eeT> x, dual<eeT> a) {
@@ -579,6 +588,7 @@ min(eeT x1, dual<eeT> x2)
   return x1 <= x2.rpart() ? dual<eeT>(x1) : x2;
 }
 
+#if 0
 template <typename eeT>
 dual<eeT>
 conj(const dual<eeT> & x)
@@ -586,6 +596,7 @@ conj(const dual<eeT> & x)
   // todo - dont just make things up
   return dual<eeT>(conj(x.rpart()), conj(x.ipart()));
 }
+#endif
 
 template <typename eeT>
 dual<eeT>
@@ -607,8 +618,9 @@ template <typename eeT>
 inline dual<eeT>
 abs(const dual<eeT> & x)
 {
+  using std::abs;
   // wrong for complex
-  return std::abs(x.rpart()) == x.rpart() ? x : -x;
+  return abs(x.rpart()) == x.rpart() ? x : -x;
 }
 
 template <typename eeT>

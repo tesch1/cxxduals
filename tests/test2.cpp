@@ -55,9 +55,21 @@ struct pike_f1 {
   TYPE
   ddf(const TYPE & x) {
     typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
-    return (exp(x) * (fp_t(130.) - fp_t(12.) * cos(fp_t(2.)*x) + fp_t(30.)*cos(fp_t(4.)*x) + fp_t(12.)*cos(fp_t(6.)*x)
+    return (exp(x) * (fp_t(130.) - fp_t(12.) * cos(fp_t(2.)*x) + fp_t(30.)*cos(fp_t(4.)*x) 
+                      + fp_t(12.)*cos(fp_t(6.)*x)
                       - fp_t(111.)*sin(fp_t(2.)*x) + fp_t(48.)*sin(fp_t(4.)*x) + fp_t(5.)*sin(fp_t(6.)*x))) /
       (fp_t(64.) * pow(pow(sin(x), fp_t(3.)) + pow(cos(x), fp_t(3.)), fp_t(5./2.)));
+#if 0
+    // same thing, different error
+    return fp_t(1.0/4.0) * exp(x) * (fp_t(-24.0) * cos(x) * sin(x) 
+                                     - fp_t(3.0) * pow(cos(x),fp_t(2.0))
+                                     - fp_t(21.0) * pow(cos(x),fp_t(4.0))
+                                     + fp_t(24.0) * pow(cos(x),fp_t(6.0))
+                                     + fp_t(14.0) * pow(cos(x),fp_t(3.0)) * sin(x)
+                                     + fp_t(10.0) * pow(cos(x),fp_t(5.0)) * sin(x)
+                                     + fp_t(10.0))
+      / pow(sin(x) + pow(cos(x),fp_t(3.0)) - pow(cos(x),fp_t(2.0)) * sin(x), fp_t(5.0/2.0));
+#endif
   }
 
   // analytic third derivative
@@ -65,7 +77,7 @@ struct pike_f1 {
   TYPE
   dddf(const TYPE & x) {
     typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
-    return TYPE(0);
+    return exp(x)*fp_t(1.0)/pow(sin(x)+pow(cos(x),fp_t(3.0))-pow(cos(x),fp_t(2.0))*sin(x),fp_t(7.0)/fp_t(2.0))*(cos(x)*-fp_t(186.0)+sin(x)*fp_t(68.0)+pow(cos(x),fp_t(3.0))*fp_t(171.0)-pow(cos(x),fp_t(5.0))*fp_t(42.0)-pow(cos(x),fp_t(7.0))*fp_t(33.0)+pow(cos(x),fp_t(9.0))*fp_t(110.0)+pow(cos(x),fp_t(2.0))*sin(x)*fp_t(256.0)-pow(cos(x),fp_t(4.0))*sin(x)*fp_t(495.0)+pow(cos(x),fp_t(6.0))*sin(x)*fp_t(139.0)+pow(cos(x),fp_t(8.0))*sin(x)*fp_t(74.0))*(fp_t(1.0)/fp_t(8.0));
   }
 
 };
@@ -94,18 +106,26 @@ fike_example1()
     HDUALTYPE dfpp = f1.f(HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,1)));
 
     // compare analytic and dual results
-    std::cout << "f=" << f << " fp=" << fp << " fpp=" << fpp << " fppp=" << fppp << "\n";
     MY_EXPECT_NEAR(f, rpart(dfp)) << " x=" << x;
     MY_EXPECT_NEAR(f, rpart(rpart(dfpp)));
     MY_EXPECT_NEAR(fp, ipart(dfp)) << " x=" << x;
     MY_EXPECT_NEAR(fp, rpart(ddfp)) << " x=" << x;
+    MY_EXPECT_NEAR(fp, rpart(ipart(dfpp))) << " x=" << x;
+    MY_EXPECT_NEAR(fp, ipart(rpart(dfpp))) << " x=" << x;
     MY_EXPECT_NEAR(fpp, ipart(ddfp)) << " x=" << x;
-    MY_EXPECT_NEAR(fpp, ipart(rpart(dfpp))) << " ::" << dfpp;
-    //MY_EXPECT_NEAR(fppp, ipart(ipart(dfpp)));
+    UNOTYPE DDf = ipart(ipart(dfpp)) - ipart(rpart(dfpp));
+    MY_EXPECT_NEAR(fpp, DDf) << " ::" << DDf;
+#if 0
+    std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
+    std::cout << "hd=" << dfpp << "\n";
+    std::cout << "hx=" << ipart(ipart(dfpp)) - ipart(rpart(dfpp)) << "\n";
+    std::cout << "hx=" << ipart(ipart(dfpp)) - ipart(rpart(dfpp)) << "\n";
+    std::cout << "ij=" << ipart(rpart(dfpp)) * ipart(ipart(dfpp)) << "\n";
+    std::cout << "ij=" << rpart(dfpp) * ipart(dfpp) << "\n";
+#endif
   }
 }
 
-//TEST(fike1,double) { fike_example1<double>(); }
 TEST(fike1,complexf) { fike_example1<complexf>(); }
 TEST(fike1,complexd) { fike_example1<complexd>(); }
 TEST(fike1,complexld) { fike_example1<complexld>(); }

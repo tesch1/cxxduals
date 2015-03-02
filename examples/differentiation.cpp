@@ -37,4 +37,13 @@ int main(int argc, char **argv)
   std::cout << "x=" << x << "\n";
   std::cout << "x*x=" << x*x << "\n";
   std::cout << "ipart(x*x) = d(x*x)/dx = " << ipart(x*x) << "\n";
+
+  typedef dual<double> DUALTYPE;
+  typedef dual<dual<double> > HDUALTYPE;
+  HDUALTYPE a(DUALTYPE(1,2),DUALTYPE(3,4));
+  HDUALTYPE b(DUALTYPE(11,12),DUALTYPE(13,14));
+  std::cout << a << "\n"
+            << b << "\n"
+            << a+b << "\n"
+            << a*b << "\n";
 }
