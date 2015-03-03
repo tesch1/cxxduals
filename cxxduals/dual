@@ -70,8 +70,19 @@ typedef hyperdual<std::complex<long double> > hyperdualcld;
 
 // this is allowed by C++03 17.4.3.1/1, and C++11 18.3.2.3/1
 namespace std {
-//template<> class numeric_limits<cxxduals::duald> {};
-//template<> class numeric_limits<cxxduals::dualld> {};
+template<typename _Tp>
+struct numeric_limits<cxxduals::dual<_Tp> > : public numeric_limits<_Tp> {
+  typedef cxxduals::dual<_Tp> T;
+  static CXXDUALS_CONSTEXPR bool is_specialized = true;
+  static CXXDUALS_CONSTEXPR T min()     { return T(numeric_limits<_Tp>::min()); }
+  static CXXDUALS_CONSTEXPR T max()     { return T(numeric_limits<_Tp>::max()); }
+  static CXXDUALS_CONSTEXPR T epsilon() { return T(numeric_limits<_Tp>::epsilon()); }
+  static CXXDUALS_CONSTEXPR T round_error() { return T(numeric_limits<_Tp>::round_error()); }
+  static CXXDUALS_CONSTEXPR T infinity()    { return T(numeric_limits<_Tp>::infinity()); }
+  static CXXDUALS_CONSTEXPR T quiet_NaN()   { return T(numeric_limits<_Tp>::quiet_NaN()); }
+  static CXXDUALS_CONSTEXPR T signaling_NaN() { return T(numeric_limits<_Tp>::signaling_NaN()); }
+  static CXXDUALS_CONSTEXPR T denorm_min()  { return T(numeric_limits<_Tp>::denorm_min()); }
+};
 // TODO: cv-specializations (C++11 18.3.2.3/2)
 } // std
 namespace cxxduals {
@@ -778,7 +789,9 @@ dual<_Tp>
 conj(const dual<_Tp> & x)
 {
   // todo - dont just make things up
-  return dual<_Tp>(conj(x.rpart()), conj(x.ipart()));
+  using std::conj;
+  return dual<_Tp>(conj(x.rpart()),
+                   conj(x.ipart()));
 }
 #endif
 
@@ -787,7 +800,8 @@ dual<_Tp>
 real(const dual<_Tp> & x)
 {
   // todo - dont just make things up
-  return dual<_Tp>(real(x.rpart()), real(x.ipart()));
+  return dual<_Tp>(real(x.rpart()),
+                   real(x.ipart()));
 }
 
 template <typename _Tp>
@@ -812,6 +826,29 @@ dual<_Tp>
 abs2(const dual<_Tp> & x)
 {
   return x * x;
+}
+
+template <typename _Tp>
+dual<_Tp>
+ceil(const dual<_Tp> & x)
+{
+  using std::ceil;
+  _Tp c = ceil(x.rpart());
+  return dual<_Tp>(c,
+                   c == x.rpart()
+                   ? std::numeric_limits<_Tp>::infinity()
+                   : _Tp(0));
+}
+
+template <typename _Tp>
+dual<_Tp>
+floor(const dual<_Tp> & x)
+{
+  _Tp f = floor(x.rpart());
+  return dual<_Tp>(f,
+                   f == x.rpart()
+                   ? std::numeric_limits<_Tp>::infinity()
+                   : _Tp(0));
 }
 
 /// comparison
