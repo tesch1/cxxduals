@@ -24,5 +24,5 @@ target_link_libraries (test2 gtest)
 
 # individual tests
 add_test (basic test1)
-add_test (basic test2)
+add_test (differentials test2)
 

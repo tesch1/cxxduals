@@ -234,6 +234,12 @@ TEST_TYPEMIX(casting, longdouble, longdouble)
 TYPEMIX6(complexf, casting)
 TYPEMIX6(complexd, casting)
 TYPEMIX6(complexld, casting)
+TYPEMIX6(dualcf, casting)
+TYPEMIX6(dualcd, casting)
+TYPEMIX6(dualcld, casting)
+TYPEMIX6(hyperdualcf, casting)
+TYPEMIX6(hyperdualcd, casting)
+TYPEMIX6(hyperdualcld, casting)
 
 // lhs is dual<real> and dual<complex> - ie, hyperdual
 

@@ -100,7 +100,7 @@ template <typename UNOTYPE>
 void
 fike_example1()
 {
-  int reps = 1;
+  int reps = 10000;
   pike_f1 f1;
   typedef dual<UNOTYPE> DUALTYPE;
   typedef dual<dual<UNOTYPE> > HDUALTYPE;
@@ -109,7 +109,7 @@ fike_example1()
 
   for (int ii = 0; ii < reps; ii++) {
     // pick a random x
-    UNOTYPE x = drand48() * 50;
+    UNOTYPE x = drand48() * 10;
     // calculate f, f' and f'' and f''' analytically
     UNOTYPE f = f1.f(x);
     UNOTYPE fp = f1.df(x);
@@ -135,13 +135,10 @@ fike_example1()
     MY_EXPECT_NEAR(fpp, ipart(ddfp)) << " x=" << x;
     UNOTYPE DDf = ipart(ipart(dfpp)) - x4 * ipart(rpart(dfpp));
     MY_EXPECT_NEAR(fpp, DDf) << " ::" << DDf;
+#if 0
     std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
     std::cout << "hd=" << dfpp << "\n\n";
     std::cout << "td=" << dfppp << "\n";
-#if 0
-    std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
-    std::cout << "hd=" << dfpp << "\n";
-    std::cout << "hx=" << ipart(ipart(dfpp)) - ipart(rpart(dfpp)) << "\n";
     std::cout << "hx=" << ipart(ipart(dfpp)) - ipart(rpart(dfpp)) << "\n";
     std::cout << "ij=" << ipart(rpart(dfpp)) * ipart(ipart(dfpp)) << "\n";
     std::cout << "ij=" << rpart(dfpp) * ipart(dfpp) << "\n";

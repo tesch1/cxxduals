@@ -147,7 +147,6 @@ public:
     int ii = 0;
     for (auto it = ll.begin(); it != ll.end(); it++, ii++)
       part(ii) = *it;
-    std::cout << "initlist: " << ll.size() << " / " << num_elem << "\n";
   }
 
   //CXXDUALS_CONSTEXPR dual(const scalar_type & f0)

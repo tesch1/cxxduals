@@ -33,7 +33,7 @@ using namespace cxxduals;
 template <typename UNOTYPE>
 bool expect_near(const UNOTYPE & A, const UNOTYPE & B, 
                  typename dual_trait_helper<UNOTYPE>::scalar_type PREC 
-                 = 100.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon()
+                 = 2000.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon()
                  )
 {
   using std::abs;
@@ -44,7 +44,7 @@ bool expect_near(const UNOTYPE & A, const UNOTYPE & B,
     return true;
   std::cout << "----------------- FAIL -------------------\n";
   std::cout << "abs(A - B) = " << abs(A - B) << " PREC= " << PREC << " A=" << A << "\n";
-  std::cout << "abs(A - B)/sqrt(A*A + B*B) = " << abs(A - B)/sqrt(A*A + B*B) << " PREC= " << PREC << "\n";
+  std::cout << "abs(A - B)/abs(sqrt(A*A + B*B)) = " << abs(A - B)/abs(sqrt(A*A + B*B)) << " PREC= " << PREC << "\n";
   return false;
 }
 
