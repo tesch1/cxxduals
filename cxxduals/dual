@@ -418,7 +418,7 @@ ipart(const dual<_Tp> & d)
     return d;                                                   \
   }
 #else
-/* the c++11 way - maybe when back porting to older c++ can get rid of result_type tricks */
+/* the c++11 way - maybe when back porting to older c++ can get rid of result_type */
 namespace internal {
 // restrict op types to help template libs (ie Eigen) use dual<>
 template <typename _Tp, typename _Up> struct presult_type {};
@@ -427,7 +427,9 @@ template <typename _Tp> struct presult_type<_Tp, unsigned> {typedef dual<_Tp> ty
 template <typename _Tp> struct presult_type<_Tp, float> {typedef dual<_Tp> type;};
 template <typename _Tp> struct presult_type<_Tp, double> {typedef dual<_Tp> type;};
 template <typename _Tp> struct presult_type<_Tp, long double> {typedef dual<_Tp> type;};
-template <typename _Tp, typename _Up> struct presult_type<_Tp, std::complex<_Up> > {typedef dual<_Tp> type;};
+template <typename _Tp, typename _Up> struct presult_type<_Tp, std::complex<_Up> > {
+  typedef dual<_Tp> type;
+};
 template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>;
 }
 #define DUALH_DEFINE_BASIC_OP_TEMPLATES(OP)                     \
@@ -492,6 +494,7 @@ pow(const dual<_Tp> & xx, const _Up & aa)
 {
   using std::pow;
   using std::abs;
+  using std::exp;
   dual<_Tp> temp;
 #if 0
   _Tp deriv, xval, tol;
@@ -509,7 +512,7 @@ pow(const dual<_Tp> & xx, const _Up & aa)
   temp.rpart() = pow(xx.rpart(), aa);  //Use actual x value, only use tol for derivs
   temp.ipart() = xx.ipart() * deriv;
 #else
-  //return exp(aa * log(xx));
+  //return exp(xx * dual<_Tp>(log(aa)));
   temp.rpart() = pow(xx.rpart(), aa);
   temp.ipart() = xx.ipart() * aa * pow(xx.rpart(), aa - _Up(1));
 #endif
@@ -522,8 +525,9 @@ pow(const _Tp & aa, const dual<_Tp> & xx)
 {
   using std::pow;
   using std::log;
-#if 1
-  return exp(aa * log(xx));
+  using std::exp;
+#if 0
+  return exp(xx * log(aa));
 #else
   dual<_Tp> temp;
   temp.rpart() = pow(aa, xx.rpart());
@@ -536,16 +540,9 @@ template <typename _Tp>
 dual<_Tp>
 pow(const dual<_Tp> & xx, const dual<_Tp> & yy)
 {
-  using std::pow;
   using std::log;
-#if 1
+  using std::exp;
   return exp(yy * log(xx));
-#else
-  dual<_Tp> temp;
-  temp.rpart() = pow(xx.rpart(), yy.rpart());
-  temp.ipart() = xx.ipart() * pow(xx.rpart(), yy.rpart()) * log(xx.rpart());
-  return temp;
-#endif
 }
 #endif
 //template <typename _Tp> dual<_Tp> pow(dual<_Tp> x, dual<_Tp> a) {

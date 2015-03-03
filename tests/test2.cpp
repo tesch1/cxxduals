@@ -100,7 +100,7 @@ template <typename UNOTYPE>
 void
 fike_example1()
 {
-  int reps = 1;
+  int reps = 200;
   pike_f1 f1;
   typedef dual<UNOTYPE> DUALTYPE;
   typedef dual<dual<UNOTYPE> > HDUALTYPE;
@@ -119,11 +119,11 @@ fike_example1()
     DUALTYPE dfp = f1.f(DUALTYPE(x,1));
     DUALTYPE ddfp = f1.df(DUALTYPE(x,1));
     UNOTYPE x4 = 0;
-    HDUALTYPE dfpp = f1.f(HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,x4)));
+    HDUALTYPE dfpp = f1.f(HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,x4))); // x + 1*e1 + 1*e2 + x4*e1e2
     TDUALTYPE dfppp = f1.f(TDUALTYPE(HDUALTYPE(DUALTYPE(x,1),
                                                DUALTYPE(1,0)),
                                      HDUALTYPE(DUALTYPE(1,0),
-                                               DUALTYPE(0,0))));
+                                               DUALTYPE(0,0)))); // x + e1 + e2 + e3
 
     // compare analytic and dual results
     MY_EXPECT_NEAR(f, rpart(dfp)) << " x=" << x;
