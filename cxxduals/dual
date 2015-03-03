@@ -112,7 +112,7 @@ struct dual_trait_helper<dual<_Tp> > : public dual_traits_basic<typename dual<_T
   typedef typename dual_trait_helper<_Tp>::is_dual is_nested;
 };
 
-// dual number class
+/// dual number class
 template <typename _Tp>
 class dual {
 
@@ -127,18 +127,19 @@ public:
   static const int depth = dual_trait_helper<dual<_Tp> >::depth;
   static const int num_elem = dual_trait_helper<dual<_Tp> >::num_elem;
 
-  // Constructors
+  /// Constructors
   CXXDUALS_CONSTEXPR dual()
     : _f0(), _f1() { }
 
   template <typename _Up>
-  CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Up & f1 = _Up())
-    : _f0(f0), _f1(f1) { }
+  CXXDUALS_CONSTEXPR dual(const _Up & f0)
+    : _f0(f0), _f1() { }
 
   template <typename _Up, typename _Vp>
   CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Vp & f1)
     : _f0(f0), _f1(f1) { }
 
+#if __cplusplus >= 201103L
   dual(std::initializer_list<basic_value_type> ll)
     : _f0(), _f1()
   {
@@ -148,9 +149,7 @@ public:
     for (auto it = ll.begin(); it != ll.end(); it++, ii++)
       part(ii) = *it;
   }
-
-  //CXXDUALS_CONSTEXPR dual(const scalar_type & f0)
-  //  : _f0(f0), _f1() { }
+#endif
 
   template<typename _Up>
   explicit CXXDUALS_CONSTEXPR dual(const dual<_Up> & rhs)
@@ -166,12 +165,12 @@ public:
 
 private:
   constexpr basic_value_type
-  private_part(int p, std::false_type) {
+  private_part(int p, std::false_type) const {
     // p had better be either 0 or 1
     return p == 0 ? _f0 : _f1;
   }
   constexpr basic_value_type
-  private_part(int p, std::true_type) {
+  private_part(int p, std::true_type) const {
     return p < (num_elem / 2)
                ? _f0.part(p)
                : _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2));
@@ -222,18 +221,22 @@ public:
 private:
   inline void
   private_part(int p, const basic_value_type & v, std::false_type) {
-    return p == 0 ? _f0 : _f1;
+    if (p == 0)
+      _f0 = v;
+    else
+      _f1 = v;
   }
   inline void
   private_part(int p, const basic_value_type & v, std::true_type) {
-    return p < (num_elem / 2)
-               ? _f0.part(p)
-               : _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2));
+    if (p < (num_elem / 2))
+      _f0.part(p, v);
+    else
+      _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2), v);
   }
 public:
   inline void
   part(int p, const basic_value_type & v) {
-    return private_part(p, v, typename dual_trait_helper<_Tp>::is_dual());
+    private_part(p, v, typename dual_trait_helper<_Tp>::is_dual());
   }
 
   /// Assignment
@@ -896,23 +899,7 @@ operator!=(dual<_Tp> lhs, _Tp rhs)
   return lhs.rpart() != rhs;
 }
 #if 0
-template<typename _Tp, typename _CharT, class _Traits>
-std::basic_ostream<_CharT, _Traits>&
-operator<<(std::basic_ostream<_CharT, _Traits>& os, const dual<_Tp>& rhs)
-{
-  std::basic_ostringstream<_CharT, _Traits> s;
-  s.flags(os.flags());
-  s.imbue(os.getloc());
-  s.precision(os.precision());
-  s << "(";
-  for (int ii = 0; ii < dual_trait_helper<dual<_Tp> >::num_elem; ii++) {
-    if (ii)
-      s << " + e" << ii << "*";
-    s << rhs.part(ii);
-  }
-  s << ")";
-  return os << s.str();
-}
+// TODO: group parts by e-index better
 #else
 template<typename _Tp, typename _CharT, class _Traits>
 std::basic_ostream<_CharT, _Traits>&
