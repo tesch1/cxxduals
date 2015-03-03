@@ -42,10 +42,14 @@ int main(int argc, char **argv)
   typedef dual<dual<double> > HDUALTYPE;
   HDUALTYPE a(DUALTYPE(1,2),DUALTYPE(3,4));
   HDUALTYPE b(DUALTYPE(11,12),DUALTYPE(13,14));
+  hyperdualcd c(DUALTYPE(1,2),DUALTYPE(3,4));
+  hyperdualcd d{1,2,3,{4,4}};
   std::cout << a << "\n"
             << b << "\n"
             << a+b << "\n"
-            << a*b << "\n";
+            << a*b << "\n"
+            << c << "\n"
+            << d << "\n";
 
   std::cout << "double<> depth:" << dual_trait_helper<double>::depth
             << " num_elem: " << dual_trait_helper<double>::num_elem

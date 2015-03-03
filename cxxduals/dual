@@ -31,6 +31,7 @@
 #include <complex>
 #include <limits>
 #include <type_traits>
+#include <initializer_list>
 
 // check if constexpr exists
 #if __cplusplus >= 201103L
@@ -78,29 +79,37 @@ namespace cxxduals {
 #endif // CXXDUALS_NO_TYPEDEFS
 
 // useful type extraction
+template <typename _Tp>
 struct dual_traits_basic {
+  typedef _Tp scalar_type;
+  typedef _Tp value_type;
   static const int depth = 0;
   static const int num_elem = 1;
   typedef std::false_type is_nested;
   typedef std::false_type is_dual;
 };
 template <typename _Tp> struct dual_trait_helper;
-template <> struct dual_trait_helper<float> : public dual_traits_basic { typedef float scalar_type; };
-template <> struct dual_trait_helper<double> : public dual_traits_basic { typedef double scalar_type; };
-template <> struct dual_trait_helper<long double> : public dual_traits_basic {
-  typedef long double scalar_type; };
-template <> struct dual_trait_helper<std::complex<float> > : public dual_traits_basic {
-  typedef float scalar_type; };
-template <> struct dual_trait_helper<std::complex<double> > : public dual_traits_basic {
-  typedef double scalar_type; };
-template <> struct dual_trait_helper<std::complex<long double> > : public dual_traits_basic {
-  typedef long double scalar_type; };
-template <typename _Up> struct dual_trait_helper<dual<_Up> > : public dual_traits_basic {
-  typedef typename dual_trait_helper<_Up>::scalar_type scalar_type;
-  static const int depth = dual_trait_helper<_Up>::depth + 1;
-  static const int num_elem = dual_trait_helper<_Up>::num_elem * 2;
+template <> struct dual_trait_helper<float> : public dual_traits_basic<float> {
+  typedef float scalar_type;
+};
+template <> struct dual_trait_helper<double> : public dual_traits_basic<double> {
+  typedef double scalar_type;
+};
+template <> struct dual_trait_helper<long double> : public dual_traits_basic<long double> {
+  typedef long double scalar_type;
+};
+template <typename _Tp>
+struct dual_trait_helper<std::complex<_Tp> > : public dual_traits_basic<_Tp> {
+  typedef std::complex<_Tp> value_type;
+};
+template <typename _Tp>
+struct dual_trait_helper<dual<_Tp> > : public dual_traits_basic<typename dual<_Tp>::scalar_type> {
+  typedef typename dual_trait_helper<_Tp>::scalar_type scalar_type;
+  typedef typename dual_trait_helper<_Tp>::value_type value_type;
+  static const int depth = dual_trait_helper<_Tp>::depth + 1;
+  static const int num_elem = dual_trait_helper<_Tp>::num_elem * 2;
   typedef std::true_type is_dual;
-  typedef typename dual_trait_helper<_Up>::is_dual is_nested;
+  typedef typename dual_trait_helper<_Tp>::is_dual is_nested;
 };
 
 // dual number class
@@ -113,7 +122,10 @@ private:
 public:
 
   typedef _Tp value_type;
+  typedef typename dual_trait_helper<_Tp>::value_type basic_value_type;
   typedef typename dual_trait_helper<_Tp>::scalar_type scalar_type;
+  static const int depth = dual_trait_helper<dual<_Tp> >::depth;
+  static const int num_elem = dual_trait_helper<dual<_Tp> >::num_elem;
 
   // Constructors
   CXXDUALS_CONSTEXPR dual()
@@ -126,6 +138,17 @@ public:
   template <typename _Up, typename _Vp>
   CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Vp & f1)
     : _f0(f0), _f1(f1) { }
+
+  dual(std::initializer_list<basic_value_type> ll)
+    : _f0(), _f1()
+  {
+    if (ll.size() > num_elem)
+      throw std::exception();
+    int ii = 0;
+    for (auto it = ll.begin(); it != ll.end(); it++, ii++)
+      part(ii) = *it;
+    std::cout << "initlist: " << ll.size() << " / " << num_elem << "\n";
+  }
 
   //CXXDUALS_CONSTEXPR dual(const scalar_type & f0)
   //  : _f0(f0), _f1() { }
@@ -143,21 +166,21 @@ public:
   ipart() const { return _f1; }
 
 private:
-  constexpr _Tp
+  constexpr basic_value_type
   private_part(int p, std::false_type) {
     // p had better be either 0 or 1
     return p == 0 ? _f0 : _f1;
   }
-  constexpr _Tp
+  constexpr basic_value_type
   private_part(int p, std::true_type) {
-    return p < (dual_trait_helper<_Tp>::num_elem / 2)
-      ? _f0.part(p)
-      : _f1.part(p - (dual_trait_helper<_Tp>::num_elem / 2));    
+    return p < (num_elem / 2)
+               ? _f0.part(p)
+               : _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2));
   }
 public:
-  constexpr _Tp
+  constexpr basic_value_type
   part(int p) const {
-    return private_part(p, typename dual_trait_helper<dual<_Tp> >::is_nested());
+    return private_part(p, typename dual_trait_helper<_Tp>::is_dual());
   }
 #else
   inline const _Tp &
@@ -173,12 +196,46 @@ public:
   inline _Tp &
   ipart() { return _f1; }
 
+private:
+  inline basic_value_type &
+  private_part(int p, std::false_type) {
+    return p == 0 ? _f0 : _f1;
+  }
+  inline basic_value_type &
+  private_part(int p, std::true_type) {
+    return p < (num_elem / 2)
+               ? _f0.part(p)
+               : _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2));
+  }
+public:
+  inline basic_value_type &
+  part(int p) {
+    return private_part(p, typename dual_trait_helper<_Tp>::is_dual());
+  }
+
   /// Part assignment
   inline void
   rpart(_Tp f0) { _f0 = f0; }
 
   inline void
   ipart(_Tp f1) { _f1 = f1; }
+
+private:
+  inline void
+  private_part(int p, const basic_value_type & v, std::false_type) {
+    return p == 0 ? _f0 : _f1;
+  }
+  inline void
+  private_part(int p, const basic_value_type & v, std::true_type) {
+    return p < (num_elem / 2)
+               ? _f0.part(p)
+               : _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2));
+  }
+public:
+  inline void
+  part(int p, const basic_value_type & v) {
+    return private_part(p, v, typename dual_trait_helper<_Tp>::is_dual());
+  }
 
   /// Assignment
 #if 0
