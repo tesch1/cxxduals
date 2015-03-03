@@ -325,6 +325,7 @@ public:
   {
     _f0 /= rhs;
     _f1 /= rhs;
+    return *this;
   }
 
   template<typename _Up>
@@ -372,7 +373,7 @@ ipart(const dual<_Tp> & d)
 //@}
 
 // basic ops
-
+#if 0
 #define DUALH_DEFINE_BASIC_OP_TEMPLATES(OP)                     \
   template <typename _Tp>                                       \
   inline dual<_Tp>                                              \
@@ -399,7 +400,7 @@ ipart(const dual<_Tp> & d)
     d OP##= rhs;                                                \
     return d;                                                   \
   }                                                             \
-  /* nesting */                                                 \
+  /* dual nesting */                                            \
   template <typename _Tp>                                       \
   inline dual<_Tp>                                              \
   operator OP(const dual<_Tp> & lhs, const typename _Tp::value_type & rhs) \
@@ -410,12 +411,40 @@ ipart(const dual<_Tp> & d)
   }                                                             \
   template <typename _Tp>                                       \
   inline dual<_Tp>                                              \
-  operator OP(const typename _Tp::value_type lhs, const dual<_Tp> & rhs) \
+  operator OP(const typename _Tp::value_type & lhs, const dual<_Tp> & rhs) \
   {                                                             \
     dual<_Tp> d(lhs);                                           \
     d OP##= rhs;                                                \
     return d;                                                   \
   }
+#else
+#define DUALH_DEFINE_BASIC_OP_TEMPLATES(OP)                     \
+  template <typename _Tp>                                       \
+  inline dual<_Tp>                                              \
+  operator OP (const dual<_Tp> & lhs, const dual<_Tp> & rhs)    \
+  {                                                             \
+    dual<_Tp> d = lhs;                                          \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }                                                             \
+  /* down one */                                                \
+  template <typename _Tp, typename _Up>                         \
+  inline dual<_Tp>                                              \
+  operator OP(const dual<_Tp> & lhs, const _Up & rhs)           \
+  {                                                             \
+    dual<_Tp> d = lhs;                                          \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }                                                             \
+  template <typename _Tp, typename _Up>                         \
+  inline dual<_Tp>                                              \
+  operator OP(const _Up & lhs, const dual<_Tp> & rhs)           \
+  {                                                             \
+    dual<_Tp> d(lhs);                                           \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }
+#endif
 
 //@{
 ///  Addition

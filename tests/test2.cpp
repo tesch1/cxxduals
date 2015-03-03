@@ -114,7 +114,7 @@ fike_example1()
     UNOTYPE f = f1.f(x);
     UNOTYPE fp = f1.df(x);
     UNOTYPE fpp = f1.ddf(x);
-    UNOTYPE fppp = f1.dddf(x);
+    //UNOTYPE fppp = f1.dddf(x); TODO
     // calculate f, f' and f'' and f'' and f''' using duals
     DUALTYPE dfp = f1.f(DUALTYPE(x,1));
     DUALTYPE ddfp = f1.df(DUALTYPE(x,1));
@@ -136,6 +136,8 @@ fike_example1()
     UNOTYPE DDf = ipart(ipart(dfpp)) - x4 * ipart(rpart(dfpp));
     MY_EXPECT_NEAR(fpp, DDf) << " ::" << DDf;
 #if 0
+    UNOTYPE DDDf = dfppp.part(?);
+    MY_EXPECT_NEAR(fppp, DDDf) << " ::" << dfppp;
     std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
     std::cout << "hd=" << dfpp << "\n\n";
     std::cout << "td=" << dfppp << "\n";

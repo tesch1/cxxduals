@@ -175,12 +175,23 @@ void casting()
 {
   dual<TYPE1> a;
   dual<TYPE2> b;
+  const dual<TYPE2> cc(1);
 
   a = dual<TYPE1>{1,2};
   b = 1;
   b = 1.0f;
   b = 1.0;
   b = (TYPE2)1.0;
+  b = cc + 1.0;
+  b = 1.0 + cc;
+  b = cc - 1.0;
+  b = 1.0 - cc;
+  b = cc * 1.0;
+  b = 1.0 * cc;
+  b = cc / 1.0;
+  b = 1.0 / cc;
+  a = cc / 1.0;
+  a = 1.0 / cc;
 
   dual<TYPE1> c(b);
   dual<TYPE1> d = dual<TYPE1>(b);
