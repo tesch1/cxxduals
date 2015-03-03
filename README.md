@@ -30,6 +30,8 @@ Before including the header, some #defines will modify what's done by the header
 #define CXXDUALS_NO_TYPEDEFS // disable typedefs for ```dualf,duald,dualld,dualcf,dualcd,dualcld```
 ```
 
+See the examples in tests/* and examples/*
+
 ## TODO
 - lots more tests
 - define ```dot(dual<complex<> >, dual<complex<> >)``` and ```norm(dual<complex<> >)```

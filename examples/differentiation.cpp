@@ -28,6 +28,37 @@
 
 using namespace cxxduals;
 
+template <int POW>
+struct F1 {
+  // function
+  template <typename TYPE>
+  TYPE
+  f(const TYPE & x) {
+    return pow(x, POW);
+  }
+
+  // analytic derivative
+  template <typename TYPE>
+  TYPE
+  df(const TYPE & x) {
+    return POW * pow(x, POW-1);
+  }
+
+  // analytic second derivative
+  template <typename TYPE>
+  TYPE
+  ddf(const TYPE & x) {
+    return POW * (POW-1) * pow(x, POW-2);
+  }
+
+  // analytic third derivative
+  template <typename TYPE>
+  TYPE
+  dddf(const TYPE & x) {
+    return POW * (POW-1) * (POW-2) * pow(x, POW-3);
+  }
+};
+
 int main(int argc, char **argv)
 {
   duald x;
@@ -38,8 +69,10 @@ int main(int argc, char **argv)
   std::cout << "x*x=" << x*x << "\n";
   std::cout << "ipart(x*x) = d(x*x)/dx = " << ipart(x*x) << "\n";
 
+  typedef double UNOTYPE;
   typedef dual<double> DUALTYPE;
   typedef dual<dual<double> > HDUALTYPE;
+  typedef dual<dual<dual<UNOTYPE> > > TDUALTYPE;
   HDUALTYPE a(DUALTYPE(1,2),DUALTYPE(3,4));
   HDUALTYPE b(DUALTYPE(11,12),DUALTYPE(13,14));
   hyperdualcd c(DUALTYPE(1,2),DUALTYPE(3,4));
@@ -63,4 +96,36 @@ int main(int argc, char **argv)
             << " num_elem: " << dual_trait_helper<HDUALTYPE>::num_elem
             << " is_nested: " << dual_trait_helper<HDUALTYPE>::is_nested::value
             << "\n";
+
+  {
+    // differentiate
+    //UNOTYPE x = drand48() * 10;
+    F1<3> f1;
+    UNOTYPE x = 2;
+    // calculate f, f' and f'' and f''' analytically
+    UNOTYPE f = f1.f(x);
+    UNOTYPE fp = f1.df(x);
+    UNOTYPE fpp = f1.ddf(x);
+    UNOTYPE fppp = f1.dddf(x); //TODO
+    // calculate f, f' and f'' and f'' and f''' using duals
+    DUALTYPE dfp = f1.f(DUALTYPE(x,1));
+    DUALTYPE ddfp = f1.df(DUALTYPE(x,1));
+    UNOTYPE x4 = 0;
+    HDUALTYPE dfpp = f1.f(HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,x4)));
+    TDUALTYPE dfppp = f1.f(TDUALTYPE(HDUALTYPE(DUALTYPE(x,1),
+                                               DUALTYPE(1,0)),
+                                     HDUALTYPE(DUALTYPE(1,0),
+                                               DUALTYPE(0,0))));
+    std::cout << "HD=" << HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,x4)) << "\n";
+    std::cout << "TD=" << TDUALTYPE(HDUALTYPE(DUALTYPE(x,1),
+                                               DUALTYPE(1,0)),
+                                     HDUALTYPE(DUALTYPE(1,0),
+                                               DUALTYPE(0,0))) << "\n";
+    std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
+    std::cout << "dfp=" << dfp << "\n";
+    std::cout << "ddfp=" << ddfp << "\n";
+    std::cout << "dfpp=" << dfpp << "\n";
+    std::cout << "dfppp=" << dfppp << "\n";
+  }
+  return 0;
 }

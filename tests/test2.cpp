@@ -100,7 +100,7 @@ template <typename UNOTYPE>
 void
 fike_example1()
 {
-  int reps = 10000;
+  int reps = 1;
   pike_f1 f1;
   typedef dual<UNOTYPE> DUALTYPE;
   typedef dual<dual<UNOTYPE> > HDUALTYPE;
@@ -114,16 +114,16 @@ fike_example1()
     UNOTYPE f = f1.f(x);
     UNOTYPE fp = f1.df(x);
     UNOTYPE fpp = f1.ddf(x);
-    //UNOTYPE fppp = f1.dddf(x); TODO
+    UNOTYPE fppp = f1.dddf(x); //TODO
     // calculate f, f' and f'' and f'' and f''' using duals
     DUALTYPE dfp = f1.f(DUALTYPE(x,1));
     DUALTYPE ddfp = f1.df(DUALTYPE(x,1));
     UNOTYPE x4 = 0;
     HDUALTYPE dfpp = f1.f(HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,x4)));
     TDUALTYPE dfppp = f1.f(TDUALTYPE(HDUALTYPE(DUALTYPE(x,1),
-                                               DUALTYPE(1,1)),
-                                     HDUALTYPE(DUALTYPE(1,1),
-                                               DUALTYPE(1,x4))));
+                                               DUALTYPE(1,0)),
+                                     HDUALTYPE(DUALTYPE(1,0),
+                                               DUALTYPE(0,0))));
 
     // compare analytic and dual results
     MY_EXPECT_NEAR(f, rpart(dfp)) << " x=" << x;
@@ -135,9 +135,9 @@ fike_example1()
     MY_EXPECT_NEAR(fpp, ipart(ddfp)) << " x=" << x;
     UNOTYPE DDf = ipart(ipart(dfpp)) - x4 * ipart(rpart(dfpp));
     MY_EXPECT_NEAR(fpp, DDf) << " ::" << DDf;
-#if 0
-    UNOTYPE DDDf = dfppp.part(?);
+    UNOTYPE DDDf = dfppp.part(8);
     MY_EXPECT_NEAR(fppp, DDDf) << " ::" << dfppp;
+#if 0
     std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
     std::cout << "hd=" << dfpp << "\n\n";
     std::cout << "td=" << dfppp << "\n";
