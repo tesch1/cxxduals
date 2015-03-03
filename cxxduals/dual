@@ -425,13 +425,32 @@ ipart(const dual<_Tp> & d)
 namespace internal {
 // restrict op types to help template libs (ie Eigen) use dual<>
 template <typename _Tp, typename _Up> struct presult_type {};
-template <typename _Tp> struct presult_type<_Tp, int> {typedef dual<_Tp> type;};
-template <typename _Tp> struct presult_type<_Tp, unsigned> {typedef dual<_Tp> type;};
-template <typename _Tp> struct presult_type<_Tp, float> {typedef dual<_Tp> type;};
-template <typename _Tp> struct presult_type<_Tp, double> {typedef dual<_Tp> type;};
-template <typename _Tp> struct presult_type<_Tp, long double> {typedef dual<_Tp> type;};
+template <typename _Tp> struct presult_type<_Tp, int> {
+  typedef dual<_Tp> dual_type;  // for operations that assign to a dual
+  typedef bool comp_type;       // for operations that compare w a dual
+  typedef unsigned res_type;    // for operations that take a value from a dual
+};
+template <typename _Tp> struct presult_type<_Tp, unsigned> {
+  typedef dual<_Tp> dual_type;
+  typedef bool comp_type;
+  typedef unsigned res_type;
+};
+template <typename _Tp> struct presult_type<_Tp, float> {
+  typedef dual<_Tp> dual_type;
+  typedef bool comp_type;
+};
+template <typename _Tp> struct presult_type<_Tp, double> {
+  typedef dual<_Tp> dual_type;
+  typedef bool comp_type;
+};
+template <typename _Tp> struct presult_type<_Tp, long double> {
+  typedef dual<_Tp> dual_type;
+  typedef bool comp_type;
+  typedef long double res_type;
+};
 template <typename _Tp, typename _Up> struct presult_type<_Tp, std::complex<_Up> > {
-  typedef dual<_Tp> type;
+  typedef dual<_Tp> dual_type;
+  typedef bool comp_type;
 };
 template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>;
 }
@@ -446,7 +465,7 @@ template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>
   }                                                             \
   /* down one */                                                \
   template <typename _Tp, typename _Up>                         \
-  inline typename internal::result_type<_Tp,_Up>::type          \
+  inline typename internal::result_type<_Tp,_Up>::dual_type     \
   operator OP(const dual<_Tp> & lhs, const _Up & rhs)           \
   {                                                             \
     dual<_Tp> d = lhs;                                          \
@@ -454,7 +473,7 @@ template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>
     return d;                                                   \
   }                                                             \
   template <typename _Tp, typename _Up>                         \
-  inline typename internal::result_type<_Tp,_Up>::type          \
+  inline typename internal::result_type<_Tp,_Up>::dual_type     \
   operator OP(const _Up & lhs, const dual<_Tp> & rhs)           \
   {                                                             \
     dual<_Tp> d(lhs);                                           \
@@ -484,6 +503,29 @@ DUALH_DEFINE_BASIC_OP_TEMPLATES(/)
 //@}
 
 #undef DUALH_DEFINE_BASIC_OP_TEMPLATES
+
+///
+#if 0
+// fix emacs auto formatting below this point for me
+  ;
+#endif
+
+// for += -= *= /= on non-dual numbers, only on certain types!
+#define DUALH_DEFINE_NONDUAL_OP_TEMPLATE(OP)                    \
+  template <typename _Tp, typename _Up>                         \
+  inline typename internal::result_type<_Tp,_Up>::res_type      \
+  operator OP (_Up & lhs, const dual<_Tp> & rhs)                \
+  {                                                             \
+    lhs += rhs.rpart();                                         \
+    return lhs;                                                 \
+  }
+
+DUALH_DEFINE_NONDUAL_OP_TEMPLATE(+=)
+DUALH_DEFINE_NONDUAL_OP_TEMPLATE(-=)
+DUALH_DEFINE_NONDUAL_OP_TEMPLATE(*=)
+DUALH_DEFINE_NONDUAL_OP_TEMPLATE(/=)
+
+#undef DUALH_DEFINE_NONDUAL_OP_TEMPLATE
 
 ///
 #if 0
@@ -829,9 +871,9 @@ operator<(_Tp lhs, dual<_Tp> rhs)
   return lhs < rhs.rpart();
 }
 
-template <typename _Tp>
-inline bool
-operator<(dual<_Tp> lhs, _Tp rhs)
+template <typename _Tp, typename _Up>
+inline typename internal::result_type<_Tp,_Up>::comp_type
+operator<(dual<_Tp> lhs, _Up rhs)
 {
   return lhs.rpart() < rhs;
 }
