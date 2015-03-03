@@ -418,6 +418,16 @@ ipart(const dual<_Tp> & d)
     return d;                                                   \
   }
 #else
+/* the c++11 way - maybe when back porting to older c++ can get rid of result_type tricks */
+namespace internal {
+// restrict op types to help template libs (ie Eigen) use dual<>
+template <typename _Tp, typename _Up> struct presult_type {};
+template <typename _Tp> struct presult_type<_Tp, float> {typedef dual<_Tp> type;};
+template <typename _Tp> struct presult_type<_Tp, double> {typedef dual<_Tp> type;};
+template <typename _Tp> struct presult_type<_Tp, long double> {typedef dual<_Tp> type;};
+template <typename _Tp, typename _Up> struct presult_type<_Tp, std::complex<_Up> > {typedef dual<_Tp> type;};
+template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>;
+}
 #define DUALH_DEFINE_BASIC_OP_TEMPLATES(OP)                     \
   template <typename _Tp>                                       \
   inline dual<_Tp>                                              \
@@ -429,7 +439,7 @@ ipart(const dual<_Tp> & d)
   }                                                             \
   /* down one */                                                \
   template <typename _Tp, typename _Up>                         \
-  inline dual<_Tp>                                              \
+  inline typename internal::result_type<_Tp,_Up>::type          \
   operator OP(const dual<_Tp> & lhs, const _Up & rhs)           \
   {                                                             \
     dual<_Tp> d = lhs;                                          \
@@ -437,7 +447,7 @@ ipart(const dual<_Tp> & d)
     return d;                                                   \
   }                                                             \
   template <typename _Tp, typename _Up>                         \
-  inline dual<_Tp>                                              \
+  inline typename internal::result_type<_Tp,_Up>::type          \
   operator OP(const _Up & lhs, const dual<_Tp> & rhs)           \
   {                                                             \
     dual<_Tp> d(lhs);                                           \
