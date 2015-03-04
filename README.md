@@ -1,3 +1,8 @@
+# *** THIS LIBRARY IS CURRENTLY UNDER DEVELOPMENT ***
+Please do use it and report/fix any problems you find!
+
+Once a good amount of test coverage is in place there will be numbered releases.
+
 ## cxxduals
 Template header library for nesting [dual numbers](http://en.wikipedia.org/wiki/Dual_number) in c++, akin to complex numbers, but &epsilon; is nilpotent.  Nesting provides hyperdual numbers, and hyperhyperdual numbers, etc...
 

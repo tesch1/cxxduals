@@ -23,6 +23,16 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
+// Version 0.0.0
+//
+// Thanks to Jeff Fike for publishing the dual original code upon which this
+// file is based.
+//
+// The cxxdual package is available on github, bug reports and feature
+// submissions welcome!
+//
+//  https://github.com/tesch1/cxxduals
+//
 #ifndef LIB_CXXDUALX
 #define LIB_CXXDUALS 1
 
@@ -852,131 +862,39 @@ floor(const dual<_Tp> & x)
 }
 
 /// comparison
-template <typename _Tp>
-inline bool
-operator>(dual<_Tp> lhs, dual<_Tp> rhs)
-{
-  return lhs.rpart() > rhs.rpart();
-}
+#define DUALH_COMPARISON_OP(OP)                                 \
+  template <typename _Tp, typename _Up>                         \
+  inline bool                                                   \
+  operator OP (const dual<_Tp> & lhs, const dual<_Up> & rhs)    \
+  {                                                             \
+    return lhs.rpart() OP rhs.rpart();                          \
+  }                                                             \
+  template <typename _Tp, typename _Up>                         \
+  inline typename internal::result_type<_Tp,_Up>::comp_type     \
+  operator OP (const dual<_Tp> & lhs, const _Up & rhs)          \
+  {                                                             \
+    return lhs.rpart() OP rhs;                                  \
+  }                                                             \
+  template <typename _Tp, typename _Up>                         \
+  inline typename internal::result_type<_Tp,_Up>::comp_type     \
+  operator OP (const _Up & lhs, const dual<_Tp> & rhs)          \
+  {                                                             \
+    return lhs OP rhs.rpart();                                  \
+  }
 
-template <typename _Tp>
-inline bool
-operator>(_Tp lhs, dual<_Tp> rhs)
-{
-  return lhs > rhs.rpart();
-}
+DUALH_COMPARISON_OP(>)
+DUALH_COMPARISON_OP(<)
+DUALH_COMPARISON_OP(==)
+DUALH_COMPARISON_OP(>=)
+DUALH_COMPARISON_OP(<=)
+DUALH_COMPARISON_OP(!=)
 
-template <typename _Tp>
-inline bool
-operator>(dual<_Tp> lhs, _Tp rhs)
-{
-  return lhs.rpart() > rhs;
-}
+#undef DUALH_COMPARISON_OP
+#if 0
+// fix emacs auto formatting below this point for me
+  ;
+#endif
 
-template <typename _Tp>
-inline bool
-operator>=(dual<_Tp> lhs, dual<_Tp> rhs)
-{
-  return lhs.rpart() >= rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator>=(_Tp lhs, dual<_Tp> rhs)
-{
-  return lhs >= rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator>=(dual<_Tp> lhs, _Tp rhs)
-{
-  return lhs.rpart() >= rhs;
-}
-
-template <typename _Tp>
-inline bool
-operator<(dual<_Tp> lhs, dual<_Tp> rhs)
-{
-  return lhs.rpart() < rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator<(_Tp lhs, dual<_Tp> rhs)
-{
-  return lhs < rhs.rpart();
-}
-
-template <typename _Tp, typename _Up>
-inline typename internal::result_type<_Tp,_Up>::comp_type
-operator<(dual<_Tp> lhs, _Up rhs)
-{
-  return lhs.rpart() < rhs;
-}
-
-template <typename _Tp>
-inline bool
-operator<=(dual<_Tp> lhs, dual<_Tp> rhs)
-{
-  return lhs.rpart() <= rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator<=(_Tp lhs, dual<_Tp> rhs)
-{
-  return lhs <= rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator<=(dual<_Tp> lhs, _Tp rhs)
-{
-  return lhs.rpart() <= rhs;
-}
-
-template <typename _Tp>
-inline bool
-operator==(dual<_Tp> lhs, dual<_Tp> rhs)
-{
-  return lhs.rpart() == rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator==(_Tp lhs, dual<_Tp> rhs)
-{
-  return lhs == rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator==(dual<_Tp> lhs, _Tp rhs)
-{
-  return lhs.rpart() == rhs;
-}
-
-template <typename _Tp>
-inline bool
-operator!=(dual<_Tp> lhs, dual<_Tp> rhs)
-{
-  return lhs.rpart() != rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator!=(_Tp lhs, dual<_Tp> rhs)
-{
-  return lhs != rhs.rpart();
-}
-
-template <typename _Tp>
-inline bool
-operator!=(dual<_Tp> lhs, _Tp rhs)
-{
-  return lhs.rpart() != rhs;
-}
 #if 0
 // TODO: group parts by e-index better
 #else
