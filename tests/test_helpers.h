@@ -51,7 +51,7 @@ bool expect_near(const UNOTYPE & A, const UNOTYPE & B,
 template <typename UNOTYPE>
 bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
 {
-  return expect_near(A.rpart(), B.rpart()) && expect_near(A.ipart(), B.ipart());
+  return expect_near(A.rpart(), B.rpart()) && expect_near(A.epart(), B.epart());
 }
 
 #define MY_EXPECT_NEAR(A,B) \
