@@ -390,6 +390,13 @@ rpart(const dual<_Tp> & d)
 
 template <typename _Tp>
 inline _Tp
+rpart(const _Tp & d)
+{
+  return d;
+}
+
+template <typename _Tp>
+inline _Tp
 ipart(const dual<_Tp> & d)
 {
   return d.ipart();
@@ -636,7 +643,7 @@ log(dual<_Tp> x)
 }
 
 template <typename _Tp>
-dual<_Tp>
+inline dual<_Tp>
 sin(dual<_Tp> x)
 {
   using std::sin;
@@ -651,7 +658,7 @@ sin(dual<_Tp> x)
 }
 
 template <typename _Tp>
-dual<_Tp>
+inline dual<_Tp>
 cos(dual<_Tp> x)
 {
   using std::sin;
@@ -666,7 +673,7 @@ cos(dual<_Tp> x)
 }
 
 template <typename _Tp>
-dual<_Tp>
+inline dual<_Tp>
 tan(dual<_Tp> x)
 {
   dual<_Tp> temp;
