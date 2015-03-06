@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
   std::cout << "x=" << x << "\n";
   std::cout << "x*x=" << x*x << "\n";
-  std::cout << "ipart(x*x) = d(x*x)/dx = " << ipart(x*x) << "\n";
+  std::cout << "epart(x*x) = d(x*x)/dx = " << epart(x*x) << "\n";
 
   typedef double UNOTYPE;
   typedef dual<double> DUALTYPE;
@@ -121,7 +121,8 @@ int main(int argc, char **argv)
                                                DUALTYPE(1,0)),
                                      HDUALTYPE(DUALTYPE(1,0),
                                                DUALTYPE(0,0))) << "\n";
-    std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
+    std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp
+              << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
     std::cout << "dfp=" << dfp << "\n";
     std::cout << "ddfp=" << ddfp << "\n";
     std::cout << "dfpp=" << dfpp << "\n";

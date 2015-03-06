@@ -174,7 +174,7 @@ public:
 
   template<typename _Up>
   explicit CXXDUALS_CONSTEXPR dual(const dual<_Up> & rhs)
-    : _f0(rhs.rpart()), _f1(rhs.ipart()) { }
+    : _f0(rhs.rpart()), _f1(rhs.epart()) { }
 
   /// Part extraction
 #if __cplusplus >= 201103L
@@ -182,7 +182,7 @@ public:
   rpart() const { return _f0; }
 
   constexpr _Tp 
-  ipart() const { return _f1; }
+  epart() const { return _f1; }
 
 private:
   constexpr basic_value_type
@@ -206,14 +206,14 @@ public:
   rpart() const { return _f0; }
 
   inline const _Tp &
-  ipart() const { return _f1; }
+  epart() const { return _f1; }
 #endif
 
   inline _Tp &
   rpart() { return _f0; }
 
   inline _Tp &
-  ipart() { return _f1; }
+  epart() { return _f1; }
 
 private:
   inline basic_value_type &
@@ -237,7 +237,7 @@ public:
   rpart(_Tp f0) { _f0 = f0; }
 
   inline void
-  ipart(_Tp f1) { _f1 = f1; }
+  epart(_Tp f1) { _f1 = f1; }
 
 private:
   inline void
@@ -270,7 +270,7 @@ public:
 
   template<typename _Up>
   inline dual<_Tp> &
-  operator=(const dual<_Up> & rhs) { _f0 = rhs.rpart(); _f1 = rhs.ipart(); return *this; }
+  operator=(const dual<_Up> & rhs) { _f0 = rhs.rpart(); _f1 = rhs.epart(); return *this; }
 
   // Operations
 
@@ -298,7 +298,7 @@ public:
   operator+=(const dual<_Up> & rhs)
   {
     _f0 += rhs.rpart();
-    _f1 += rhs.ipart();
+    _f1 += rhs.epart();
     return *this;
   }
 
@@ -315,7 +315,7 @@ public:
   operator-=(const dual<_Up> & rhs)
   {
     _f0 -= rhs.rpart();
-    _f1 -= rhs.ipart();
+    _f1 -= rhs.epart();
     return *this;
   }
 
@@ -337,7 +337,7 @@ public:
     tf0 = _f0;
     tf1 = _f1;
     rf0 = rhs.rpart();
-    rf1 = rhs.ipart();
+    rf1 = rhs.epart();
     _f0 = tf0 * rf0;
     _f1 = tf0 * rf1 + tf1 * rf0;
     return *this;
@@ -366,12 +366,12 @@ public:
     deriv = higher_t(-1) * std::pow(higher_t(rhs.rpart()), higher_t(-2));
     dual<higher_t> inv;
     inv.rpart() = higher_t(1) / rhs.rpart();
-    inv.ipart() = rhs.ipart() * deriv;
+    inv.epart() = rhs.epart() * deriv;
     *this *= inv;
 #else
     dual<higher_t> tmp;
     tmp.rpart() = _f0 / rhs.rpart();
-    tmp.ipart() = (_f1 * rhs.rpart() - _f0 * rhs.ipart()) / (rhs.rpart() * rhs.rpart());
+    tmp.epart() = (_f1 * rhs.rpart() - _f0 * rhs.epart()) / (rhs.rpart() * rhs.rpart());
     *this = tmp;
 #endif
     return *this;
@@ -397,9 +397,9 @@ rpart(const _Tp & d)
 
 template <typename _Tp>
 inline _Tp
-ipart(const dual<_Tp> & d)
+epart(const dual<_Tp> & d)
 {
-  return d.ipart();
+  return d.epart();
 }
 //@}
 
@@ -583,11 +583,11 @@ pow(const dual<_Tp> & xx, const _Up & aa)
   }
   deriv = aa * pow(xval, (aa - _Tp(1.0)));
   temp.rpart() = pow(xx.rpart(), aa);  //Use actual x value, only use tol for derivs
-  temp.ipart() = xx.ipart() * deriv;
+  temp.epart() = xx.epart() * deriv;
 #else
   //return exp(xx * dual<_Tp>(log(aa)));
   temp.rpart() = pow(xx.rpart(), aa);
-  temp.ipart() = xx.ipart() * aa * pow(xx.rpart(), aa - _Up(1));
+  temp.epart() = xx.epart() * aa * pow(xx.rpart(), aa - _Up(1));
 #endif
   return temp;
 }
@@ -604,7 +604,7 @@ pow(const _Tp & aa, const dual<_Tp> & xx)
 #else
   dual<_Tp> temp;
   temp.rpart() = pow(aa, xx.rpart());
-  temp.ipart() = xx.ipart() * pow(aa, xx.rpart()) * log(aa);
+  temp.epart() = xx.epart() * pow(aa, xx.rpart()) * log(aa);
   return temp;
 #endif
 }
@@ -629,7 +629,7 @@ exp(const dual<_Tp> & x)
   using std::exp;
   _Tp deriv;
   deriv = exp(x.rpart());
-  return dual<_Tp>(deriv, deriv * x.ipart());
+  return dual<_Tp>(deriv, deriv * x.epart());
 }
 
 template <typename _Tp>
@@ -638,7 +638,7 @@ log(dual<_Tp> x)
 {
   using std::log;
   _Tp deriv1;
-  deriv1 = x.ipart() / x.rpart();
+  deriv1 = x.epart() / x.rpart();
   return dual<_Tp>(log(x.rpart()), deriv1);
 }
 
@@ -653,7 +653,7 @@ sin(dual<_Tp> x)
   funval = sin(x.rpart());
   deriv = cos(x.rpart());
   temp.rpart() = funval;
-  temp.ipart() = deriv * x.ipart();
+  temp.epart() = deriv * x.epart();
   return temp;
 }
 
@@ -668,7 +668,7 @@ cos(dual<_Tp> x)
   funval = cos(x.rpart());
   deriv = -sin(x.rpart());
   temp.rpart() = funval;
-  temp.ipart() = deriv * x.ipart();
+  temp.epart() = deriv * x.epart();
   return temp;
 }
 
@@ -681,7 +681,7 @@ tan(dual<_Tp> x)
   funval = tan(x.rpart());
   deriv  = funval*funval + 1.0;
   temp.rpart() = funval;
-  temp.ipart() = deriv*x.ipart();
+  temp.epart() = deriv*x.epart();
   return temp;
 }
 
@@ -697,7 +697,7 @@ asin(dual<_Tp> x)
   deriv1 = 1.0-x.rpart()*x.rpart();
   deriv = 1.0/sqrt(deriv1);
   temp.rpart() = funval;
-  temp.ipart() = deriv*x.ipart();
+  temp.epart() = deriv*x.epart();
   return temp;
 }
 
@@ -714,7 +714,7 @@ acos(dual<_Tp> x)
   deriv1 = 1.0 - x.rpart() * x.rpart();
   deriv = 1.0 / sqrt(deriv1);
   temp.rpart() = funval;
-  temp.ipart() = deriv*x.ipart();
+  temp.epart() = deriv*x.epart();
   return temp;
 }
 #endif
@@ -730,7 +730,7 @@ atan(dual<_Tp> x)
   deriv1 = 1.0 + x.rpart() * x.rpart();
   deriv = 1.0 / deriv1;
   temp.rpart() = funval;
-  temp.ipart() = deriv * x.ipart();
+  temp.epart() = deriv * x.epart();
   return temp;
 }
 
@@ -746,7 +746,7 @@ atan2(dual<_Tp> y, dual<_Tp> x)
   deriv1 = 1.0 + x.rpart() * x.rpart();
   deriv = 1.0 / deriv1;
   temp.rpart() = funval;
-  temp.ipart() = deriv * x.ipart();
+  temp.epart() = deriv * x.epart();
   return temp;
 }
 
@@ -808,7 +808,7 @@ conj(const dual<_Tp> & x)
   // todo - dont just make things up
   using std::conj;
   return dual<_Tp>(conj(x.rpart()),
-                   conj(x.ipart()));
+                   conj(x.epart()));
 }
 #endif
 
@@ -818,7 +818,7 @@ real(const dual<_Tp> & x)
 {
   // todo - dont just make things up
   return dual<_Tp>(real(x.rpart()),
-                   real(x.ipart()));
+                   real(x.epart()));
 }
 
 template <typename _Tp>
@@ -826,7 +826,7 @@ dual<_Tp>
 imag(const dual<_Tp> & x)
 {
   // todo - dont just make things up
-  return dual<_Tp>(imag(x.rpart()), imag(x.ipart()));
+  return dual<_Tp>(imag(x.rpart()), imag(x.epart()));
 }
 
 template <typename _Tp>
@@ -914,7 +914,7 @@ operator<<(std::basic_ostream<_CharT, _Traits>& os, const dual<_Tp>& rhs)
   s.imbue(os.getloc());
   s.precision(os.precision());
   s << "(" << rhs.rpart()
-    << " + e" << dual_trait_helper<dual<_Tp> >::depth << "*" << rhs.ipart()
+    << " + e" << dual_trait_helper<dual<_Tp> >::depth << "*" << rhs.epart()
     << ")";
   return os << s.str();
 }

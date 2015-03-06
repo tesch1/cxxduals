@@ -128,12 +128,12 @@ fike_example1()
     // compare analytic and dual results
     MY_EXPECT_NEAR(f, rpart(dfp)) << " x=" << x;
     MY_EXPECT_NEAR(f, rpart(rpart(dfpp)));
-    MY_EXPECT_NEAR(fp, ipart(dfp)) << " x=" << x;
+    MY_EXPECT_NEAR(fp, epart(dfp)) << " x=" << x;
     MY_EXPECT_NEAR(fp, rpart(ddfp)) << " x=" << x;
-    MY_EXPECT_NEAR(fp, rpart(ipart(dfpp))) << " x=" << x;
-    MY_EXPECT_NEAR(fp, ipart(rpart(dfpp))) << " x=" << x;
-    MY_EXPECT_NEAR(fpp, ipart(ddfp)) << " x=" << x;
-    UNOTYPE DDf = ipart(ipart(dfpp)) - x4 * ipart(rpart(dfpp));
+    MY_EXPECT_NEAR(fp, rpart(epart(dfpp))) << " x=" << x;
+    MY_EXPECT_NEAR(fp, epart(rpart(dfpp))) << " x=" << x;
+    MY_EXPECT_NEAR(fpp, epart(ddfp)) << " x=" << x;
+    UNOTYPE DDf = epart(epart(dfpp)) - x4 * epart(rpart(dfpp));
     MY_EXPECT_NEAR(fpp, DDf) << " ::" << DDf;
     UNOTYPE DDDf = dfppp.part(8);
     MY_EXPECT_NEAR(fppp, DDDf) << " ::" << dfppp;
@@ -141,9 +141,9 @@ fike_example1()
     std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
     std::cout << "hd=" << dfpp << "\n\n";
     std::cout << "td=" << dfppp << "\n";
-    std::cout << "hx=" << ipart(ipart(dfpp)) - ipart(rpart(dfpp)) << "\n";
-    std::cout << "ij=" << ipart(rpart(dfpp)) * ipart(ipart(dfpp)) << "\n";
-    std::cout << "ij=" << rpart(dfpp) * ipart(dfpp) << "\n";
+    std::cout << "hx=" << epart(epart(dfpp)) - epart(rpart(dfpp)) << "\n";
+    std::cout << "ij=" << epart(rpart(dfpp)) * epart(epart(dfpp)) << "\n";
+    std::cout << "ij=" << rpart(dfpp) * epart(dfpp) << "\n";
 #endif
   }
 }

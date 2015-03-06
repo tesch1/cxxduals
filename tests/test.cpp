@@ -35,28 +35,28 @@ void construct()
   DUALTYPE x = (Scalar)1.1;
   EXPECT_EQ(x.rpart(), (Scalar)1.1);
   EXPECT_EQ(rpart(x), (Scalar)1.1);
-  EXPECT_EQ(x.ipart(), (Scalar)0.0);
-  EXPECT_EQ(ipart(x), (Scalar)0.0);
+  EXPECT_EQ(x.epart(), (Scalar)0.0);
+  EXPECT_EQ(epart(x), (Scalar)0.0);
 
   DUALTYPE z(1.1);
   EXPECT_EQ(z.rpart(), (Scalar)1.1);
   EXPECT_EQ(rpart(z), (Scalar)1.1);
-  EXPECT_EQ(z.ipart(), (Scalar)0.0);
-  EXPECT_EQ(ipart(z), (Scalar)0.0);
+  EXPECT_EQ(z.epart(), (Scalar)0.0);
+  EXPECT_EQ(epart(z), (Scalar)0.0);
 
   DUALTYPE y(1.1, 2.2);
   EXPECT_EQ(y.rpart(), (Scalar)1.1);
   EXPECT_EQ(rpart(y), (Scalar)1.1);
-  EXPECT_EQ(y.ipart(), (Scalar)2.2);
-  EXPECT_EQ(ipart(y), (Scalar)2.2);
+  EXPECT_EQ(y.epart(), (Scalar)2.2);
+  EXPECT_EQ(epart(y), (Scalar)2.2);
 
   DUALTYPE w = {1.1, 2.2};
   EXPECT_EQ(w.rpart(), (Scalar)1.1);
-  EXPECT_EQ(w.ipart(), (Scalar)2.2);
+  EXPECT_EQ(w.epart(), (Scalar)2.2);
 
   DUALTYPE a{1.1, 2.2};
   EXPECT_EQ(a.rpart(), (Scalar)1.1);
-  EXPECT_EQ(a.ipart(), (Scalar)2.2);
+  EXPECT_EQ(a.epart(), (Scalar)2.2);
 }
 
 template <typename DUALTYPE, typename Scalar>
@@ -98,8 +98,8 @@ void compare()
   DUALTYPE j{3, 1};
   DUALTYPE k{9, 6};
   DUALTYPE l{9, 1};
-  MY_EXPECT_NEAR(ipart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)));
-  MY_EXPECT_NEAR(ipart(pow(j,(Scalar)2.0)), (Scalar)6.0);
+  MY_EXPECT_NEAR(epart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)));
+  MY_EXPECT_NEAR(epart(pow(j,(Scalar)2.0)), (Scalar)6.0);
   EXPECT_GT((Scalar)1.2, d);
   EXPECT_GT(d,(Scalar)1.0);
   EXPECT_GT(g,f);
