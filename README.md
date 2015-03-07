@@ -39,22 +39,28 @@ See the examples in tests/* and examples/*
 
 ## TODO
 - lots more tests
+  - let the value_type be a vector
+  - etc...
+- add printer to show the number in linear form (as a matrix)
 - define ```dot(dual<complex<> >, dual<complex<> >)``` and ```norm(dual<complex<> >)```
 - currently only tested on c++11, should make sure older c++ works as much as possible too
-- maybe support the other possibilities for: (how easy would this be?!?!? maybe super-easy!)
-  - (&epsilon; * &epsilon;) = -1  ("complex")
-  - (&epsilon; * &epsilon;) = 1
-  - (&epsilon; * &epsilon;) = 0
-- dual vector support: let the value_type be a vector
+- support the other algebras, and their various nestings: (how easy would this be???)
+  - (&epsilon; * &epsilon;) = -1  ("[complex number](http://en.wikipedia.org/wiki/Complex_number)")
+  - (&epsilon; * &epsilon;) = 1 (["double nunmber"](http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/other/) /
+  ["split complex number"](http://en.wikipedia.org/wiki/Split-complex_number))
 - try to minimize subtractive cancellation within the library
 - support & test multi-precision container types
 
 ## History
-This started as a simple non-templated class by Jeff A. Pike found here: 
+This started as a dual-number class implementation by Jeff A. Pike found here: 
 [http://adl.stanford.edu/hyperdual/](http://adl.stanford.edu/hyperdual/), also, 
 [Fike's thesis](http://purl.stanford.edu/jw107zn5044) has some nice numerical demonstrations.
 
 Another nice paper on duals and C++ [Piponi, D. (2004). Automatic Differentiation, C++ Templates, and Photogrammetry. Journal of Graphics Tools, 9(4), 41–55. doi:10.1080/10867651.2004.10504901](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.89.7749&rep=rep1&type=pdf)
+
+## References
+http://people.rit.edu/harkin/research/articles/generalized_complex_numbers.pdf
+
 
 ## License
 MIT, same as the original Fike code.
