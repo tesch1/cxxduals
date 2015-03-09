@@ -456,7 +456,7 @@ template <typename _Tp, typename _Up> struct presult_type {};
 template <typename _Tp> struct presult_type<_Tp, int> {
   typedef dual<_Tp> dual_type;  // for operations that assign to a dual
   typedef bool comp_type;       // for operations that compare w a dual
-  typedef unsigned res_type;    // for operations that take a value from a dual
+  typedef int res_type;         // for operations that take a value from a dual
 };
 template <typename _Tp> struct presult_type<_Tp, unsigned> {
   typedef dual<_Tp> dual_type;
@@ -466,10 +466,12 @@ template <typename _Tp> struct presult_type<_Tp, unsigned> {
 template <typename _Tp> struct presult_type<_Tp, float> {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
+  typedef float res_type;
 };
 template <typename _Tp> struct presult_type<_Tp, double> {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
+  typedef double res_type;
 };
 template <typename _Tp> struct presult_type<_Tp, long double> {
   typedef dual<_Tp> dual_type;
@@ -479,6 +481,7 @@ template <typename _Tp> struct presult_type<_Tp, long double> {
 template <typename _Tp, typename _Up> struct presult_type<_Tp, std::complex<_Up> > {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
+  typedef std::complex<_Up> res_type;
 };
 template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>;
 }
