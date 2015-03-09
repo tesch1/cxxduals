@@ -29,9 +29,11 @@
 
 #include "test_helpers.h"
 
-template <typename DUALTYPE, typename Scalar>
+template <typename DUALTYPE>
 void construct()
 {
+  typedef typename DUALTYPE::value_type Scalar;
+
   DUALTYPE x = (Scalar)1.1;
   EXPECT_EQ(x.rpart(), (Scalar)1.1);
   EXPECT_EQ(rpart(x), (Scalar)1.1);
@@ -50,18 +52,20 @@ void construct()
   EXPECT_EQ(y.epart(), (Scalar)2.2);
   EXPECT_EQ(epart(y), (Scalar)2.2);
 
-  DUALTYPE w = {1.1, 2.2};
+  DUALTYPE w(1.1, 2.2);
   EXPECT_EQ(w.rpart(), (Scalar)1.1);
   EXPECT_EQ(w.epart(), (Scalar)2.2);
 
   DUALTYPE a{1.1, 2.2};
   EXPECT_EQ(a.rpart(), (Scalar)1.1);
-  EXPECT_EQ(a.epart(), (Scalar)2.2);
+  EXPECT_EQ(a.part(0), (Scalar)1.1);
+  EXPECT_EQ(a.part(1), (Scalar)2.2);
 }
 
-template <typename DUALTYPE, typename Scalar>
+template <typename DUALTYPE>
 void equality()
 {
+  typedef typename DUALTYPE::value_type Scalar;
   DUALTYPE d{1.1, 2.2};
   DUALTYPE e{1.1, 2.2};
   DUALTYPE f{1.1, 2.21};
@@ -83,13 +87,16 @@ void equality()
   EXPECT_EQ(abs(h), (Scalar)2.2);
   EXPECT_EQ(+abs(h), (Scalar)2.2);
   EXPECT_EQ(-abs(h), (Scalar)-2.2);
-  DU_EXPECT_NEAR(pow(j,(Scalar)2.0), DUALTYPE(9.,6.));
-  DU_EXPECT_NEAR(sqrt(l), DUALTYPE(3., 0.5*pow(9,-0.5)) );
+  DUALTYPE res{9.,6.};
+  DU_EXPECT_NEAR(pow(j,(Scalar)2.0), res);
+  DUALTYPE res2{3., 0.5*pow(9,-0.5)};
+  DU_EXPECT_NEAR(sqrt(l), res2 );
 }
 
-template <typename DUALTYPE, typename Scalar>
+template <typename DUALTYPE>
 void compare()
 {
+  typedef typename DUALTYPE::value_type Scalar;
   DUALTYPE d{1.1, 2.2};
   DUALTYPE e{1.1, 2.2};
   DUALTYPE f{1.1, 2.21};
@@ -124,9 +131,10 @@ void compare()
   EXPECT_TRUE(min(g,f) == f);
 }
 
-template <typename DUALTYPE, typename Scalar>
+template <typename DUALTYPE>
 void arithmetic()
 {
+  typedef typename DUALTYPE::value_type Scalar;
   DUALTYPE a, b;
   a = (Scalar)1;
   b = (Scalar)2;
@@ -143,21 +151,33 @@ void arithmetic()
   // /
 }
 
-template <typename DUALTYPE, typename Scalar>
+template <typename DUALTYPE>
 void transcendental()
 {
-  DUALTYPE a;
-  // pow
-  // sqrt
-  // log
-  // exp
-  // sin
-  // cos
-  // tan
-  // asin
-  // acos
-  // atan
-  // atan2
+  typedef typename DUALTYPE::value_type Scalar;
+  for (int ii = -10; ii < 10; ii++) {
+    Scalar x = ii;
+    DUALTYPE xx(ii, 1);
+    // pow
+    DUALTYPE res(pow(x,4), (Scalar)4. * pow(x,3));
+    DU_EXPECT_NEAR(pow(xx,4), res);
+    res = DUALTYPE(pow(3,x), pow((Scalar)3,x)*log((Scalar)3));
+    DU_EXPECT_NEAR(pow(3,xx), res);
+    std::cout << "x=" << x << "\n";
+    res = DUALTYPE(pow(x,pow(x,2)),
+                   x*pow(x,x*(Scalar)2.0-(Scalar)1.0)*(Scalar)2.0+pow(x,x*(Scalar)2.0)*log(x)*(Scalar)2.0);
+    DU_EXPECT_NEAR(pow(xx,pow(xx,2)), res);
+    // sqrt
+    // log
+    // exp
+    // sin
+    // cos
+    // tan
+    // asin
+    // acos
+    // atan
+    // atan2
+  }
 }
 
 void takes_dualcd(dualcd blah)

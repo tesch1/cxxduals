@@ -16,7 +16,7 @@ target_link_libraries (gtest pthread)
 include_directories (${CMAKE_SOURCE_DIR}/)
 
 # test binaries
-add_executable (test1 test.cpp)
+add_executable (test1 test1.cpp)
 target_link_libraries (test1 gtest)
 
 add_executable (test2 test2.cpp)

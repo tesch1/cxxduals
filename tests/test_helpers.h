@@ -31,16 +31,17 @@ using namespace cxxduals;
 
 // need the 100.0 factor in epsilon for 'long double'
 template <typename UNOTYPE>
-bool expect_near(const UNOTYPE & A, const UNOTYPE & B, 
-                 typename dual_trait_helper<UNOTYPE>::scalar_type PREC 
-                 = 2000.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon()
-                 )
+bool expect_near(const UNOTYPE & A, const UNOTYPE & B)
 {
   using std::abs;
   using std::sqrt;
+
+  typename dual_trait_helper<UNOTYPE>::scalar_type
+    PREC = 2000.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon();
+
   if (abs(A - B) < PREC)
     return true;
-  if (abs(B) && abs(A - B)/abs(sqrt(A*A + B*B)) < PREC)
+  if (abs(B) != 0 && abs(A - B)/abs(sqrt(A*A + B*B)) < PREC)
     return true;
   std::cout << "----------------- FAIL -------------------\n";
   std::cout << "abs(A - B) = " << abs(A - B) << " PREC= " << PREC << " A=" << A << "\n";
@@ -62,17 +63,19 @@ bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
       ADD_FAILURE_AT(__FILE__, __LINE__) << #A << " !~= " << #B << "\n (" << A << " !~= " << B
 
 #define TESTALL(func) \
-  TEST (dualf, func) { func<dualf, float>(); } \
-  TEST (duald, func) { func<duald, double>(); } \
-  TEST (dualld, func) { func<dualld, long double>(); } \
-  TEST (dualdf, func) { func<dualcf, complexf>(); } \
-  TEST (dualcd, func) { func<dualcd, complexd>(); } \
-  TEST (dualcld, func) { func<dualcld, complexld>(); }
+  TEST (dualf, func) { func<dualf>(); } \
+  TEST (duald, func) { func<duald>(); } \
+  TEST (dualld, func) { func<dualld>(); } \
+  TEST (dualdf, func) { func<dualcf>(); } \
+  TEST (dualcd, func) { func<dualcd>(); } \
+  TEST (dualcld, func) { func<dualcld>(); } \
+  TEST (hyperdualf, func) { func<hyperdualf>(); } \
+  TEST (hyperdualcd, func) { func<hyperdualcd>(); }
 
 #define TESTREAL(func) \
-  TEST (duald, func) { func<duald, double>(); } \
-  TEST (dualf, func) { func<dualf, float>(); } \
-  TEST (dualld, func) { func<dualld, long double>(); }
+  TEST (duald, func) { func<duald>(); } \
+  TEST (dualf, func) { func<dualf>(); } \
+  TEST (dualld, func) { func<dualld>(); }
 
 #define TEST_TYPEMIX(func, type1, type2) \
   TEST (func, type1##_##type2) { func<type1,type2>(); }

@@ -32,6 +32,17 @@
 
 using namespace cxxduals;
 
+TEST(basic,hyperdual)
+{
+  typedef double UNOTYPE;
+  typedef dual<UNOTYPE> DUALTYPE;
+  typedef dual<dual<UNOTYPE> > HDUALTYPE;
+  typedef dual<dual<dual<UNOTYPE> > > TDUALTYPE;
+
+  ///
+  
+}
+
 struct pike_f1 {
   // function
   template <typename TYPE>
@@ -110,7 +121,7 @@ fike_example1()
   for (int ii = 0; ii < reps; ii++) {
     // pick a random x
     UNOTYPE x = drand48() * 10;
-    // calculate f, f' and f'' and f''' analytically
+    // calculate f, f' and f'' and f''' analytically at x
     UNOTYPE f = f1.f(x);
     UNOTYPE fp = f1.df(x);
     UNOTYPE fpp = f1.ddf(x);
