@@ -68,9 +68,11 @@ bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
   TEST (dualld, func) { func<dualld>(); } \
   TEST (dualdf, func) { func<dualcf>(); } \
   TEST (dualcd, func) { func<dualcd>(); } \
-  TEST (dualcld, func) { func<dualcld>(); } \
-  TEST (hyperdualf, func) { func<hyperdualf>(); } \
-  TEST (hyperdualcd, func) { func<hyperdualcd>(); }
+  TEST (dualcld, func) { func<dualcld>(); }
+
+//                                               
+//  TEST (hyperdualf, func) { func<hyperdualf>(); }     
+//  TEST (hyperdualcd, func) { func<hyperdualcd>(); }
 
 #define TESTREAL(func) \
   TEST (duald, func) { func<duald>(); } \

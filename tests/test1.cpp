@@ -162,7 +162,7 @@ void transcendental()
     DUALTYPE res(pow(x,4), (Scalar)4. * pow(x,3));
     DU_EXPECT_NEAR(pow(xx,4), res);
     res = DUALTYPE(pow(3,x), pow((Scalar)3,x)*log((Scalar)3));
-    DU_EXPECT_NEAR(pow(3,xx), res);
+    DU_EXPECT_NEAR(pow((Scalar)3.,xx), res);
     std::cout << "x=" << x << "\n";
     res = DUALTYPE(pow(x,pow(x,2)),
                    x*pow(x,x*(Scalar)2.0-(Scalar)1.0)*(Scalar)2.0+pow(x,x*(Scalar)2.0)*log(x)*(Scalar)2.0);
