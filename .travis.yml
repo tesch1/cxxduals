@@ -1,7 +1,9 @@
 language: cpp
 compiler:
   - gcc-4.8
+
 sudo: false
+
 addons:
   apt:
     sources:
@@ -9,6 +11,8 @@ addons:
     packages:
     - install
     - cmake
+    - gcc-4.8
+    - g++-4.8
 
 before_install:
 #  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
