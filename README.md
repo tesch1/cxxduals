@@ -1,5 +1,4 @@
-# *** THIS LIBRARY IS CURRENTLY UNDER DEVELOPMENT ***
-Please do use it and report/fix any problems you find!
+Please report (and/or fix) any problems you find!
 
 Once a good amount of test coverage is in place there will be numbered releases.
 
