@@ -11,8 +11,8 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - cmake
-    - gcc-4.8
-    - g++-4.8
+    - gcc-4.9
+    - g++-4.9
     - clang
 
 before_install:
@@ -24,7 +24,7 @@ before_install:
 #  - sudo apt-get update -qq;
 
 install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
   - cmake .
   - make VERBOSE=1
 
