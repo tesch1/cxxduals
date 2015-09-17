@@ -24,13 +24,14 @@ before_install:
 #  - sudo apt-get update;
 #  - sudo apt-get install gcc-4.8 g++-4.8 cmake;
 #  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20;
-  - g++ --version;
+  - ${CXX} --version;
 #  - sudo apt-get update -qq;
 
 install:
   - cmake .
-  - make
+  - make VERBOSE=1
 
 script: 
+  - echo ${CXX}
   - make test
   - cat Testing/Temporary/*.log
