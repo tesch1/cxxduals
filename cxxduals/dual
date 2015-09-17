@@ -590,7 +590,7 @@ pow(const dual<_Tp> & xx, const _Up & aa)
 #else
   //return exp(xx * dual<_Tp>(log(aa)));
   temp.rpart() = pow(xx.rpart(), aa);
-  temp.epart() = xx.epart() * (_Tp)aa * pow(xx.rpart(), aa - _Up(1));
+  temp.epart() = xx.epart() * _Tp(aa) * pow(xx.rpart(), aa - _Up(1));
 #endif
   return temp;
 }

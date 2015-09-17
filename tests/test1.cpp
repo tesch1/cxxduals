@@ -89,7 +89,7 @@ void equality()
   EXPECT_EQ(-abs(h), (Scalar)-2.2);
   DUALTYPE res{9.,6.};
   DU_EXPECT_NEAR(pow(j,(Scalar)2.0), res);
-  DUALTYPE res2{3., 0.5*pow(9,-0.5)};
+  DUALTYPE res2{3., (Scalar)(0.5*pow(9,-0.5))};
   DU_EXPECT_NEAR(sqrt(l), res2 );
 }
 
@@ -159,7 +159,7 @@ void transcendental()
     Scalar x = ii;
     DUALTYPE xx(ii, 1);
     // pow
-    DUALTYPE res(pow(x,4), (Scalar)4. * pow(x,3));
+    DUALTYPE res(pow(x,4), Scalar(4.) * pow(x,3));
     DU_EXPECT_NEAR(pow(xx,4), res);
     res = DUALTYPE(pow(3,x), pow((Scalar)3,x)*log((Scalar)3));
     DU_EXPECT_NEAR(pow((Scalar)3.,xx), res);
