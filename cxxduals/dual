@@ -612,7 +612,6 @@ pow(const dual<_Tp> & xx, const _Up & aa)
   using std::abs;
   using std::exp;
   dual<_Tp> temp;
-  std::cerr << "9";
 #if 0
   _Tp deriv, xval, tol;
   xval = xx.rpart();
