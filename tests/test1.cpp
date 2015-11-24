@@ -178,14 +178,14 @@ void transcendental()
     DU_EXPECT_NEAR(pow(xx,4), res);
     res = DUALTYPE(pow(3,x), pow((Scalar)3,x)*log((Scalar)3));
     DU_EXPECT_NEAR(pow((Scalar)3.,xx), res);
-    std::cerr << "x=" << x << " x^2 = " << pow(x,2) << "\n";
+    //std::cerr << "x=" << x << " x^2 = " << pow(x,2) << "\n";
     Scalar y =  pow(x,pow(x,2));
-    std::cerr << "x=" << x << " x^x^2 = " << y << "\n";
-    std::cerr << "xx=" << xx << "\n";
+    //std::cerr << "x=" << x << " x^x^2 = " << y << "\n";
+    //std::cerr << "xx=" << xx << "\n";
     res = DUALTYPE(pow(x,pow(x,2)),
                    pow(x,pow(x,2) - (Scalar)1) * pow(x, 2) +
                    (Scalar)2 * x * pow(x,pow(x,2)) * log(x));
-    std::cerr << "res=" << res << "\n";
+    //std::cerr << "res=" << res << "\n";
     if (is_complex<Scalar>::value ? S != 0. : S > 0.) {
       DU_EXPECT_NEAR(pow(xx,pow(xx,2)), res);
     }
