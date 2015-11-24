@@ -84,14 +84,14 @@ template<typename _Tp>
 struct numeric_limits<cxxduals::dual<_Tp> > : public numeric_limits<_Tp> {
   typedef cxxduals::dual<_Tp> T;
   static CXXDUALS_CONSTEXPR bool is_specialized = true;
-  static CXXDUALS_CONSTEXPR T min()     { return T(numeric_limits<_Tp>::min()); }
-  static CXXDUALS_CONSTEXPR T max()     { return T(numeric_limits<_Tp>::max()); }
-  static CXXDUALS_CONSTEXPR T epsilon() { return T(numeric_limits<_Tp>::epsilon()); }
-  static CXXDUALS_CONSTEXPR T round_error() { return T(numeric_limits<_Tp>::round_error()); }
-  static CXXDUALS_CONSTEXPR T infinity()    { return T(numeric_limits<_Tp>::infinity()); }
-  static CXXDUALS_CONSTEXPR T quiet_NaN()   { return T(numeric_limits<_Tp>::quiet_NaN()); }
+  static CXXDUALS_CONSTEXPR T min()           { return T(numeric_limits<_Tp>::min()); }
+  static CXXDUALS_CONSTEXPR T max()           { return T(numeric_limits<_Tp>::max()); }
+  static CXXDUALS_CONSTEXPR T epsilon()       { return T(numeric_limits<_Tp>::epsilon()); }
+  static CXXDUALS_CONSTEXPR T round_error()   { return T(numeric_limits<_Tp>::round_error()); }
+  static CXXDUALS_CONSTEXPR T infinity()      { return T(numeric_limits<_Tp>::infinity()); }
+  static CXXDUALS_CONSTEXPR T quiet_NaN()     { return T(numeric_limits<_Tp>::quiet_NaN()); }
   static CXXDUALS_CONSTEXPR T signaling_NaN() { return T(numeric_limits<_Tp>::signaling_NaN()); }
-  static CXXDUALS_CONSTEXPR T denorm_min()  { return T(numeric_limits<_Tp>::denorm_min()); }
+  static CXXDUALS_CONSTEXPR T denorm_min()    { return T(numeric_limits<_Tp>::denorm_min()); }
 };
 // TODO: cv-specializations (C++11 18.3.2.3/2)
 } // std
@@ -133,6 +133,28 @@ struct dual_trait_helper<dual<_Tp> > : public dual_traits_basic<typename dual<_T
   typedef typename dual_trait_helper<_Tp>::is_dual is_nested;
 };
 
+namespace internal {
+// filter to only allow basic types to be converted in constructor below
+template <typename _Tp> struct arg_filter;
+template <> struct arg_filter<int> { arg_filter(int x) : val(x) {} int val; };
+template <> struct arg_filter<float> { arg_filter(float x) : val(x) {} float val; };
+template <> struct arg_filter<double> { arg_filter(double x) : val(x) {} double val; };
+template <> struct arg_filter<long double> { arg_filter(long double x) : val(x) {} long double val; };
+template <typename _Tp> struct arg_filter<std::complex<_Tp> > {
+  arg_filter(std::complex<_Tp> x) : val(x) {} std::complex<_Tp> val; };
+
+template <typename _Tp> struct arg_filter2;
+template <> struct arg_filter2<int> { typedef int test; };
+template <> struct arg_filter2<float> { typedef int test; };
+template <> struct arg_filter2<double> { typedef int test; };
+template <> struct arg_filter2<long double> { typedef int test; };
+template <> struct arg_filter2<std::complex<float> > { typedef int test; };
+template <> struct arg_filter2<std::complex<double> > { typedef int test; };
+template <> struct arg_filter2<std::complex<long double> > { typedef int test; };
+//template <typename _Xp> struct arg_filter2<std::complex<_Xp> > : public arg_filter2<_Xp> {};
+
+}
+
 /// dual number class
 template <typename _Tp>
 class dual {
@@ -152,11 +174,20 @@ public:
   CXXDUALS_CONSTEXPR dual()
     : _f0(), _f1() { }
 
-  template <typename _Up>
+  CXXDUALS_CONSTEXPR dual(const _Tp & f0)
+    : _f0(f0), _f1() { }
+
+  CXXDUALS_CONSTEXPR dual(const _Tp & f0, const _Tp & f1)
+    : _f0(f0), _f1(f1) { }
+
+  template <typename _Up,
+            typename _Ux = typename internal::arg_filter2<_Up>::test >
   CXXDUALS_CONSTEXPR dual(const _Up & f0)
     : _f0(f0), _f1() { }
 
-  template <typename _Up, typename _Vp>
+  template <typename _Up, typename _Vp, 
+            typename _Ux = typename internal::arg_filter2<_Up>::test,
+            typename _Vx = typename internal::arg_filter2<_Vp>::test >
   CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Vp & f1)
     : _f0(f0), _f1(f1) { }
 
@@ -265,8 +296,16 @@ public:
   inline dual<_Tp> &
   operator=(const _Tp & rhs) { _f0 = rhs; _f1 = _Tp(); return *this; }
 #endif
+
+  template <typename _Up,
+            typename _Ux = typename internal::arg_filter2<_Up>::test >
+  inline dual<_Tp> &
+  operator=(const _Up & f0) { _f0 = f0; _f1 = _Tp(); return *this; }
+
+#if 0
   inline dual<_Tp> &
   operator=(const dual<_Tp> & rhs) { _f0 = rhs._f0; _f1 = rhs._f1; return *this; }
+#endif
 
   template<typename _Up>
   inline dual<_Tp> &
@@ -565,7 +604,7 @@ DUALH_DEFINE_NONDUAL_OP_TEMPLATE(/=)
 #endif
 
 template <typename _Tp, typename _Up>
-inline typename internal::result_type<_Tp,_Up>::dual_type
+dual<_Tp>
 pow(const dual<_Tp> & xx, const _Up & aa)
 {
   using std::pow;
@@ -590,11 +629,11 @@ pow(const dual<_Tp> & xx, const _Up & aa)
 #else
   //return exp(xx * dual<_Tp>(log(aa)));
   temp.rpart() = pow(xx.rpart(), aa);
+  //temp.epart() = xx.epart() * aa * pow(xx.rpart(), aa - _Up(1));
   temp.epart() = xx.epart() * _Tp(aa) * pow(xx.rpart(), aa - _Up(1));
 #endif
   return temp;
 }
-
 #if 1
 template <typename _Tp>
 dual<_Tp>
@@ -759,7 +798,8 @@ dual<_Tp>
 sqrt(dual<_Tp> x)
 {
   using std::pow;
-  return pow(x, (typename dual<_Tp>::scalar_type)0.5);
+  return pow(x, _Tp(0.5));
+  //return pow(x, (typename dual<_Tp>::scalar_type)0.5); xxx
 }
 
 template <typename _Tp>

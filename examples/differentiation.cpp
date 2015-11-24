@@ -75,7 +75,7 @@ int main(int argc, char **argv)
   typedef dual<dual<dual<UNOTYPE> > > TDUALTYPE;
   HDUALTYPE a(DUALTYPE(1,2),DUALTYPE(3,4));
   HDUALTYPE b(DUALTYPE(11,12),DUALTYPE(13,14));
-  hyperdualcd c(DUALTYPE(1,2),DUALTYPE(3,4));
+  hyperdualcd c(dualcd(1,2),dualcd(3,4));
   hyperdualcd d{1,2,3,{4,4}};
   std::cout << a << "\n"
             << b << "\n"
