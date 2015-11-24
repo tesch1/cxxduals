@@ -138,7 +138,9 @@ void arithmetic()
   DUALTYPE a, b;
   a = (Scalar)1;
   b = (Scalar)2;
-  b = a = b = a;
+  b = a;
+  a = b;
+  b = a;
   a = b + (Scalar)1.0; // 2
   //a = b + 1.0; // 2
   a = (Scalar)1.0 + b; // 2
@@ -151,22 +153,44 @@ void arithmetic()
   // /
 }
 
+template <typename T> struct is_complex { static const bool value = false; };
+template <typename T> struct is_complex<std::complex<T> >     { static const bool value = true; };
+template <typename T> struct is_complex<std::complex<T>& >    { static const bool value = true; };
+template <typename T> struct is_complex<const std::complex<T>& > { static const bool value = true; };
+template <typename T> struct is_complex<const std::complex<T> > { static const bool value = true; };
+using std::isnormal;
+template <typename T> bool isnormal(const std::complex<T> & v)
+{
+  return isnormal(real(v));
+}
+
 template <typename DUALTYPE>
 void transcendental()
 {
   typedef typename DUALTYPE::value_type Scalar;
+
   for (int ii = -10; ii < 10; ii++) {
-    Scalar x = ii;
-    DUALTYPE xx(ii, 1);
+    double S = ii / 5.0;
+    Scalar x = ii / 5.0;
+    DUALTYPE xx(ii / 5.0, 1);
     // pow
     DUALTYPE res(pow(x,4), Scalar(4.) * pow(x,3));
     DU_EXPECT_NEAR(pow(xx,4), res);
     res = DUALTYPE(pow(3,x), pow((Scalar)3,x)*log((Scalar)3));
     DU_EXPECT_NEAR(pow((Scalar)3.,xx), res);
-    std::cout << "x=" << x << "\n";
+    std::cerr << "x=" << x << " x^2 = " << pow(x,2) << "\n";
+    Scalar y =  pow(x,pow(x,2));
+    std::cerr << "x=" << x << " x^x^2 = " << y << "\n";
+    std::cerr << "xx=" << xx << "\n";
     res = DUALTYPE(pow(x,pow(x,2)),
-                   x*pow(x,x*(Scalar)2.0-(Scalar)1.0)*(Scalar)2.0+pow(x,x*(Scalar)2.0)*log(x)*(Scalar)2.0);
-    DU_EXPECT_NEAR(pow(xx,pow(xx,2)), res);
+                   pow(x,pow(x,2) - (Scalar)1) * pow(x, 2) +
+                   (Scalar)2 * x * pow(x,pow(x,2)) * log(x));
+    std::cerr << "res=" << res << "\n";
+    if (is_complex<Scalar>::value ? S != 0. : S > 0.) {
+      DU_EXPECT_NEAR(pow(xx,pow(xx,2)), res);
+    }
+    else
+      EXPECT_FALSE(isnormal(res.epart()));
     // sqrt
     // log
     // exp

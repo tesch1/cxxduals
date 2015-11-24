@@ -37,6 +37,7 @@
 #define LIB_CXXDUALS 1
 
 #include <cmath>
+#include <ctgmath>
 #include <sstream>
 #include <complex>
 #include <limits>
@@ -611,6 +612,7 @@ pow(const dual<_Tp> & xx, const _Up & aa)
   using std::abs;
   using std::exp;
   dual<_Tp> temp;
+  std::cerr << "9";
 #if 0
   _Tp deriv, xval, tol;
   xval = xx.rpart();
@@ -626,39 +628,37 @@ pow(const dual<_Tp> & xx, const _Up & aa)
   deriv = aa * pow(xval, (aa - _Tp(1.0)));
   temp.rpart() = pow(xx.rpart(), aa);  //Use actual x value, only use tol for derivs
   temp.epart() = xx.epart() * deriv;
-#else
+#endif
   //return exp(xx * dual<_Tp>(log(aa)));
   temp.rpart() = pow(xx.rpart(), aa);
-  //temp.epart() = xx.epart() * aa * pow(xx.rpart(), aa - _Up(1));
   temp.epart() = xx.epart() * _Tp(aa) * pow(xx.rpart(), aa - _Up(1));
-#endif
   return temp;
 }
 #if 1
 template <typename _Tp>
 dual<_Tp>
-pow(const _Tp & aa, const dual<_Tp> & xx)
+pow(const _Tp & aa, const dual<_Tp> & yy)
 {
   using std::pow;
   using std::log;
-  using std::exp;
-#if 0
-  return exp(xx * log(aa));
-#else
   dual<_Tp> temp;
-  temp.rpart() = pow(aa, xx.rpart());
-  temp.epart() = xx.epart() * pow(aa, xx.rpart()) * log(aa);
+  temp.rpart() = pow(aa, yy.rpart());
+  temp.epart() = yy.epart() * log(aa) * pow(aa, yy.rpart());
   return temp;
-#endif
 }
 
 template <typename _Tp>
 dual<_Tp>
 pow(const dual<_Tp> & xx, const dual<_Tp> & yy)
 {
+  using std::pow;
   using std::log;
-  using std::exp;
-  return exp(yy * log(xx));
+  dual<_Tp> temp;
+  temp.rpart() = pow(xx.rpart(), yy.rpart());
+  temp.epart() =
+    xx.epart() * yy.rpart() * pow(xx.rpart(), yy.rpart() - _Tp(1)) +
+    yy.epart() * log(xx.rpart()) * pow(xx.rpart(), yy.rpart());
+  return temp;
 }
 #endif
 //template <typename _Tp> dual<_Tp> pow(dual<_Tp> x, dual<_Tp> a) {
@@ -671,8 +671,8 @@ exp(const dual<_Tp> & x)
 {
   using std::exp;
   _Tp deriv;
-  deriv = exp(x.rpart());
-  return dual<_Tp>(deriv, deriv * x.epart());
+  deriv = exp(x.rpart()) * x.epart();
+  return dual<_Tp>(exp(x.rpart()), deriv);
 }
 
 template <typename _Tp>
@@ -910,6 +910,44 @@ floor(const dual<_Tp> & x)
                    f == x.rpart()
                    ? std::numeric_limits<_Tp>::infinity()
                    : _Tp(0));
+}
+
+/// classification
+template <typename _Tp>
+bool isnan(const dual<_Tp> & x)
+{
+  using std::isnan;
+  bool isit = true;
+  for (int ii = 0; isit && ii < dual<_Tp>::num_elem; ii++)
+    isit = isit && isnan(x.part(ii));
+  return isit;
+}
+template <typename _Tp>
+bool isfinite(const dual<_Tp> & x)
+{
+  using std::isfinite;
+  bool isit = true;
+  for (int ii = 0; isit && ii < dual<_Tp>::num_elem; ii++)
+    isit = isit && isfinite(x.part(ii));
+  return isit;
+}
+template <typename _Tp>
+bool isinf(const dual<_Tp> & x)
+{
+  using std::isinf;
+  bool isit = true;
+  for (int ii = 0; isit && ii < dual<_Tp>::num_elem; ii++)
+    isit = isit && isinf(x.part(ii));
+  return isit;
+}
+template <typename _Tp>
+bool isnormal(const dual<_Tp> & x)
+{
+  using std::isnormal;
+  bool isit = true;
+  for (int ii = 0; isit && ii < dual<_Tp>::num_elem; ii++)
+    isit = isit && isnormal(x.part(ii));
+  return isit;
 }
 
 /// comparison

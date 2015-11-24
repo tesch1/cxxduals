@@ -55,11 +55,11 @@ bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
   return expect_near(A.rpart(), B.rpart()) && expect_near(A.epart(), B.epart());
 }
 
-#define MY_EXPECT_NEAR(A,B) \
-  if (!expect_near(A,B))                  \
+#define MY_EXPECT_NEAR(A,B)                                             \
+    if (!expect_near(A,B))                                              \
       ADD_FAILURE_AT(__FILE__, __LINE__) << #A << " !~= " << #B << "\n (" << A << " !~= " << B
 #define DU_EXPECT_NEAR(A,B)                                             \
-  if (!expect_near_dual(A,B))                                           \
+    if (!expect_near_dual(A,B))                                         \
       ADD_FAILURE_AT(__FILE__, __LINE__) << #A << " !~= " << #B << "\n (" << A << " !~= " << B
 
 #define TESTALL(func) \
