@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <cxxduals/dual>
+#include <complex>
 
 using namespace cxxduals;
 

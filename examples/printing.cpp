@@ -22,9 +22,9 @@
 //  THE SOFTWARE.
 //
 #include <iostream>
-#include <complex>
 #include <cmath>
 #include <cxxduals/dual>
+#include <complex>
 
 using namespace cxxduals;
 
