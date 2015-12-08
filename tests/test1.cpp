@@ -24,8 +24,8 @@
 #include "gtest/gtest.h"
 #include <iostream>
 #include <limits>
-#include <complex>
 #include <cxxduals/dual>
+#include <complex>
 
 #include "test_helpers.h"
 
@@ -204,6 +204,7 @@ void transcendental()
   }
 }
 
+#ifndef __CUDACC__
 void takes_dualcd(dualcd blah)
 {
   
@@ -213,6 +214,7 @@ void takes_dualcd_ref(dualcd & blah)
 {
   
 }
+#endif
 
 template <typename TYPE1, typename TYPE2>
 void casting()
@@ -257,6 +259,7 @@ void casting()
   //dual<TYPE2> f = a;
 }
 
+#ifndef __CUDACC__
 TEST (generic, generic)
 {
   dualcd a;
@@ -266,6 +269,7 @@ TEST (generic, generic)
   takes_dualcd(dualcd(b));
   //takes_dualcd_ref(dualcd(b));
 }
+#endif
 
 // basics
 TESTALL(construct)
@@ -286,6 +290,7 @@ TEST_TYPEMIX(casting, longdouble, double)
 TEST_TYPEMIX(casting, longdouble, longdouble)
 
 // lhs is complex, casts to it
+#ifndef __CUDACC__
 TYPEMIX6(complexf, casting)
 TYPEMIX6(complexd, casting)
 TYPEMIX6(complexld, casting)
@@ -295,6 +300,7 @@ TYPEMIX6(dualcld, casting)
 TYPEMIX6(hyperdualcf, casting)
 TYPEMIX6(hyperdualcd, casting)
 TYPEMIX6(hyperdualcld, casting)
+#endif
 
 // lhs is dual<real> and dual<complex> - ie, hyperdual
 

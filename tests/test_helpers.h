@@ -23,9 +23,12 @@
 //
 
 typedef long double longdouble;
+
+#ifndef __CUDACC__
 typedef std::complex<float> complexf;
 typedef std::complex<double> complexd;
 typedef std::complex<long double> complexld;
+#endif
 
 using namespace cxxduals;
 
@@ -37,7 +40,8 @@ bool expect_near(const UNOTYPE & A, const UNOTYPE & B)
   using std::sqrt;
 
   typename dual_trait_helper<UNOTYPE>::scalar_type
-    PREC = 2000.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon();
+    //PREC = sqrt(std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon());
+    PREC = 1500.0 * std::numeric_limits<typename dual_trait_helper<UNOTYPE>::scalar_type >::epsilon();
 
   if (abs(A - B) < PREC)
     return true;
@@ -62,26 +66,39 @@ bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
     if (!expect_near_dual(A,B))                                         \
       ADD_FAILURE_AT(__FILE__, __LINE__) << #A << " !~= " << #B << "\n (" << A << " !~= " << B
 
-#define TESTALL(func) \
+#ifndef __CUDACC__
+#define TESTALL(func)                   \
   TEST (dualf, func) { func<dualf>(); } \
   TEST (duald, func) { func<duald>(); } \
   TEST (dualld, func) { func<dualld>(); } \
   TEST (dualdf, func) { func<dualcf>(); } \
   TEST (dualcd, func) { func<dualcd>(); } \
   TEST (dualcld, func) { func<dualcld>(); }
+#else
+#define TESTALL(func) \
+  TEST (dualf, func) { func<dualf>(); } \
+  TEST (duald, func) { func<duald>(); }
+#endif
 
 //                                               
 //  TEST (hyperdualf, func) { func<hyperdualf>(); }     
 //  TEST (hyperdualcd, func) { func<hyperdualcd>(); }
 
+#ifndef __CUDACC__
 #define TESTREAL(func) \
   TEST (duald, func) { func<duald>(); } \
   TEST (dualf, func) { func<dualf>(); } \
   TEST (dualld, func) { func<dualld>(); }
+#else
+#define TESTREAL(func) \
+  TEST (duald, func) { func<duald>(); } \
+  TEST (dualf, func) { func<dualf>(); }
+#endif
 
 #define TEST_TYPEMIX(func, type1, type2) \
   TEST (func, type1##_##type2) { func<type1,type2>(); }
 
+#ifndef __CUDACC__
 #define TYPEMIX6(RTYPE, func)                   \
   TEST_TYPEMIX(func, RTYPE, float)              \
   TEST_TYPEMIX(func, RTYPE, double)             \
@@ -89,3 +106,9 @@ bool expect_near_dual(const dual<UNOTYPE> & A, const dual<UNOTYPE> & B)
   TEST_TYPEMIX(func, RTYPE, complexf)           \
   TEST_TYPEMIX(func, RTYPE, complexd)           \
   TEST_TYPEMIX(func, RTYPE, complexld)
+#else
+#define TYPEMIX6(RTYPE, func)                   \
+  TEST_TYPEMIX(func, RTYPE, float)              \
+  TEST_TYPEMIX(func, RTYPE, double)             \
+  TEST_TYPEMIX(func, RTYPE, longdouble)
+#endif

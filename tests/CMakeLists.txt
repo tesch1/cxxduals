@@ -26,3 +26,10 @@ target_link_libraries (test2 gtest)
 add_test (basic test1)
 add_test (differentials test2)
 
+# CUDA
+if (CUDA_FOUND)
+  cuda_add_executable (cudatest1 cudatest1.cu)
+  target_link_libraries (cudatest1 gtest)
+  add_test (basicCUDA cudatest1)
+endif (CUDA_FOUND)
+
