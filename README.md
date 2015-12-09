@@ -1,9 +1,7 @@
-Please report (and/or fix) any problems you find!
-
-Once a good amount of test coverage is in place there will be numbered releases.
-
 ## cxxduals
 Template header library for nesting [dual numbers](http://en.wikipedia.org/wiki/Dual_number) in c++, akin to complex numbers, but &epsilon; is nilpotent.  Nesting provides hyperdual numbers, and hyperhyperdual numbers, etc...
+
+Also compiles under CUDA.
 
 [![Build Status](https://api.travis-ci.org/tesch1/cxxduals.svg?branch=master)](http://travis-ci.org/tesch1/cxxduals)
 
@@ -63,3 +61,8 @@ http://people.rit.edu/harkin/research/articles/generalized_complex_numbers.pdf
 
 ## License
 MIT, same as the original Fike code.
+
+## Please report (and/or fix) any problems you find!
+
+Once a good amount of test coverage is in place there should be numbered releases.
+
