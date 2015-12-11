@@ -29,7 +29,7 @@
 // file is based.
 //
 // The cxxdual package is available on github, bug reports and feature
-// submissions welcome!
+// additions welcome!
 //
 //  https://github.com/tesch1/cxxduals
 //
@@ -57,8 +57,10 @@ template <typename _Tp> class complex;
 
 #ifdef __CUDACC__
 #define DUAL_DEVICE_FUNC __host__ __device__
+#define DUAL_STD_MATH(FUNC) using ::FUNC
 #else
 #define DUAL_DEVICE_FUNC
+#define DUAL_STD_MATH(FUNC) using std::FUNC
 #endif
 
 /* dual-numbers implementation for calculation of differentials */
@@ -989,10 +991,11 @@ dual<_Tp>
 ceil(const dual<_Tp> & x)
 {
   using std::ceil;
+  DUAL_STD_MATH(numeric_limits);
   _Tp c = ceil(x.rpart());
   return dual<_Tp>(c,
-                   c == x.rpart()
-                   ? std::numeric_limits<_Tp>::infinity()
+                   c == x.rpart() ?
+                   numeric_limits<_Tp>::infinity()
                    : _Tp(0));
 }
 
