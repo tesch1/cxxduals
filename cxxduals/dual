@@ -29,7 +29,7 @@
 // file is based.
 //
 // The cxxdual package is available on github, bug reports and feature
-// additions welcome!
+// additions welcome.
 //
 //  https://github.com/tesch1/cxxduals
 //
@@ -43,10 +43,9 @@
 #include <type_traits>
 #include <initializer_list>
 
-namespace std {
-// forward declaration of std::complex
-template <typename _Tp> class complex;
-}
+#ifndef CXXDUALS_NO_COMPLEX
+#include <complex>
+#endif
 
 // check if constexpr exists
 #if __cplusplus >= 201103L
@@ -128,17 +127,21 @@ template <typename _Tp> class dual;
 typedef dual<float> dualf;
 typedef dual<double> duald;
 typedef dual<long double> dualld;
+#ifndef CXXDUALS_NO_COMPLEX
 typedef dual<std::complex<float> > dualcf;
 typedef dual<std::complex<double> > dualcd;
 typedef dual<std::complex<long double> > dualcld;
+#endif // CXXDUALS_NO_COMPLEX
 #if __cplusplus >= 201103L
 template <class _Tp> using hyperdual = dual<dual<_Tp> >;
 typedef hyperdual<float> hyperdualf;
 typedef hyperdual<double> hyperduald;
 typedef hyperdual<long double> hyperdualld;
+#ifndef CXXDUALS_NO_COMPLEX
 typedef hyperdual<std::complex<float> > hyperdualcf;
 typedef hyperdual<std::complex<double> > hyperdualcd;
 typedef hyperdual<std::complex<long double> > hyperdualcld;
+#endif
 #endif
 
 #ifndef CXXDUALS_NO_LIMITS
@@ -185,10 +188,12 @@ template <> struct dual_trait_helper<double> : public dual_traits_basic<double> 
 template <> struct dual_trait_helper<long double> : public dual_traits_basic<long double> {
   typedef long double scalar_type;
 };
+#ifndef CXXDUALS_NO_COMPLEX
 template <typename _Tp>
 struct dual_trait_helper<std::complex<_Tp> > : public dual_traits_basic<_Tp> {
   typedef std::complex<_Tp> value_type;
 };
+#endif // CXXDUALS_NO_COMPLEX
 template <typename _Tp>
 struct dual_trait_helper<dual<_Tp> > : public dual_traits_basic<typename dual<_Tp>::scalar_type> {
   typedef typename dual_trait_helper<_Tp>::scalar_type scalar_type;
@@ -206,17 +211,21 @@ template <> struct arg_filter<int> { arg_filter(int x) : val(x) {} int val; };
 template <> struct arg_filter<float> { arg_filter(float x) : val(x) {} float val; };
 template <> struct arg_filter<double> { arg_filter(double x) : val(x) {} double val; };
 template <> struct arg_filter<long double> { arg_filter(long double x) : val(x) {} long double val; };
+#ifndef CXXDUALS_NO_COMPLEX
 template <typename _Tp> struct arg_filter<std::complex<_Tp> > {
   arg_filter(std::complex<_Tp> x) : val(x) {} std::complex<_Tp> val; };
+#endif // CXXDUALS_NO_COMPLEX
 
 template <typename _Tp> struct arg_filter2;
 template <> struct arg_filter2<int> { typedef int test; };
 template <> struct arg_filter2<float> { typedef int test; };
 template <> struct arg_filter2<double> { typedef int test; };
 template <> struct arg_filter2<long double> { typedef int test; };
+#ifndef CXXDUALS_NO_COMPLEX
 template <> struct arg_filter2<std::complex<float> > { typedef int test; };
 template <> struct arg_filter2<std::complex<double> > { typedef int test; };
 template <> struct arg_filter2<std::complex<long double> > { typedef int test; };
+#endif // CXXDUALS_NO_COMPLEX
 //template <typename _Xp> struct arg_filter2<std::complex<_Xp> > : public arg_filter2<_Xp> {};
 
 }
@@ -640,11 +649,13 @@ template <typename _Tp> struct presult_type<_Tp, long double> {
   typedef bool comp_type;
   typedef long double res_type;
 };
+#ifndef CXXDUALS_NO_COMPLEX
 template <typename _Tp, typename _Up> struct presult_type<_Tp, std::complex<_Up> > {
   typedef dual<_Tp> dual_type;
   typedef bool comp_type;
   typedef std::complex<_Up> res_type;
 };
+#endif // CXXDUALS_NO_COMPLEX
 template <typename _Tp, typename _Up> using result_type = presult_type<_Tp, _Up>;
 }
 #define DUALH_DEFINE_BASIC_OP_TEMPLATES(OP)                     \
@@ -757,7 +768,7 @@ pow(const dual<_Tp> & xx, const _Up & aa)
 #endif
   //return exp(xx * dual<_Tp>(log(aa)));
   temp.rpart() = pow(xx.rpart(), aa);
-  temp.epart() = xx.epart() * _Tp(aa) * pow(xx.rpart(), aa - _Up(1));
+  temp.epart() = xx.epart() * _Tp(aa) * _Tp(pow(xx.rpart(), aa - _Up(1)));
   return temp;
 }
 #if 1

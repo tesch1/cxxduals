@@ -115,7 +115,6 @@ fike_example1()
   pike_f1 f1;
   typedef dual<UNOTYPE> DUALTYPE;
   typedef dual<dual<UNOTYPE> > HDUALTYPE;
-  typedef dual<dual<dual<UNOTYPE> > > TDUALTYPE;
   srand48(1);
 
   for (int ii = 0; ii < reps; ii++) {
@@ -125,17 +124,24 @@ fike_example1()
     UNOTYPE f = f1.f(x);
     UNOTYPE fp = f1.df(x);
     UNOTYPE fpp = f1.ddf(x);
-    //UNOTYPE fppp = f1.dddf(x); //TODO
     // calculate f, f' and f'' and f'' and f''' using duals
     DUALTYPE dfp = f1.f(DUALTYPE(x,1));
     DUALTYPE ddfp = f1.df(DUALTYPE(x,1));
     UNOTYPE x4 = 0;
     HDUALTYPE dfpp = f1.f(HDUALTYPE(DUALTYPE(x,1),DUALTYPE(1,x4))); // x + 1*e1 + 1*e2 + x4*e1e2
+
+#if 0
+    typedef dual<dual<dual<UNOTYPE> > > TDUALTYPE;
+    UNOTYPE fppp = f1.dddf(x); //TODO
     TDUALTYPE dfppp = f1.f(TDUALTYPE(HDUALTYPE(DUALTYPE(x,1),
                                                DUALTYPE(1,0)),
                                      HDUALTYPE(DUALTYPE(1,0),
                                                DUALTYPE(0,0)))); // x + e1 + e2 + e3
-
+    //! TODO- this is broken!
+    UNOTYPE DDDf = dfppp.part(8);
+    MY_EXPECT_NEAR(fppp, DDDf) << " ::" << dfppp;
+#endif
+    
     // compare analytic and dual results
     MY_EXPECT_NEAR(f, rpart(dfp)) << " x=" << x;
     MY_EXPECT_NEAR(f, rpart(rpart(dfpp)));
@@ -146,9 +152,6 @@ fike_example1()
     MY_EXPECT_NEAR(fpp, epart(ddfp)) << " x=" << x;
     UNOTYPE DDf = epart(epart(dfpp)) - x4 * epart(rpart(dfpp));
     MY_EXPECT_NEAR(fpp, DDf) << " ::" << DDf;
-    //! TODO- this is broken!
-    //UNOTYPE DDDf = dfppp.part(8);
-    //MY_EXPECT_NEAR(fppp, DDDf) << " ::" << dfppp;
 #if 0
     std::cout << "x=" << x << "\nf=" << f << "\nfp=" << fp << "\nfpp=" << fpp << "\nfppp=" << fppp << "\n";
     std::cout << "hd=" << dfpp << "\n\n";
