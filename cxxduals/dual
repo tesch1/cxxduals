@@ -852,6 +852,7 @@ DUAL_DEVICE_FUNC
 inline dual<_Tp>
 tan(dual<_Tp> x)
 {
+  DUAL_STD_MATH(tan);
   dual<_Tp> temp;
   _Tp funval, deriv;
   funval = tan(x.rpart());
