@@ -1,9 +1,9 @@
 ## cxxduals
 
-Template header library for nesting [dual
-numbers](http://en.wikipedia.org/wiki/Dual_number) in c++, akin to
-complex numbers, but &epsilon; is nilpotent.  Nesting provides
-hyperdual numbers, and hyperhyperdual numbers, etc...
+Template header library for [dual
+numbers](http://en.wikipedia.org/wiki/Dual_number) in c++.  Dual
+numbers are related to complex numbers, but &epsilon; is nilpotent.
+Nesting provides hyperdual numbers, and hyperhyperdual numbers, etc...
 
 Also compiles under CUDA.
 
@@ -18,6 +18,7 @@ Thus, to calculate \f$ f'(3) \f$, set \f$ y = 1 \f$, \f$ z = (3 +
 \f$ epart(f(z)) := f'(3) \f$
 
 ## Usage
+
 ~~~~~~~~~~~~~~~{.cpp}
   
   #include <cxxduals/dual>
