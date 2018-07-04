@@ -18,9 +18,7 @@ Thus, to calculate \f$ f'(3) \f$, set \f$ y = 1 \f$, \f$ z = (3 +
 &epsilon; 1) \f$ and take the \f$ &epsilon;\f$-part of \f$ f(z) \f$ =>
 \f$ epart(f(z)) := f'(3) \f$
 
-cxxduals::dual<>
-cxxduals::dual<float>
-dual<double>
+`cxxduals::dual<>`, `cxxduals::dual<float>`
 
 ## Usage
 
@@ -56,8 +54,8 @@ See the examples in tests/* and examples/*
 - lots more tests
 - let the value_type be a std::vector
 - add printer to show the number in linear form (as a matrix)
-- define ```dot(dual<complex<> >``` , ```dual<complex<> >)``` and
-  ```norm(dual<complex<> >)```
+- define `dot(dual<complex<> >` , `dual<complex<> >)` and
+  `norm(dual<complex<> >)`
 - currently only tested on c++11, should make sure older c++ works as
   much as possible too
 - support the other algebras, and their various nestings: (how easy
