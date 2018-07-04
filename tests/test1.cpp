@@ -81,12 +81,6 @@ void equality()
   EXPECT_NE(f, (Scalar)1.2);
   EXPECT_NE((Scalar)1.2, f);
   EXPECT_EQ(j*j, k);
-  EXPECT_EQ(abs(h), g);
-  EXPECT_EQ(abs(-h), g);
-  EXPECT_EQ(-abs(h), h);
-  EXPECT_EQ(abs(h), (Scalar)2.2);
-  EXPECT_EQ(+abs(h), (Scalar)2.2);
-  EXPECT_EQ(-abs(h), (Scalar)-2.2);
   DUALTYPE res{9.,6.};
   DU_EXPECT_NEAR(pow(j,(Scalar)2.0), res);
   DUALTYPE res2{3., (Scalar)(0.5*pow(9,-0.5))};
@@ -121,6 +115,12 @@ void compare()
   EXPECT_GE((Scalar)1.1,d);
   EXPECT_GE(g,f);
   EXPECT_GE(e,f);
+  EXPECT_EQ(abs(h), g);
+  EXPECT_EQ(abs(-h), g);
+  EXPECT_EQ(-abs(h), h);
+  EXPECT_EQ(abs(h), (Scalar)2.2);
+  EXPECT_EQ(+abs(h), (Scalar)2.2);
+  EXPECT_EQ(-abs(h), (Scalar)-2.2);
   EXPECT_TRUE(max(f,(Scalar)2.2) == (Scalar)2.2);
   EXPECT_TRUE(max((Scalar)2.2,f) == (Scalar)2.2);
   EXPECT_TRUE(min(f,(Scalar)2.2) == f);
@@ -195,6 +195,11 @@ void transcendental()
     // sqrt
     // log
     // exp
+    DUALTYPE B(0, ii);
+    EXPECT_EQ(B.rpart(), (Scalar)0);
+    EXPECT_EQ(B.epart(), (Scalar)ii);
+    EXPECT_EQ(rpart(exp(B)), (Scalar)1);
+    EXPECT_EQ(epart(exp(B)), (Scalar)ii);
     // sin
     // cos
     // tan
