@@ -713,7 +713,7 @@ pow(const _Tp & aa, const dual<_Up> & yy)
 
 /**
  * \f[
- * pow(a + b \epsilon, c + d \epsilon) = (a^c + b c a^{c-1} + d \log(a) a^c)\epsilon
+ * pow(a + b \epsilon, c + d \epsilon) = a^c + (b c a^{c-1} + d \log(a) a^c)\epsilon
  * \f]
  */
 template <typename _Tp, typename _Up>

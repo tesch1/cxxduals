@@ -1,7 +1,7 @@
 ## cxxduals
 
 Template header library for [dual
-numbers](http://en.wikipedia.org/wiki/Dual_number) in c++.  Dual
+numbers](http://en.wikipedia.org/wiki/Dual_number) in C++.  Dual
 numbers are related to complex numbers, but &epsilon; is nilpotent.
 Nesting provides hyperdual numbers, and hyperhyperdual numbers, etc...
 
@@ -17,6 +17,8 @@ Using dual numbers in place of basic types provides a simple way to compute the 
 Thus, to calculate \f$ f'(3) \f$, set \f$ y = 1 \f$, \f$ z = (3 +
 &epsilon; 1) \f$ and take the \f$ &epsilon;\f$-part of \f$ f(z) \f$ =>
 \f$ epart(f(z)) := f'(3) \f$
+
+`cxxduals::dual<>`, `cxxduals::dual<float>`
 
 ## Usage
 
@@ -35,13 +37,14 @@ Thus, to calculate \f$ f'(3) \f$, set \f$ y = 1 \f$, \f$ z = (3 +
   
 ~~~~~~~~~~~~~~~
 
-Before including the header, some #defines will modify what's done by
+Before including the header, some "#defines" will modify what's done by
 the header:
 
 ~~~~~~~~~~~~~~~{.cpp}
 
 #define CXXDUALS_NO_LIMITS   // disable specialization of std::numeric_limits<>
 #define CXXDUALS_NO_TYPEDEFS // disable typedefs for `dualf,duald,dualld,dualcf,dualcd,dualcld`
+#include <cxxduals/dual>
 
 ~~~~~~~~~~~~~~~
 
@@ -51,8 +54,8 @@ See the examples in tests/* and examples/*
 - lots more tests
 - let the value_type be a std::vector
 - add printer to show the number in linear form (as a matrix)
-- define ```dot(dual<complex<> >``` , ```dual<complex<> >)``` and
-  ```norm(dual<complex<> >)```
+- define `dot(dual<complex<> >` , `dual<complex<> >)` and
+  `norm(dual<complex<> >)`
 - currently only tested on c++11, should make sure older c++ works as
   much as possible too
 - support the other algebras, and their various nestings: (how easy
@@ -87,5 +90,6 @@ MIT, same as the original Fike code.
 
 ## Please report (and/or fix) any problems you find!
 
-Once a good amount of test coverage is in place there should be numbered releases.
+Once a good amount of test coverage is in place there should be
+numbered releases.
 
