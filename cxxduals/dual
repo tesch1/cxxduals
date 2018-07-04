@@ -1216,13 +1216,11 @@ DUALH_COMPARISON_OP(!=)
   ;
 #endif
 
-#if 0
-// TODO: group parts by e-index better
-#else
 template<typename _Tp, typename _CharT, class _Traits>
 std::basic_ostream<_CharT, _Traits> &
 operator<<(std::basic_ostream<_CharT, _Traits> & os, const dual<_Tp>& rhs)
 {
+#if 0
   std::basic_ostringstream<_CharT, _Traits> s;
   s.flags(os.flags());
   s.imbue(os.getloc());
@@ -1231,8 +1229,21 @@ operator<<(std::basic_ostream<_CharT, _Traits> & os, const dual<_Tp>& rhs)
     << " + e" << dual_trait_helper<dual<_Tp> >::depth << "*" << rhs.epart()
     << ")";
   return os << s.str();
-}
+#else
+  std::basic_ostringstream<_CharT, _Traits> s;
+  s.flags(os.flags());
+  s.imbue(os.getloc());
+  s.precision(os.precision());
+  s << "(";
+  for (int p = 0; p < rhs.num_elem; p++) {
+    if (p)
+      s << " + e" << p << "*";
+    s << rhs.part(p);
+  }
+  s << ")";
+  return os << s.str();
 #endif
+}
 
 } // namespace cxxduals
 

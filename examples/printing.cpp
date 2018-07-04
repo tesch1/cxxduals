@@ -61,4 +61,7 @@ int main(int argc, char *argv[])
   std::cout << "d/dx h*h = " << epart(h*h) << "\n";
   std::cout << "d/dx h^0.5 = " << sqrt(h) << "\n";
   std::cout << "d/dx pow(f,2) = " << epart(pow(f,2.0)) << "\n";
+
+  std::cout << "hyperduals:\n";
+  std::cout << hyperdualf(1,2) << "\n";
 }
