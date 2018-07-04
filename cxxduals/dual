@@ -228,6 +228,7 @@ template <> struct arg_filter<float> { typedef int test; };
 template <> struct arg_filter<double> { typedef int test; };
 template <> struct arg_filter<long double> { typedef int test; };
 
+/// what results from binary ops of these types
 template <typename _Tp, typename _Up> struct common_type;
 template <typename _Tp, typename _Up> struct common_type<dual<_Tp>, dual<_Up> > {
   typedef dual<typename std::common_type<_Tp, _Up>::type> type;
@@ -252,7 +253,6 @@ template <typename _Xp>
 struct arg_filter<std::complex<_Xp> > : public arg_filter<_Xp> { typedef int test; };
 #endif // 1
 template <typename _Tp> struct is_arithmetic<std::complex<_Tp> > : public std::is_arithmetic<_Tp> {};
-//template <typename _Tp> struct is_arithmetic<dual<_Tp> > : public std::is_arithmetic<_Tp> {};
 #endif // CXXDUALS_NO_COMPLEX
 
 }
@@ -313,8 +313,7 @@ public:
   }
 #endif
 
-  template<typename _Up,
-           typename _Upt = typename std::common_type<_Tp, _Up>::type>
+  template<typename _Up>
   DUAL_DEVICE_FUNC
   dual(const dual<_Up> & rhs)
     : _f0(rhs.rpart()), _f1(rhs.epart()) { }
