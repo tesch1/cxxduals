@@ -208,26 +208,20 @@ struct dual_trait_helper<dual<_Tp> > {
 namespace internal {
 // filter to only allow basic types to be converted in constructor below
 template <typename _Tp> struct arg_filter;
-template <> struct arg_filter<int> { arg_filter(int x) : val(x) {} int val; };
-template <> struct arg_filter<float> { arg_filter(float x) : val(x) {} float val; };
-template <> struct arg_filter<double> { arg_filter(double x) : val(x) {} double val; };
-template <> struct arg_filter<long double> { arg_filter(long double x) : val(x) {} long double val; };
+template <> struct arg_filter<int> { typedef int test; };
+template <> struct arg_filter<float> { typedef int test; };
+template <> struct arg_filter<double> { typedef int test; };
+template <> struct arg_filter<long double> { typedef int test; };
 #ifndef CXXDUALS_NO_COMPLEX
-template <typename _Tp> struct arg_filter<std::complex<_Tp> > {
-  arg_filter(std::complex<_Tp> x) : val(x) {} std::complex<_Tp> val; };
+#if 0
+template <> struct arg_filter<std::complex<float> > { typedef int test; };
+template <> struct arg_filter<std::complex<double> > { typedef int test; };
+template <> struct arg_filter<std::complex<long double> > { typedef int test; };
+#else
+template <typename _Xp>
+struct arg_filter<std::complex<_Xp> > : public arg_filter<_Xp> { typedef int test; };
+#endif
 #endif // CXXDUALS_NO_COMPLEX
-
-template <typename _Tp> struct arg_filter2;
-template <> struct arg_filter2<int> { typedef int test; };
-template <> struct arg_filter2<float> { typedef int test; };
-template <> struct arg_filter2<double> { typedef int test; };
-template <> struct arg_filter2<long double> { typedef int test; };
-#ifndef CXXDUALS_NO_COMPLEX
-template <> struct arg_filter2<std::complex<float> > { typedef int test; };
-template <> struct arg_filter2<std::complex<double> > { typedef int test; };
-template <> struct arg_filter2<std::complex<long double> > { typedef int test; };
-#endif // CXXDUALS_NO_COMPLEX
-//template <typename _Xp> struct arg_filter2<std::complex<_Xp> > : public arg_filter2<_Xp> {};
 
 }
 
@@ -260,14 +254,14 @@ public:
     : _f0(f0), _f1(f1) { }
 
   template <typename _Up,
-            typename _Ux = typename internal::arg_filter2<_Up>::test >
+            typename _Ux = typename internal::arg_filter<_Up>::test >
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual(const _Up & f0)
     : _f0(f0), _f1() { }
 
   template <typename _Up, typename _Vp, 
-            typename _Ux = typename internal::arg_filter2<_Up>::test,
-            typename _Vx = typename internal::arg_filter2<_Vp>::test >
+            typename _Ux = typename internal::arg_filter<_Up>::test,
+            typename _Vx = typename internal::arg_filter<_Vp>::test >
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Vp & f1)
     : _f0(f0), _f1(f1) { }
@@ -392,6 +386,7 @@ private:
 
 public:
 
+  /// Set a single part value
   DUAL_DEVICE_FUNC
   inline void
   part(int p, const basic_value_type & v) {
@@ -399,23 +394,11 @@ public:
   }
 
   /// Assignment
-#if 0
-  DUAL_DEVICE_FUNC
-  inline dual<_Tp> &
-  operator=(const _Tp & rhs) { _f0 = rhs; _f1 = _Tp(); return *this; }
-#endif
-
   template <typename _Up,
-            typename _Ux = typename internal::arg_filter2<_Up>::test >
+            typename _Ux = typename internal::arg_filter<_Up>::test >
   DUAL_DEVICE_FUNC
   inline dual<_Tp> &
   operator=(const _Up & f0) { _f0 = f0; _f1 = _Tp(); return *this; }
-
-#if 0
-  DUAL_DEVICE_FUNC
-  inline dual<_Tp> &
-  operator=(const dual<_Tp> & rhs) { _f0 = rhs._f0; _f1 = rhs._f1; return *this; }
-#endif
 
   template<typename _Up>
   DUAL_DEVICE_FUNC
