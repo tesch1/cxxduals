@@ -8,6 +8,7 @@ Nesting provides hyperdual numbers, and hyperhyperdual numbers, etc...
 Also compiles under CUDA.
 
 [![Build Status](https://api.travis-ci.org/tesch1/cxxduals.svg?branch=master)](http://travis-ci.org/tesch1/cxxduals)
+[![Coverage Status](https://coveralls.io/repos/github/tesch1/cxxduals/badge.svg?branch=master)](https://coveralls.io/github/tesch1/cxxduals?branch=master)
 
 Using dual numbers in place of basic types provides a simple way to compute the derivative of a function, because:
 
