@@ -7,27 +7,29 @@ Also compiles under CUDA.
 
 Using dual numbers in place of basic types provides a simple way to compute the derivative of a function, because:
 
-f(x + &epsilon; y) = f(x) + &epsilon; f'(x) y
+\f$ f(x + &epsilon; y) = f(x) + &epsilon; f'(x) y \f$
 
-Thus, to calculate f'(3), set z = (3 + &epsilon; 1) and take the &epsilon;-part of f(z) => epart(f(z)) := f'(3)
+Thus, to calculate \f$ f'(3) \f$, set \f$ y = 1 \f$, \f$ z = (3 + &epsilon; 1) \f$ and take the \f$ &epsilon;\f$-part of \f$ f(z) \f$ => \f$ epart(f(z)) := f'(3) \f$
 
 ## Usage
-
-```cpp
+~~~~~~~~~~~~~~~{.cpp}
+```
   #include <cxxduals/dual>
+  using namespace cxxduals;
 
   ...
-
-  cxxduals::dual<double> x;
+  dual<double> x;
   x = {3,1};
 
   std::cout << "x=" << x << "\n";
   std::cout << "x*x=" << x*x << "\n";
   std::cout << "epart(x*x) = d(x*x)/dx = " << epart(x*x) << "\n";
 ```
+~~~~~~~~~~~~~~~
 
 Before including the header, some #defines will modify what's done by the header:
-```cpp
+~~~~~~~~~~~~~~~{.cpp}
+```
 #define CXXDUALS_NO_LIMITS   // disable specialization of std::numeric_limits<> for the ```dualf,duald...``` types
 #define CXXDUALS_NO_TYPEDEFS // disable typedefs for ```dualf,duald,dualld,dualcf,dualcd,dualcld```
 ```

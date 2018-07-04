@@ -1,35 +1,29 @@
+# 3.9 adds support for "GoogleTest" which enumerates the tests inside
+# of the code and adds them to ctest.
+cmake_minimum_required (VERSION 3.9)
 
-# gtest install
-add_custom_command (OUTPUT "gtest-1.7.0/src/gtest-all.cc"
-  COMMAND rm -f gtest-1.7.0.zip
-  COMMAND rm -fR gtest-1.7.0
-  COMMAND wget -O gtest-1.7.0.zip https://googletest.googlecode.com/files/gtest-1.7.0.zip
-  COMMAND unzip gtest-1.7.0.zip
-  COMMAND rm -f gtest-1.7.0.zip
-  )
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0/include)
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/gtest-1.7.0)
-add_library (gtest "gtest-1.7.0/src/gtest-all.cc")
-target_link_libraries (gtest pthread)
+# Configure google-test as a downloadable library.
+include (External_GTest.cmake)
+include (GoogleTest)
 
 # where to find cxxduals/dual
 include_directories (${CMAKE_SOURCE_DIR}/)
 
 # test binaries
 add_executable (test1 test1.cpp)
-target_link_libraries (test1 gtest)
+target_link_libraries (test1 ${GTEST_LIBRARY})
 
 add_executable (test2 test2.cpp)
-target_link_libraries (test2 gtest)
+target_link_libraries (test2 ${GTEST_LIBRARY})
 
 # individual tests
-add_test (basic test1)
-add_test (differentials test2)
+gtest_add_tests (TARGET test1)
+gtest_add_tests (TARGET test2)
 
 # CUDA
 if (CUDA_FOUND)
   cuda_add_executable (cudatest1 cudatest1.cu)
-  target_link_libraries (cudatest1 gtest)
-  add_test (basicCUDA cudatest1)
+  target_link_libraries (cudatest1 ${GTEST_LIBRARY})
+  gtest_add_test (TARGET cudatest1)
 endif (CUDA_FOUND)
 

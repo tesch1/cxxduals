@@ -33,7 +33,7 @@
 //
 //  https://github.com/tesch1/cxxduals
 //
-#ifndef LIB_CXXDUALX
+#ifndef LIB_CXXDUALS
 #define LIB_CXXDUALS 1
 
 #include <cmath>
@@ -115,7 +115,7 @@ bool isnormal(const _Tp & x)
 #define DUAL_STD_MATH(FUNC) using std::FUNC
 #endif
 
-/* dual-numbers implementation for calculation of differentials */
+/*! dual-numbers implementation for calculation of differentials */
 
 namespace cxxduals {
 
@@ -195,8 +195,9 @@ struct dual_trait_helper<std::complex<_Tp> > : public dual_traits_basic<_Tp> {
 };
 #endif // CXXDUALS_NO_COMPLEX
 template <typename _Tp>
-struct dual_trait_helper<dual<_Tp> > : public dual_traits_basic<typename dual<_Tp>::scalar_type> {
-  typedef typename dual_trait_helper<_Tp>::scalar_type scalar_type;
+//struct dual_trait_helper<dual<_Tp> > : public dual_traits_basic<typename dual<_Tp>::scalar_type> {
+struct dual_trait_helper<dual<_Tp> > {
+  typedef dual<typename dual_trait_helper<_Tp>::scalar_type> scalar_type;
   typedef typename dual_trait_helper<_Tp>::value_type value_type;
   static const int depth = dual_trait_helper<_Tp>::depth + 1;
   static const int num_elem = dual_trait_helper<_Tp>::num_elem * 2;
@@ -1006,12 +1007,12 @@ DUAL_DEVICE_FUNC
 dual<_Tp>
 conj(const dual<_Tp> & x)
 {
-  // todo - dont just make things up
+  // there no derivative of conjugate()
   DUAL_STD_MATH(conj);
+  // nonsense:
   return dual<_Tp>(conj(x.rpart()),
                    conj(x.epart()));
 }
-#endif
 
 template <typename _Tp>
 DUAL_DEVICE_FUNC
@@ -1031,15 +1032,20 @@ imag(const dual<_Tp> & x)
   // todo - dont just make things up
   return dual<_Tp>(imag(x.rpart()), imag(x.epart()));
 }
+#endif
 
 template <typename _Tp>
 DUAL_DEVICE_FUNC
-inline dual<_Tp>
+inline
+dual<typename dual<_Tp>::scalar_type>
 abs(const dual<_Tp> & x)
 {
   DUAL_STD_MATH(abs);
-  // wrong for _Tp=complex
-  return abs(x.rpart()) == x.rpart() ? x : -x;
+  DUAL_STD_MATH(sqrt);
+  // wrong for _Tp=complex:
+  // return abs(x.rpart()) == x.rpart() ? x : -x;
+  return dual<typename dual<_Tp>::scalar_type>(abs(x.rpart()),
+                                               (x.rpart() / abs(x.rpart())) * x.epart());
 }
 
 template <typename _Tp>
