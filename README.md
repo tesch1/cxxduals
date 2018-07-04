@@ -13,7 +13,6 @@ Thus, to calculate \f$ f'(3) \f$, set \f$ y = 1 \f$, \f$ z = (3 + &epsilon; 1) \
 
 ## Usage
 ~~~~~~~~~~~~~~~{.cpp}
-```
   #include <cxxduals/dual>
   using namespace cxxduals;
 
@@ -24,15 +23,14 @@ Thus, to calculate \f$ f'(3) \f$, set \f$ y = 1 \f$, \f$ z = (3 + &epsilon; 1) \
   std::cout << "x=" << x << "\n";
   std::cout << "x*x=" << x*x << "\n";
   std::cout << "epart(x*x) = d(x*x)/dx = " << epart(x*x) << "\n";
-```
 ~~~~~~~~~~~~~~~
 
 Before including the header, some #defines will modify what's done by the header:
+
 ~~~~~~~~~~~~~~~{.cpp}
-```
 #define CXXDUALS_NO_LIMITS   // disable specialization of std::numeric_limits<> for the ```dualf,duald...``` types
 #define CXXDUALS_NO_TYPEDEFS // disable typedefs for ```dualf,duald,dualld,dualcf,dualcd,dualcld```
-```
+~~~~~~~~~~~~~~~
 
 See the examples in tests/* and examples/*
 
