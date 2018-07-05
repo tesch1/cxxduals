@@ -55,68 +55,51 @@
 #endif
 
 #ifdef __CUDACC__
+// /////////////// Stuff missing in CUDA ///////////////////
 #define DUAL_DEVICE_FUNC __host__ __device__
 #define DUAL_STD_MATH(FUNC) using ::FUNC
-
 #include <float.h>
 #ifndef NPP_MIN_8U
 #include <nppdefs.h>
 #undef NV_NPPIDEFS_H
 #endif
 #include <math_constants.h>
-
 template <typename T> struct numeric_limits;
-
 template <> struct numeric_limits<float>
 {
-  __device__ __forceinline__ static float 
-  quiet_NaN() { return CUDART_NAN_F; };
-  __device__ __forceinline__ static float 
-  infinity() { return CUDART_INF_F; };
-  __device__ __forceinline__ static float 
-  epsilon() { return FLT_EPSILON; };
- 
-  __device__ __forceinline__ static float 
-  min() { return NPP_MINABS_32F; };
-  __device__ __forceinline__ static float 
-  max() { return NPP_MAXABS_32F; };
+  __device__ __forceinline__ static float quiet_NaN() { return CUDART_NAN_F; };
+  __device__ __forceinline__ static float infinity() { return CUDART_INF_F; };
+  __device__ __forceinline__ static float epsilon() { return FLT_EPSILON; };
+  __device__ __forceinline__ static float min() { return NPP_MINABS_32F; };
+  __device__ __forceinline__ static float max() { return NPP_MAXABS_32F; };
 };
-
 template <> struct numeric_limits<double>
 {
-  __device__ __forceinline__ static double 
-  quiet_NaN() { return CUDART_NAN; };
-  __device__ __forceinline__ static double 
-  infinity() { return CUDART_INF; };
-  __device__ __forceinline__ static double 
-  epsilon() { return DBL_EPSILON; };
- 
-  __device__ __forceinline__ static double 
-  min() { return NPP_MINABS_64F; };
-  __device__ __forceinline__ static double 
-  max() { return NPP_MAXABS_64F; };
+  __device__ __forceinline__ static double quiet_NaN() { return CUDART_NAN; };
+  __device__ __forceinline__ static double infinity() { return CUDART_INF; };
+  __device__ __forceinline__ static double epsilon() { return DBL_EPSILON; };
+   __device__ __forceinline__ static double min() { return NPP_MINABS_64F; };
+  __device__ __forceinline__ static double max() { return NPP_MAXABS_64F; };
 };
-
 template <> struct numeric_limits<short>
 {
-  __device__ __forceinline__ static short 
-  max() { return SHRT_MAX; };
+  __device__ __forceinline__ static short max() { return SHRT_MAX; };
 };
-
-template <typename _Tp>
-bool isnormal(const _Tp & x)
+template <typename _Tp> bool isnormal(const _Tp & x)
 {
   // maybe not exactly right?
   return !(x==0.0 || isnan(x) || isinf(x) || isfinite(x));
 }
-
 #else
+// /////////////// Not CUDA ///////////////////
 #define DUAL_DEVICE_FUNC
 #define DUAL_STD_MATH(FUNC) using std::FUNC
 #endif
+// /////////////// End CUDA ///////////////////
 
-/*! dual-numbers implementation for calculation of differentials */
-
+/*!
+ * dual-numbers implementation for calculation of differentials
+ */
 namespace cxxduals {
 
 // forward declaration
@@ -154,6 +137,7 @@ typedef hyperdual<std::complex<long double> > hyperdualcld;
 namespace std {
 template<typename _Tp>
 struct numeric_limits<cxxduals::dual<_Tp> > : public numeric_limits<_Tp> {
+#if 0
   typedef cxxduals::dual<_Tp> T;
   static CXXDUALS_CONSTEXPR bool is_specialized = true;
   static CXXDUALS_CONSTEXPR T min()           { return T(numeric_limits<_Tp>::min()); }
@@ -164,6 +148,7 @@ struct numeric_limits<cxxduals::dual<_Tp> > : public numeric_limits<_Tp> {
   static CXXDUALS_CONSTEXPR T quiet_NaN()     { return T(numeric_limits<_Tp>::quiet_NaN()); }
   static CXXDUALS_CONSTEXPR T signaling_NaN() { return T(numeric_limits<_Tp>::signaling_NaN()); }
   static CXXDUALS_CONSTEXPR T denorm_min()    { return T(numeric_limits<_Tp>::denorm_min()); }
+#endif
 };
 // TODO: cv-specializations (C++11 18.3.2.3/2)
 } // std
@@ -387,6 +372,7 @@ private:
   }
 
 public:
+
   DUAL_DEVICE_FUNC
   inline basic_value_type &
   part(int p) {
@@ -1215,12 +1201,18 @@ DUALH_COMPARISON_OP(!=)
 // fix emacs auto formatting below this point for me
   ;
 #endif
+#undef DUAL_DEVICE_FUNC
 
+} // namespace cxxduals
+
+#include <iomanip>
 template<typename _Tp, typename _CharT, class _Traits>
 std::basic_ostream<_CharT, _Traits> &
-operator<<(std::basic_ostream<_CharT, _Traits> & os, const dual<_Tp>& rhs)
+operator<<(std::basic_ostream<_CharT, _Traits> & os, const cxxduals::dual<_Tp>& rhs)
 {
+  using namespace cxxduals;
 #if 0
+  // print nested duals
   std::basic_ostringstream<_CharT, _Traits> s;
   s.flags(os.flags());
   s.imbue(os.getloc());
@@ -1229,7 +1221,8 @@ operator<<(std::basic_ostream<_CharT, _Traits> & os, const dual<_Tp>& rhs)
     << " + e" << dual_trait_helper<dual<_Tp> >::depth << "*" << rhs.epart()
     << ")";
   return os << s.str();
-#else
+#elif 1
+  // print dual parts by epsilon-grade
   std::basic_ostringstream<_CharT, _Traits> s;
   s.flags(os.flags());
   s.imbue(os.getloc());
@@ -1242,11 +1235,27 @@ operator<<(std::basic_ostream<_CharT, _Traits> & os, const dual<_Tp>& rhs)
   }
   s << ")";
   return os << s.str();
+#else
+  // print as matrix (wrong)
+  std::basic_ostringstream<_CharT, _Traits> s;
+  s.flags(os.flags());
+  s.imbue(os.getloc());
+  s.precision(os.precision());
+  s << "(";
+  int side = rhs.num_elem;
+  for (int i = 0; i < side; i++) {
+    for (int j = 0; j < i; j++)
+      //s << "         " << 0 << " ";
+      s << std::setw(10) << 0 << " ";
+    for (int j = i; j < side; j++) {
+      s << std::setw(10) << rhs.part(j) << " ";
+    }
+    if (i < side-1)
+      s << "\n ";
+  }
+  s << ")";
+  return os << s.str();
 #endif
 }
-
-} // namespace cxxduals
-
-#undef DUAL_DEVICE_FUNC
 
 #endif // LIB_CXXDUALS

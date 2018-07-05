@@ -284,6 +284,26 @@ TESTREAL(compare)
 TESTALL(arithmetic)
 TESTALL(transcendental)
 
+TEST(basic, construction) {
+  dualf a;
+  dualf b(1);
+  dualf c(1,2);
+  dualf c1{1,2};
+
+  dualcf d;
+  dualcf e({1,2});
+  dualcf e1{1,2};
+  dualcf f({1,2}, {3,4});
+
+  hyperdualf g;
+  hyperdualf h(1);
+  hyperdualf i(1,2);
+
+  hyperdualcf j;
+  hyperdualcf k(1);
+  hyperdualcf l(1,2);
+}
+
 // simple types
 TEST_TYPEMIX(casting, float, float)
 TEST_TYPEMIX(casting, float, double)
