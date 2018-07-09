@@ -35,8 +35,8 @@ include (CTest)
 add_subdirectory (tests)
 add_subdirectory (examples)
 
-configure_file (${CMAKE_SOURCE_DIR}/docs/Doxyfile.in ${CMAKE_BINARY_DIR}/docs/Doxyfile)
+configure_file (${CMAKE_SOURCE_DIR}/doc/Doxyfile.in ${CMAKE_BINARY_DIR}/doc/Doxyfile)
 add_custom_target (docs
 #  COMMAND cd docs && git clean -fd .
-  COMMAND cd docs && VERSION=1 doxygen Doxyfile
+  COMMAND cd doc && VERSION=1 doxygen Doxyfile
   )

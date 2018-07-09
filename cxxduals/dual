@@ -23,10 +23,10 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// Version 0.0.0
+// Version 0.0.1
 //
-// Thanks to Jeff Fike for publishing the dual original code upon which this
-// file is based.
+// Thanks to Jeff Fike for publishing the dual original code upon
+// which this file is based.
 //
 // The cxxdual package is available on github, bug reports and feature
 // additions welcome.
@@ -387,6 +387,7 @@ private:
   }
 
 public:
+
   DUAL_DEVICE_FUNC
   inline basic_value_type &
   part(int p) {
@@ -464,6 +465,11 @@ public:
   }
 
   /// addition
+  /**
+   * \f[
+   * (a + b \epsilon) + c
+   * \f]
+   */
   DUAL_DEVICE_FUNC
   dual<_Tp> &
   operator+=(const _Tp & rhs)
@@ -472,6 +478,11 @@ public:
     return *this;
   }
 
+  /**
+   * \f[
+   * (a + b \epsilon) + (c + d \epsilon)
+   * \f]
+   */
   template<typename _Up>
   DUAL_DEVICE_FUNC
   dual<_Tp> &
@@ -483,6 +494,11 @@ public:
   }
 
   /// subtraction
+  /**
+   * \f[
+   * (a + b \epsilon) - c
+   * \f]
+   */
   DUAL_DEVICE_FUNC
   dual<_Tp> &
   operator-=(const _Tp & rhs)
@@ -491,6 +507,11 @@ public:
     return *this;
   }
 
+  /**
+   * \f[
+   * (a + b \epsilon) - (c + d \epsilon)
+   * \f]
+   */
   template<typename _Up>
   DUAL_DEVICE_FUNC
   dual<_Tp> &
@@ -502,6 +523,11 @@ public:
   }
 
   /// multiplication
+  /**
+   * \f[
+   * (a + b \epsilon) * c
+   * \f]
+   */
   DUAL_DEVICE_FUNC
   dual<_Tp> &
   operator*=(const _Tp & rhs)
@@ -511,6 +537,11 @@ public:
     return *this;
   }
 
+  /**
+   * \f[
+   * (a + b \epsilon) * (c + d \epsilon)
+   * \f]
+   */
   template<typename _Up>
   DUAL_DEVICE_FUNC
   dual<_Tp> &
@@ -528,6 +559,11 @@ public:
   }
 
   /// division
+  /**
+   * \f[
+   * (a + b \epsilon) / c
+   * \f]
+   */
   DUAL_DEVICE_FUNC
   dual<_Tp> &
   operator/=(const _Tp & rhs)
@@ -537,6 +573,11 @@ public:
     return *this;
   }
 
+  /**
+   * \f[
+   * (a + b \epsilon) / (c + d \epsilon)
+   * \f]
+   */
   template<typename _Up>
   DUAL_DEVICE_FUNC
   dual<_Tp> &
@@ -567,6 +608,11 @@ public:
 
 /// Value extraction
 //@{
+/**
+ * \f[
+ * rpart(a + b \epsilon) = a
+ * \f]
+ */
 template <typename _Tp>
 DUAL_DEVICE_FUNC
 inline _Tp
@@ -575,6 +621,11 @@ rpart(const dual<_Tp> & d)
   return d.rpart();
 }
 
+/**
+ * \f[
+ * rpart(a) = a
+ * \f]
+ */
 template <typename _Tp>
 DUAL_DEVICE_FUNC
 inline _Tp
@@ -583,6 +634,11 @@ rpart(const _Tp & d)
   return d;
 }
 
+/**
+ * \f[
+ * epart(a + b \epsilon) = b
+ * \f]
+ */
 template <typename _Tp>
 DUAL_DEVICE_FUNC
 inline _Tp
@@ -1215,12 +1271,16 @@ DUALH_COMPARISON_OP(!=)
 // fix emacs auto formatting below this point for me
   ;
 #endif
+#undef DUAL_DEVICE_FUNC
 
+//#include <iomanip>
 template<typename _Tp, typename _CharT, class _Traits>
 std::basic_ostream<_CharT, _Traits> &
-operator<<(std::basic_ostream<_CharT, _Traits> & os, const dual<_Tp>& rhs)
+operator<<(std::basic_ostream<_CharT, _Traits> & os, const cxxduals::dual<_Tp> & rhs)
 {
+  using namespace cxxduals;
 #if 0
+  // print nested duals
   std::basic_ostringstream<_CharT, _Traits> s;
   s.flags(os.flags());
   s.imbue(os.getloc());
@@ -1229,7 +1289,8 @@ operator<<(std::basic_ostream<_CharT, _Traits> & os, const dual<_Tp>& rhs)
     << " + e" << dual_trait_helper<dual<_Tp> >::depth << "*" << rhs.epart()
     << ")";
   return os << s.str();
-#else
+#elif 1
+  // print dual parts by epsilon-grade
   std::basic_ostringstream<_CharT, _Traits> s;
   s.flags(os.flags());
   s.imbue(os.getloc());
@@ -1242,11 +1303,29 @@ operator<<(std::basic_ostream<_CharT, _Traits> & os, const dual<_Tp>& rhs)
   }
   s << ")";
   return os << s.str();
+#else
+  // print as matrix (wrong)
+  std::basic_ostringstream<_CharT, _Traits> s;
+  s.flags(os.flags());
+  s.imbue(os.getloc());
+  s.precision(os.precision());
+  s << "(";
+  int side = rhs.num_elem;
+  for (int i = 0; i < side; i++) {
+    for (int j = 0; j < i; j++)
+      //s << "         " << 0 << " ";
+      s << std::setw(10) << 0 << " ";
+    for (int j = i; j < side; j++) {
+      s << std::setw(10) << rhs.part(j) << " ";
+    }
+    if (i < side-1)
+      s << "\n ";
+  }
+  s << ")";
+  return os << s.str();
 #endif
 }
 
 } // namespace cxxduals
-
-#undef DUAL_DEVICE_FUNC
 
 #endif // LIB_CXXDUALS
