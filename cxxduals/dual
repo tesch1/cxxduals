@@ -55,68 +55,51 @@
 #endif
 
 #ifdef __CUDACC__
+// /////////////// Stuff missing in CUDA ///////////////////
 #define DUAL_DEVICE_FUNC __host__ __device__
 #define DUAL_STD_MATH(FUNC) using ::FUNC
-
 #include <float.h>
 #ifndef NPP_MIN_8U
 #include <nppdefs.h>
 #undef NV_NPPIDEFS_H
 #endif
 #include <math_constants.h>
-
 template <typename T> struct numeric_limits;
-
 template <> struct numeric_limits<float>
 {
-  __device__ __forceinline__ static float 
-  quiet_NaN() { return CUDART_NAN_F; };
-  __device__ __forceinline__ static float 
-  infinity() { return CUDART_INF_F; };
-  __device__ __forceinline__ static float 
-  epsilon() { return FLT_EPSILON; };
- 
-  __device__ __forceinline__ static float 
-  min() { return NPP_MINABS_32F; };
-  __device__ __forceinline__ static float 
-  max() { return NPP_MAXABS_32F; };
+  __device__ __forceinline__ static float quiet_NaN() { return CUDART_NAN_F; };
+  __device__ __forceinline__ static float infinity() { return CUDART_INF_F; };
+  __device__ __forceinline__ static float epsilon() { return FLT_EPSILON; };
+  __device__ __forceinline__ static float min() { return NPP_MINABS_32F; };
+  __device__ __forceinline__ static float max() { return NPP_MAXABS_32F; };
 };
-
 template <> struct numeric_limits<double>
 {
-  __device__ __forceinline__ static double 
-  quiet_NaN() { return CUDART_NAN; };
-  __device__ __forceinline__ static double 
-  infinity() { return CUDART_INF; };
-  __device__ __forceinline__ static double 
-  epsilon() { return DBL_EPSILON; };
- 
-  __device__ __forceinline__ static double 
-  min() { return NPP_MINABS_64F; };
-  __device__ __forceinline__ static double 
-  max() { return NPP_MAXABS_64F; };
+  __device__ __forceinline__ static double quiet_NaN() { return CUDART_NAN; };
+  __device__ __forceinline__ static double infinity() { return CUDART_INF; };
+  __device__ __forceinline__ static double epsilon() { return DBL_EPSILON; };
+   __device__ __forceinline__ static double min() { return NPP_MINABS_64F; };
+  __device__ __forceinline__ static double max() { return NPP_MAXABS_64F; };
 };
-
 template <> struct numeric_limits<short>
 {
-  __device__ __forceinline__ static short 
-  max() { return SHRT_MAX; };
+  __device__ __forceinline__ static short max() { return SHRT_MAX; };
 };
-
-template <typename _Tp>
-bool isnormal(const _Tp & x)
+template <typename _Tp> bool isnormal(const _Tp & x)
 {
   // maybe not exactly right?
   return !(x==0.0 || isnan(x) || isinf(x) || isfinite(x));
 }
-
 #else
+// /////////////// Not CUDA ///////////////////
 #define DUAL_DEVICE_FUNC
 #define DUAL_STD_MATH(FUNC) using std::FUNC
 #endif
+// /////////////// End CUDA ///////////////////
 
-/*! dual-numbers implementation for calculation of differentials */
-
+/*!
+ * dual-numbers implementation for calculation of differentials
+ */
 namespace cxxduals {
 
 // forward declaration
@@ -154,6 +137,7 @@ typedef hyperdual<std::complex<long double> > hyperdualcld;
 namespace std {
 template<typename _Tp>
 struct numeric_limits<cxxduals::dual<_Tp> > : public numeric_limits<_Tp> {
+#if 0
   typedef cxxduals::dual<_Tp> T;
   static CXXDUALS_CONSTEXPR bool is_specialized = true;
   static CXXDUALS_CONSTEXPR T min()           { return T(numeric_limits<_Tp>::min()); }
@@ -164,6 +148,7 @@ struct numeric_limits<cxxduals::dual<_Tp> > : public numeric_limits<_Tp> {
   static CXXDUALS_CONSTEXPR T quiet_NaN()     { return T(numeric_limits<_Tp>::quiet_NaN()); }
   static CXXDUALS_CONSTEXPR T signaling_NaN() { return T(numeric_limits<_Tp>::signaling_NaN()); }
   static CXXDUALS_CONSTEXPR T denorm_min()    { return T(numeric_limits<_Tp>::denorm_min()); }
+#endif
 };
 // TODO: cv-specializations (C++11 18.3.2.3/2)
 } // std
