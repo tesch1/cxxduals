@@ -37,9 +37,6 @@ var hierarchy =
     [ "cxxduals::internal::nocx_filter< float >", "structcxxduals_1_1internal_1_1nocx__filter_3_01float_01_4.html", null ],
     [ "cxxduals::internal::nocx_filter< int >", "structcxxduals_1_1internal_1_1nocx__filter_3_01int_01_4.html", null ],
     [ "cxxduals::internal::nocx_filter< long double >", "structcxxduals_1_1internal_1_1nocx__filter_3_01long_01double_01_4.html", null ],
-    [ "numeric_limits", null, [
-      [ "std::numeric_limits< cxxduals::dual< _Tp > >", "structstd_1_1numeric__limits_3_01cxxduals_1_1dual_3_01___tp_01_4_01_4.html", null ]
-    ] ],
     [ "true_type", null, [
       [ "cxxduals::is_complex< std::complex< T > >", "structcxxduals_1_1is__complex_3_01std_1_1complex_3_01_t_01_4_01_4.html", null ]
     ] ]
