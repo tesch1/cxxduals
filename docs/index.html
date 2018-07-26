@@ -69,9 +69,15 @@ $(document).ready(function(){initNavTree('index.html','');});
 <p>Using dual numbers in place of basic types provides a simple way to compute the derivative of a function, because:</p>
 <p>\( f(x + &epsilon; y) = f(x) + &epsilon; f&#39;(x) y \)</p>
 <p>Thus, to calculate \( f&#39;(3) \), set \( y = 1 \), \( z = (3 + &epsilon; 1) \) and take the \( &epsilon;\)-part of \( f(z) \) =&gt; \( epart(f(z)) := f&#39;(3) \)</p>
-<p><code><a class="el" href="classcxxduals_1_1dual.html" title="dual number class ">cxxduals::dual</a>&lt;&gt;</code>, <code><a class="el" href="classcxxduals_1_1dual.html" title="dual number class ">cxxduals::dual</a>&lt;float&gt;</code></p>
+<p>Shortcuts into the docs:</p>
+<ul>
+<li><code>namespace cxxduals</code></li>
+<li><code><a class="el" href="classcxxduals_1_1dual.html" title="dual number class ">cxxduals::dual</a></code></li>
+<li><code><a class="el" href="namespacecxxduals.html#a478aa708b2ecbc5f6fc3e478ce107b48">cxxduals::sin</a></code></li>
+</ul>
 <h2>Usage</h2>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;cxxduals/dual&gt;</span></div><div class="line"><span class="keyword">using namespace </span><a class="code" href="namespacecxxduals.html">cxxduals</a>;</div><div class="line"></div><div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[])</div><div class="line">{</div><div class="line">  <a class="code" href="classcxxduals_1_1dual.html">dual&lt;double&gt;</a> x;</div><div class="line">  x = {3,1};</div><div class="line"></div><div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;x=&quot;</span> &lt;&lt; x &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div><div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;x*x=&quot;</span> &lt;&lt; x*x &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div><div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;epart(x*x) = d(x*x)/dx = &quot;</span> &lt;&lt; <a class="code" href="namespacecxxduals.html#a0eb066a6f84f7101f235c88fdf14f722">epart</a>(x*x) &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div><div class="line">}</div></div><!-- fragment --><p>Produces:</p>
+<p>A simple example calculating (x*x) and the derivative of (x*x):</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div><div class="line"><span class="preprocessor">#include &lt;cxxduals/dual&gt;</span></div><div class="line"><span class="keyword">using namespace </span><a class="code" href="namespacecxxduals.html">cxxduals</a>;</div><div class="line"></div><div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[])</div><div class="line">{</div><div class="line">  <a class="code" href="classcxxduals_1_1dual.html">dual&lt;double&gt;</a> x;</div><div class="line">  x = {3,1};</div><div class="line"></div><div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;x=&quot;</span> &lt;&lt; x &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div><div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;x*x=&quot;</span> &lt;&lt; x*x &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div><div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;epart(x*x) = d(x*x)/dx = &quot;</span> &lt;&lt; <a class="code" href="namespacecxxduals.html#a0eb066a6f84f7101f235c88fdf14f722">epart</a>(x*x) &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div><div class="line">}</div></div><!-- fragment --><p>Produces:</p>
 <div class="fragment"><div class="line">x=(3 + e1*1)</div><div class="line">x*x=(9 + e1*6)</div><div class="line">epart(x*x) = d(x*x)/dx = 6</div></div><!-- fragment --><p>Before including the header, some "#defines" will modify what's done by the header:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#define CXXDUALS_NO_LIMITS   // disable specialization of std::numeric_limits&lt;&gt;</span></div><div class="line"><span class="preprocessor">#define CXXDUALS_NO_TYPEDEFS // disable typedefs for `dualf,duald,dualld,dualcf,dualcd,dualcld`</span></div><div class="line"><span class="preprocessor">#define CXXDUALS_EIGEN       // force inclusion of Eigen interface (normally auto-detected)</span></div><div class="line"><span class="preprocessor">#include &lt;cxxduals/dual&gt;</span></div></div><!-- fragment --><p>See the examples in tests/* and examples/*</p>
 <h2>TODO</h2>
@@ -99,11 +105,13 @@ $(document).ready(function(){initNavTree('index.html','');});
 <li><a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.89.7749&amp;rep=rep1&amp;type=pdf">Piponi, D. (2004). Automatic Differentiation, C++ Templates, and Photogrammetry. Journal of Graphics Tools, 9(4), 41–55. doi:10.1080/10867651.2004.10504901</a></li>
 <li><a href="http://people.rit.edu/harkin/research/articles/generalized_complex_numbers.pdf">http://people.rit.edu/harkin/research/articles/generalized_complex_numbers.pdf</a></li>
 <li><a href="https://www.ams.org/journals/tran/1960-094-03/S0002-9947-1960-0146681-0/S0002-9947-1960-0146681-0.pdf">https://www.ams.org/journals/tran/1960-094-03/S0002-9947-1960-0146681-0/S0002-9947-1960-0146681-0.pdf</a></li>
+<li><a href="http://www.dtecta.com/files/GDC13_vandenBergen_Gino_Math_Tut.pdf">http://www.dtecta.com/files/GDC13_vandenBergen_Gino_Math_Tut.pdf</a></li>
 </ul>
 <h2>Other implementations</h2>
 <ul>
 <li><a href="http://darioizzo.github.io/audi/gdual.html">http://darioizzo.github.io/audi/gdual.html</a></li>
 <li><a href="https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/jet.h">https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/jet.h</a></li>
+<li><a href="https://github.com/dtecta/motion-toolkit/blob/master/moto/Dual.hpp">https://github.com/dtecta/motion-toolkit/blob/master/moto/Dual.hpp</a></li>
 <li><a href="https://github.com/JuliaDiff/DualNumbers.jl">https://github.com/JuliaDiff/DualNumbers.jl</a></li>
 </ul>
 <h2>License</h2>

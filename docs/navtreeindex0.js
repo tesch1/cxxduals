@@ -105,6 +105,8 @@ var NAVTREEINDEX0 =
 "structcxxduals_1_1internal_1_1nocx__filter_3_01long_01double_01_4.html#aa0fdaa4c0c978bf82d810df840563030":[1,0,0,0,14,0],
 "structcxxduals_1_1is__complex.html":[1,0,0,10],
 "structcxxduals_1_1is__complex_3_01std_1_1complex_3_01_t_01_4_01_4.html":[1,0,0,11],
+"structcxxduals_1_1is__dual.html":[1,0,0,12],
+"structcxxduals_1_1is__dual_3_01dual_3_01_t_01_4_01_4.html":[1,0,0,13],
 "structstd_1_1common__type_3_01cxxduals_1_1dual_3_01___tp_01_4_00_01cxxduals_1_1dual_3_01___up_01_4_01_4.html":[1,0,1,0],
 "structstd_1_1common__type_3_01cxxduals_1_1dual_3_01___tp_01_4_00_01cxxduals_1_1dual_3_01___up_01_4_01_4.html#a1df290c36180607d92549e35df655124":[1,0,1,0,0],
 "tmp_8cpp_source.html":[2,0,1]

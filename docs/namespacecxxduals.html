@@ -61,7 +61,8 @@ $(document).ready(function(){initNavTree('namespacecxxduals.html','');});
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">cxxduals Namespace Reference</div>  </div>
 </div><!--header-->
@@ -97,6 +98,11 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcxxduals_1_1is__complex_3_01std_1_1complex_3_01_t_01_4_01_4.html">is_complex&lt; std::complex&lt; T &gt; &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcxxduals_1_1is__dual.html">is_dual</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">check if something is dual  <a href="structcxxduals_1_1is__dual.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcxxduals_1_1is__dual_3_01dual_3_01_t_01_4_01_4.html">is_dual&lt; dual&lt; T &gt; &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -121,6 +127,22 @@ typedef <a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; std::comple
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a7ebd76a776f86fba3fa10d7118224638"><td class="memTemplParams" colspan="2"><a id="a7ebd76a776f86fba3fa10d7118224638"></a>
+template&lt;typename _Tp , typename _Tpf  = typename internal::nocx_filter&lt;_Tp&gt;::test&gt; </td></tr>
+<tr class="memitem:a7ebd76a776f86fba3fa10d7118224638"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>rand</b> (_Tp &amp;d, _Tp a=0, _Tp b=1)</td></tr>
+<tr class="separator:a7ebd76a776f86fba3fa10d7118224638"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33bcdb55f4c9219c7e911be227622fbf"><td class="memTemplParams" colspan="2"><a id="a33bcdb55f4c9219c7e911be227622fbf"></a>
+template&lt;typename _Tp &gt; </td></tr>
+<tr class="memitem:a33bcdb55f4c9219c7e911be227622fbf"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>rand</b> (std::complex&lt; _Tp &gt; &amp;d)</td></tr>
+<tr class="separator:a33bcdb55f4c9219c7e911be227622fbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac04afe609209de099bdde4f8b6db684c"><td class="memTemplParams" colspan="2"><a id="ac04afe609209de099bdde4f8b6db684c"></a>
+template&lt;typename _Tp &gt; </td></tr>
+<tr class="memitem:ac04afe609209de099bdde4f8b6db684c"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>rand</b> (<a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt; &amp;d)</td></tr>
+<tr class="separator:ac04afe609209de099bdde4f8b6db684c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1242e2841b97f5b65a86530b04571f65"><td class="memTemplParams" colspan="2"><a id="a1242e2841b97f5b65a86530b04571f65"></a>
+template&lt;typename _Tp , internal::enable_if_t&lt; is_dual&lt; _Tp &gt;::value &gt; *  = nullptr&gt; </td></tr>
+<tr class="memitem:a1242e2841b97f5b65a86530b04571f65"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC _Tp&#160;</td><td class="memTemplItemRight" valign="bottom"><b>random</b> ()</td></tr>
+<tr class="separator:a1242e2841b97f5b65a86530b04571f65"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51cf6f65f99276ba7022438e9b7f5628"><td class="memTemplParams" colspan="2">template&lt;typename _Tp , typename _Up , internal::enable_if_t&lt; internal::is_arithmetic&lt; _Up &gt;::value &gt; *  = nullptr&gt; </td></tr>
 <tr class="memitem:a51cf6f65f99276ba7022438e9b7f5628"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC <a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacecxxduals.html#a51cf6f65f99276ba7022438e9b7f5628">pow</a> (const <a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt; &amp;xx, const _Up &amp;cc)</td></tr>
 <tr class="memdesc:a51cf6f65f99276ba7022438e9b7f5628"><td class="mdescLeft">&#160;</td><td class="mdescRight">Addition.  <a href="#a51cf6f65f99276ba7022438e9b7f5628">More...</a><br /></td></tr>
@@ -149,6 +171,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ab687401ef46ea13593db2f50135d310d"><td class="memTemplParams" colspan="2">template&lt;typename _Tp &gt; </td></tr>
 <tr class="memitem:ab687401ef46ea13593db2f50135d310d"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC <a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacecxxduals.html#ab687401ef46ea13593db2f50135d310d">asin</a> (<a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt; x)</td></tr>
 <tr class="separator:ab687401ef46ea13593db2f50135d310d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa37b2f9c8e537d42931dc13bf16b2802"><td class="memTemplParams" colspan="2">template&lt;typename _Tp &gt; </td></tr>
+<tr class="memitem:aa37b2f9c8e537d42931dc13bf16b2802"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC <a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacecxxduals.html#aa37b2f9c8e537d42931dc13bf16b2802">acos</a> (<a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt; x)</td></tr>
+<tr class="separator:aa37b2f9c8e537d42931dc13bf16b2802"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36a1c325bb49f3d93971356b67ebf44d"><td class="memTemplParams" colspan="2">template&lt;typename _Tp &gt; </td></tr>
 <tr class="memitem:a36a1c325bb49f3d93971356b67ebf44d"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC <a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacecxxduals.html#a36a1c325bb49f3d93971356b67ebf44d">atan</a> (<a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt; x)</td></tr>
 <tr class="separator:a36a1c325bb49f3d93971356b67ebf44d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -232,6 +257,12 @@ template&lt;typename _Tp , typename _CharT , class _Traits &gt; </td></tr>
 <tr class="memitem:a0eb066a6f84f7101f235c88fdf14f722"><td class="memTemplParams" colspan="2">template&lt;typename _Tp &gt; </td></tr>
 <tr class="memitem:a0eb066a6f84f7101f235c88fdf14f722"><td class="memTemplItemLeft" align="right" valign="top">DUAL_DEVICE_FUNC _Tp&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacecxxduals.html#a0eb066a6f84f7101f235c88fdf14f722">epart</a> (const <a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt; &amp;d)</td></tr>
 <tr class="separator:a0eb066a6f84f7101f235c88fdf14f722"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a990182e4c1634c4638aba7ddad434065"><td class="memItemLeft" align="right" valign="top"><a id="a990182e4c1634c4638aba7ddad434065"></a>
+std::default_random_engine&#160;</td><td class="memItemRight" valign="bottom"><b>generator</b></td></tr>
+<tr class="separator:a990182e4c1634c4638aba7ddad434065"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>dual-numbers implementation for calculation of differentials </p>
@@ -268,8 +299,11 @@ template&lt;typename _Tp , typename _Tpf  = typename internal::nocx_filter&lt;_T
 <p class="formulaDsp">
 \[ f(x) = \sqrt{(x^2 + \mathrm{imag}(x)^2)} \\ f&#39;(x) = \frac{x}{|x|} f&#39;(x) \\ x = a + b \epsilon \\ f(a + b \epsilon) = f(a) + b f&#39;(a) \epsilon \\ \]
 </p>
+<p>and for complex-valued functions: </p><p class="formulaDsp">
+\[ ? \]
+</p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01310">1310</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01323">1323</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -294,7 +328,32 @@ template&lt;typename _Tp &gt; </div>
 \[ |a + b \epsilon|^2 = x \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01328">1328</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01344">1344</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+
+</div>
+</div>
+<a id="aa37b2f9c8e537d42931dc13bf16b2802"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa37b2f9c8e537d42931dc13bf16b2802">&#9670;&nbsp;</a></span>acos()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename _Tp &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">DUAL_DEVICE_FUNC <a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt;_Tp&gt; cxxduals::acos </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classcxxduals_1_1dual.html">dual</a>&lt; _Tp &gt;&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p class="formulaDsp">
+\[ \mathrm{acos}(a + b \epsilon) = \]
+</p>
+ 
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01096">1096</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -319,7 +378,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \mathrm{asin}(a + b \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01066">1066</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01074">1074</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -344,7 +403,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \mathrm{atan}(a + b \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01112">1112</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01118">1118</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -379,7 +438,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \mathrm{atan2}(a + b \epsilon, c + d \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01133">1133</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01139">1139</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -404,7 +463,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01341">1341</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01357">1357</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -429,7 +488,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01248">1248</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01254">1254</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -462,7 +521,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \cos(a + b \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01025">1025</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01033">1033</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -495,7 +554,7 @@ template&lt;typename _Tp &gt; </div>
 \[ epart(a + b \epsilon) = b \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l00768">768</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l00716">716</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -520,7 +579,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \exp(a + b \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l00973">973</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l00981">981</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -545,7 +604,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01360">1360</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01376">1376</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -570,7 +629,7 @@ template&lt;typename _Tp &gt; </div>
 \[ i = \sqrt{-1} \\ \mathrm{imag}( (e+f*i) + (g+h*i) \epsilon ) = f + h \epsilon \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01284">1284</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01290">1290</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -595,7 +654,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \log(a + b \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l00988">988</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l00996">996</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -630,7 +689,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \max(a + b \epsilon, c + d \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01170">1170</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01176">1176</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -665,7 +724,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \max(a + b \epsilon, c) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01183">1183</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01189">1189</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -700,7 +759,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \max(a, c + d \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01196">1196</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01202">1202</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -735,7 +794,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \min(a + b \epsilon, c + d \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01209">1209</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01215">1215</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -770,7 +829,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \min(a + b \epsilon, c) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01222">1222</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01228">1228</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -805,7 +864,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \min(a, c + d \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01235">1235</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01241">1241</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -846,7 +905,7 @@ template&lt;typename _Tp , typename _Up , internal::enable_if_t&lt; internal::is
 \[ f(x) = x ^ c \\ f&#39;(x) = c x ^ {c-1} \\ x = a + b \epsilon \\ f(a + b \epsilon) = f(a) + b f&#39;(a) \epsilon \\ = a^c + b c a ^ {c-1} \epsilon \\ \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l00873">873</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l00881">881</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -885,7 +944,7 @@ template&lt;typename _Tp , typename _Up , typename std::enable_if&lt; internal::
 \[ f(y) = a ^ y \\ f&#39;(y) = a ^ y \log (a) \\ y = c + d \epsilon \\ f(c + d \epsilon) = f(c) + d f&#39;(c) \epsilon \\ = a^c + d a^c \log(a) \epsilon \\ \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l00923">923</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l00931">931</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -924,7 +983,7 @@ template&lt;typename _Tp &gt; </div>
 \[ f(x,y) = x ^ y \\ f&#39;(x,y) = x = a + b \epsilon \\ y = c + d \epsilon \\ f(x,y) = \\ \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l00952">952</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l00960">960</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -949,7 +1008,7 @@ template&lt;typename _Tp &gt; </div>
 \[ i = \sqrt{-1} \\ \mathrm{real}( (e+f*i) + (g+h*i) \epsilon ) = e + g \epsilon \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01267">1267</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01273">1273</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -984,7 +1043,7 @@ template&lt;typename _Tp &gt; </div>
 \[ rpart(a + b \epsilon) = a \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l00742">742</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l00691">691</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -1017,7 +1076,7 @@ template&lt;typename _Tp &gt; </div>
 \[ rpart(a) = a \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l00755">755</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l00704">704</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -1050,7 +1109,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \sin(a + b \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01004">1004</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01012">1012</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -1075,7 +1134,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \sqrt{a + b \epsilon} = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01155">1155</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01161">1161</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>
@@ -1108,7 +1167,7 @@ template&lt;typename _Tp &gt; </div>
 \[ \tan(a + b \epsilon) = \]
 </p>
  
-<p class="definition">Definition at line <a class="el" href="dual_source.html#l01046">1046</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dual_source.html#l01054">1054</a> of file <a class="el" href="dual_source.html">dual</a>.</p>
 
 </div>
 </div>

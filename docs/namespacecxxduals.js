@@ -27,5 +27,7 @@ var namespacecxxduals =
     [ "dual_traits_basic", "structcxxduals_1_1dual__traits__basic.html", "structcxxduals_1_1dual__traits__basic" ],
     [ "identity_t", "structcxxduals_1_1identity__t.html", "structcxxduals_1_1identity__t" ],
     [ "is_complex", "structcxxduals_1_1is__complex.html", null ],
-    [ "is_complex< std::complex< T > >", "structcxxduals_1_1is__complex_3_01std_1_1complex_3_01_t_01_4_01_4.html", null ]
+    [ "is_complex< std::complex< T > >", "structcxxduals_1_1is__complex_3_01std_1_1complex_3_01_t_01_4_01_4.html", null ],
+    [ "is_dual", "structcxxduals_1_1is__dual.html", null ],
+    [ "is_dual< dual< T > >", "structcxxduals_1_1is__dual_3_01dual_3_01_t_01_4_01_4.html", null ]
 ];
