@@ -49,7 +49,7 @@ struct pike_f1 {
   TYPE
   f(const TYPE & x) {
     typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
-    return exp(x) / sqrt(pow(sin(x), fp_t(3.)) + pow(cos(x), fp_t(3.)));
+    return exp(x) / sqrt(pow(sin(x), fp_t(3)) + pow(cos(x), fp_t(3)));
   }
 
   // analytic derivative
@@ -57,8 +57,8 @@ struct pike_f1 {
   TYPE
   df(const TYPE & x) {
     typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
-    return (exp(x) * ((fp_t)3. * cos(x) + (fp_t)5.*cos((fp_t)3.*x) + (fp_t)9. * sin(x) + sin((fp_t)3.*x))) /
-      ((fp_t)8. * pow(pow(sin(x), (fp_t)3.) + pow(cos(x), (fp_t)3.), (fp_t)(3./2.)));
+    return (exp(x) * (3 * cos(x) + 5*cos(3*x) + 9 * sin(x) + sin(3*x))) /
+      (8 * pow(pow(sin(x), fp_t(3)) + pow(cos(x), (fp_t)3.), (fp_t)(3./2.)));
   }
 
   // analytic second derivative
@@ -66,9 +66,9 @@ struct pike_f1 {
   TYPE
   ddf(const TYPE & x) {
     typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
-    return (exp(x) * (fp_t(130.) - fp_t(12.) * cos(fp_t(2.)*x) + fp_t(30.)*cos(fp_t(4.)*x) 
-                      + fp_t(12.)*cos(fp_t(6.)*x)
-                      - fp_t(111.)*sin(fp_t(2.)*x) + fp_t(48.)*sin(fp_t(4.)*x) + fp_t(5.)*sin(fp_t(6.)*x))) /
+    return (exp(x) * (fp_t(130.) - fp_t(12) * cos(fp_t(2)*x) + 30*cos(fp_t(4)*x) 
+                      + fp_t(12.)*cos(fp_t(6)*x)
+                      - fp_t(111.)*sin(fp_t(2)*x) + fp_t(48.)*sin(fp_t(4.)*x) + fp_t(5.)*sin(fp_t(6.)*x))) /
       (fp_t(64.) * pow(pow(sin(x), fp_t(3.)) + pow(cos(x), fp_t(3.)), fp_t(5./2.)));
 #if 0
     // same thing, different error
