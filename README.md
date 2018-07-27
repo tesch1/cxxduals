@@ -110,10 +110,11 @@ and been made suitable for use in
 - http://people.rit.edu/harkin/research/articles/generalized_complex_numbers.pdf
 - https://www.ams.org/journals/tran/1960-094-03/S0002-9947-1960-0146681-0/S0002-9947-1960-0146681-0.pdf
 - http://www.dtecta.com/files/GDC13_vandenBergen_Gino_Math_Tut.pdf
+- https://hal.archives-ouvertes.fr/hal-01114178/document
 
 ## Other implementations
 
-- http://darioizzo.github.io/audi/gdual.html
+- http://darioizzo.github.io/audi/gdual.html https://github.com/darioizzo/audi/blob/master/include/audi/gdual.hpp
 - https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/jet.h
 - https://github.com/dtecta/motion-toolkit/blob/master/moto/Dual.hpp
 - https://github.com/JuliaDiff/DualNumbers.jl

@@ -303,13 +303,15 @@ TEST(basic, construction) {
   d = a;
 
   // verify some properties
+  rand(a);
   rand(d);
   rand(e);
-  //abs(d);
   std::complex<float> cf(3.3, 4.4);
   EXPECT_EQ(conj(conj(d)), d);
   EXPECT_EQ(conj(d + e), conj(d) + conj(e));
   EXPECT_EQ(conj(d * e), conj(d) * conj(e));
+  EXPECT_EQ(a, abs(a) * exp(dualf(0,1) * arg(a)));
+  //EXPECT_EQ(d, abs(d) * exp(dualcf(0,1) * arg(d)));
   //EXPECT_EQ(conj(cf * d), conj(cf) * conj(d));
   //EXPECT_EQ(abs(conj(d)*d), abs(d) * abs(conj(d)));
 }

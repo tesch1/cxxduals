@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
   cduald cdd;
   cdualf cdf;
 
+  emtx<double> ed;
+  emtx<float> ef;
   emtx<complexd> ecd;
   emtx<complexf> ecf;
   emtx<duald> edd;
@@ -78,6 +80,12 @@ int main(int argc, char *argv[])
   df = random<dualf>();
   dcd = random<dualcd>();
   dcf = random<dualcf>();
+
+  ed = ed.unaryExpr(CwiseRpartOp<double>());
+  ed = edd.unaryExpr(CwiseRpartOp<double>());
+  ecd = ecd.unaryExpr(CwiseRpartOp<double>());
+  ecd = ecdd.unaryExpr(CwiseRpartOp<double>());
+  ecd = edcd.unaryExpr(CwiseRpartOp<complexd>());
 
   std::cout << cd << cf << dd << df << dcd << dcf << cdd << cdf << "\n";
 
@@ -111,22 +119,6 @@ int main(int argc, char *argv[])
   std::cout << cdf * (complexf)1. << "\n";
   std::cout << (complexf)1. * cdf << "\n";
 
-  std::cout << (duald)1 * ecdd << "\n";
-  std::cout << ecdd * (duald)1 << "\n";
-
-  std::cout << (dualf)1 * ecdf << "\n";
-  std::cout << (complexf)1 * ecdf << "\n";
-
-  std::cout << edf * ecdf << "\n";
-  std::cout << ecf * ecdf << "\n";
-  std::cout << cf * ecdf << "\n";
-  std::cout << df * ecdf << "\n";
-  std::cout << ecdf * edf << "\n";
-  std::cout << ecdf * ecf << "\n";
-  std::cout << ecdf * cf << "\n";
-  std::cout << ecdf * df << "\n";
-
-#if 0
   ecd = ecd.Random();
   ecf = ecf.Random();
   edd = edd.Random();
@@ -135,7 +127,37 @@ int main(int argc, char *argv[])
   edcf = edcf.Random();
   ecdd = ecdd.Random();
   ecdf = ecdf.Random();
+
+  std::cout << "-----------\n";
   std::cout << ecd << "\n";
-#endif
+
+  std::cout << "--\n";
+  std::cout << (duald)1 * edd << "\n";
+  std::cout << edd * (duald)1 << "\n";
+  
+  std::cout << "--\n";
+  std::cout << (duald)1 * ecdd << "\n";
+  std::cout << ecdd * (duald)1 << "\n";
+
+  std::cout << "--\n";
+  std::cout << (dualf)1 * ecdf << "\n";
+  std::cout << (complexf)1 * ecdf << "\n";
+
+  std::cout << "--\n";
+  std::cout << edf * ecdf << "\n";
+  std::cout << ecf * ecdf << "\n";
+  std::cout << "--\n";
+  std::cout << cf * ecdf << "\n";
+  std::cout << df * ecdf << "\n";
+  std::cout << "--\n";
+  std::cout << ecdf * edf << "\n";
+  std::cout << ecdf * ecf << "\n";
+  std::cout << "--\n";
+  std::cout << ecdf * cf << "\n";
+  std::cout << ecdf * df << "\n";
+  std::cout << "--\n";
+  std::cout << ecdf * 2.f << "\n";
+
+
   std::cout << "\n";
 }

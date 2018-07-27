@@ -708,6 +708,19 @@ rpart(const _Tp & d)
 
 /**
  * \f[
+ * rpart((a + b \epsilon) + i*(c + d \epsilon)) = (a + c*i)
+ * \f]
+ */
+template <typename _Tp>
+DUAL_DEVICE_FUNC
+inline std::complex<_Tp>
+rpart(const std::complex<dual<_Tp> > & d)
+{
+  return std::complex<_Tp>(d.real().rpart(), d.imag().rpart());
+}
+
+/**
+ * \f[
  * epart(a + b \epsilon) = b
  * \f]
  */
@@ -719,13 +732,12 @@ inline _Tp epart(const dual<_Tp> & d)
 }
 //@}
 
-std::default_random_engine generator;
-
 template <typename _Tp,
           typename _Tpf = typename internal::nocx_filter<_Tp>::test>
 DUAL_DEVICE_FUNC
 void rand(_Tp & d, _Tp a = 0, _Tp b = 1)
 {
+  static std::default_random_engine generator;
   std::uniform_real_distribution<_Tp> distribution(a, b);
   d = distribution(generator);
 }
@@ -824,6 +836,24 @@ struct identity_t { typedef T type; };
   DUAL_DEVICE_FUNC                                              \
   inline std::complex<dual<_Tp>>                                        \
   operator OP (const std::complex<_Tp> & lhs, const std::complex<dual<_Tp> > & rhs) \
+  {                                                             \
+    std::complex<dual<_Tp>> d = lhs;                            \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }\
+  template <typename _Tp>                                       \
+  DUAL_DEVICE_FUNC                                              \
+  inline std::complex<dual<_Tp>>                                     \
+  operator OP (const std::complex<dual<_Tp>> & lhs, const _Tp & rhs) \
+  {                                                             \
+    std::complex<dual<_Tp>> d = lhs;                            \
+    d OP##= rhs;                                                \
+    return d;                                                   \
+  }                                                             \
+  template <typename _Tp>                                       \
+  DUAL_DEVICE_FUNC                                              \
+  inline std::complex<dual<_Tp>>                                      \
+  operator OP (const _Tp & lhs, const std::complex<dual<_Tp> > & rhs) \
   {                                                             \
     std::complex<dual<_Tp>> d = lhs;                            \
     d OP##= rhs;                                                \
@@ -1244,6 +1274,23 @@ min(_Tp x1, dual<_Tp> x2)
 }
 
 /**
+ * Complex Conjugation
+ * \f[
+ * 
+ * \f]
+ */
+template <typename _Tp>
+DUAL_DEVICE_FUNC
+dual<std::complex<_Tp> >
+conj(const dual<std::complex<_Tp> > & x)
+{
+  // there is actually no derivative of conjugate()
+  DUAL_STD_MATH(conj);
+  return dual<std::complex<_Tp>>(conj(x.rpart()), conj(x.epart()));
+}
+
+/**
+ * Dual Conjugation
  * \f[
  * 
  * \f]
@@ -1251,13 +1298,55 @@ min(_Tp x1, dual<_Tp> x2)
 template <typename _Tp>
 DUAL_DEVICE_FUNC
 dual<_Tp>
-conj(const dual<_Tp> & x)
+dconj(const dual<_Tp> & x)
 {
-  // there is actually no derivative of conjugate()
+  return dual<_Tp>(x.rpart(), -x.epart());
+}
+
+/**
+ * Coupled Conjugation
+ * \f[
+ * 
+ * \f]
+ */
+template <typename _Tp>
+DUAL_DEVICE_FUNC
+dual<std::complex<_Tp> >
+cconj(const dual<std::complex<_Tp> > & x)
+{
   DUAL_STD_MATH(conj);
-  // nonsense:
-  return dual<_Tp>((x.rpart()),
-                   -(x.epart()));
+  return dual<std::complex<_Tp>>(conj(x.rpart()), -conj(x.epart()));
+}
+
+/**
+ * Dual-Complex Conjugation
+ * \f[
+ * 
+ * \f]
+ */
+template <typename _Tp>
+DUAL_DEVICE_FUNC
+dual<std::complex<_Tp> >
+dcconj(const dual<std::complex<_Tp> > & x)
+{
+  DUAL_STD_MATH(conj);
+  return conj(x.rpart()) * (1 - x.rpart() / x.epart());
+}
+
+/**
+ * Anti-Dual Conjugation
+ * \f[
+ * adconj(
+ * \f]
+ *
+ * Messelmi, Farid. “DUAL-COMPLEX NUMBERS AND THEIR HOLOMORPHIC FUNCTIONS,” n.d., 12.
+ */
+template <typename _Tp>
+DUAL_DEVICE_FUNC
+dual<std::complex<_Tp> >
+adconj(const dual<std::complex<_Tp> > & x)
+{
+  return dual<std::complex<_Tp> >(x.epart(), -x.rpart());
 }
 
 /**
@@ -1302,7 +1391,7 @@ imag(const dual<_Tp> & x)
  * by the xfunction derivative argument: (for real-valued functions)
  * 
  * \f[
- * f(x) = \sqrt{(x^2 + \mathrm{imag}(x)^2)} \\
+ * f(x) = \sqrt{(\mathrm{real}(x)^2 + \mathrm{imag}(x)^2)} \\
  * f'(x) = \frac{x}{|x|} f'(x) \\
  * x = a + b \epsilon \\
  * f(a + b \epsilon) = f(a) + b f'(a) \epsilon \\
@@ -1319,18 +1408,34 @@ template <typename _Tp,
           typename _Tpf = typename internal::nocx_filter<_Tp>::test>
 DUAL_DEVICE_FUNC
 inline
-dual<typename dual<_Tp>::scalar_type>
+dual<_Tp>
 abs(const dual<_Tp> & x)
 {
   DUAL_STD_MATH(abs);
-  DUAL_STD_MATH(sqrt);
-
-  // wrong for _Tp=complex:
-  //static_assert(!is_complex<_Tp>::value, "can't abs() on complex functions");
+  // according to ...
+  return sqrt(dconj(x) * x);
   
+  // how ceres does it
   // return abs(x.rpart()) == x.rpart() ? x : -x;
-  return dual<typename dual<_Tp>::scalar_type>(abs(x.rpart()),
-                                               (x.rpart() / abs(x.rpart())) * x.epart() * x.epart());
+
+  // by way of arguing f' and
+  // https://math.stackexchange.com/questions/1235365/find-the-derivative-of-absolute-value-using-the-chain-rule
+  //return dual<_Tp>(abs(x.rpart()),
+  //                 (x.rpart() / abs(x.rpart())) * x.epart() * x.epart());
+}
+
+template <typename _Tp>
+DUAL_DEVICE_FUNC
+inline
+std::complex<_Tp>
+abs(const dual<std::complex<_Tp> > & x)
+{
+  DUAL_STD_MATH(conj);
+  // return abs(x.rpart()) == x.rpart() ? x : -x;
+  return rpart(conj(x) * x);
+  //return x.rpart();
+  //return dual<typename dual<_Tp>::scalar_type>(abs(x.rpart()),
+  //                                             (x.rpart() / abs(x.rpart())) * x.epart() * x.epart());
 }
 
 /**
@@ -1345,6 +1450,34 @@ abs2(const dual<_Tp> & x)
 {
   return x * x;
 }
+
+/**
+ * \f[
+ * \mathrm{arg}(a + b \epsilon) = 
+ * \f]
+ */
+template <typename _Tp>
+DUAL_DEVICE_FUNC
+_Tp
+arg(const dual<_Tp> & x)
+{
+  // x.rpart() != 0
+  return x.epart() / x.rpart();
+}
+
+/**
+ * \f[
+ * \mathrm{norm}(a + b \epsilon) = | a + b \epsilon | = a
+ * \f]
+ */
+template <typename _Tp>
+DUAL_DEVICE_FUNC
+_Tp
+norm(const dual<_Tp> & x)
+{
+  return x.rpart();
+}
+
 
 /**
  * \f[
@@ -1553,7 +1686,8 @@ struct NumTraits<cxxduals::dual<_Scalar> > : GenericNumTraits<_Scalar>
   enum {
     IsInteger           =   NumTraits<_Scalar>::IsInteger,
     IsSigned            =   NumTraits<_Scalar>::IsSigned,
-    IsComplex           =   NumTraits<_Scalar>::IsComplex,
+    IsComplex           =   0,
+    //IsComplex           =   NumTraits<_Scalar>::IsComplex,
     RequireInitialization = NumTraits<_Scalar>::RequireInitialization,
     ReadCost            = 2 * NumTraits<_Scalar>::ReadCost,
     AddCost             = 2 * NumTraits<_Scalar>::AddCost,
@@ -1575,6 +1709,10 @@ struct ScalarBinaryOpTraits<T, cxxduals::dual<std::complex<T> >, BinaryOp > {
   typedef cxxduals::dual<std::complex<T> > ReturnType;
 };
 template<typename T, typename BinaryOp>
+struct ScalarBinaryOpTraits<T, std::complex<cxxduals::dual<T> >, BinaryOp> {
+  typedef std::complex<cxxduals::dual<T> > ReturnType;
+};
+template<typename T, typename BinaryOp>
 struct ScalarBinaryOpTraits<std::complex<T>, std::complex<cxxduals::dual<T> >, BinaryOp > {
   typedef std::complex<cxxduals::dual<T> > ReturnType;
 };
@@ -1588,11 +1726,45 @@ struct ScalarBinaryOpTraits<cxxduals::dual<std::complex<T> >, T, BinaryOp> {
   typedef cxxduals::dual<std::complex<T> > ReturnType;
 };
 template<typename T, typename BinaryOp>
+struct ScalarBinaryOpTraits<std::complex<cxxduals::dual<T> >, T, BinaryOp> {
+  typedef std::complex<cxxduals::dual<T> > ReturnType;
+};
+template<typename T, typename BinaryOp>
 struct ScalarBinaryOpTraits<std::complex<cxxduals::dual<T> >, std::complex<T>, BinaryOp> {
   typedef std::complex<cxxduals::dual<T> > ReturnType;
 };
 
 } // namespace Eigen
+
+namespace cxxduals {
+
+/** define a custom template unary functor
+ * use it like this: m2 = m1.unaryExpr(CwiseRpartOp<double>());
+ */
+template<typename Scalar>
+struct CwiseRpartOp {
+  const Scalar operator()(const Scalar & x) const { return x; }
+  const Scalar operator()(const cxxduals::dual<Scalar> & x) const { return rpart(x); }
+  const std::complex<Scalar> operator()(const std::complex<Scalar> & x) const { return x; }
+  const std::complex<Scalar> operator()(const std::complex<cxxduals::dual<Scalar> > & x) const {
+    return std::complex<Scalar>(rpart(x.real()), rpart(x.imag()));
+  }
+};
+
+/** define a custom template unary functor
+ * use it like this: m2 = m1.unaryExpr(CwiseEpartOp<double>());
+ */
+template<typename Scalar>
+struct CwiseEpartOp {
+  const Scalar operator()(const cxxduals::dual<Scalar> & x) const { return epart(x); }
+  const std::complex<Scalar> operator()(const std::complex<Scalar> & x) const { return x; }
+  const std::complex<Scalar> operator()(const std::complex<cxxduals::dual<Scalar> > & x) const {
+    return std::complex<Scalar>(epart(x.real()), epart(x.imag()));
+  }
+};
+
+}
+
 #endif // CXXDUALS_EIGEN
 
 // End Eigen Support
