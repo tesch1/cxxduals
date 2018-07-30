@@ -57,6 +57,7 @@
 #endif
 
 #ifdef __CUDACC__
+// /////////////// Stuff missing in CUDA ///////////////////
 #define DUAL_DEVICE_FUNC __host__ __device__
 #define DUAL_STD_MATH(FUNC) using ::FUNC
 
@@ -1190,7 +1191,7 @@ dual<_Tp>
 sqrt(dual<_Tp> x)
 {
   DUAL_STD_MATH(pow);
-  return pow(x, 0.5);
+  return pow(x, _Tp(0.5));
   //return pow(x, (typename dual<_Tp>::scalar_type)0.5);
 }
 
