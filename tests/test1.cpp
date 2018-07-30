@@ -153,11 +153,6 @@ void arithmetic()
   // /
 }
 
-template <typename T> struct is_complex { static const bool value = false; };
-template <typename T> struct is_complex<std::complex<T> >     { static const bool value = true; };
-template <typename T> struct is_complex<std::complex<T>& >    { static const bool value = true; };
-template <typename T> struct is_complex<const std::complex<T>& > { static const bool value = true; };
-template <typename T> struct is_complex<const std::complex<T> > { static const bool value = true; };
 using std::isnormal;
 template <typename T> bool isnormal(const std::complex<T> & v)
 {
@@ -187,7 +182,7 @@ void transcendental()
                    pow(x,(Scalar)pow(x,2) - (Scalar)1) * (Scalar)pow(x, 2) +
                    (Scalar)2 * x * (Scalar)pow(x,pow(x,2)) * log(x));
     //std::cerr << "res=" << res << "\n";
-    if (is_complex<Scalar>::value ? S != 0. : S > 0.) {
+    if (cxxduals::is_complex<Scalar>::value ? S != 0. : S > 0.) {
       DU_EXPECT_NEAR(pow(xx,pow(xx,2)), res);
     }
     else
@@ -234,7 +229,7 @@ void casting()
   b = 1.0f;
   b = 1.0;
   b = (TYPE2)1.0;
-  b = cc + 1.0;
+  b = cc + 1;
   b = 1.0 + cc;
   b = cc - 1.0;
   b = 1.0 - cc;
@@ -302,6 +297,28 @@ TEST(basic, construction) {
   hyperdualcf j;
   hyperdualcf k(1);
   hyperdualcf l(1,2);
+
+  std::complex<dual<double>> m;
+  
+  d = a;
+
+  // verify some properties
+  rand(a);
+  rand(d);
+  rand(e);
+  std::complex<double> cd(3.3, 4.4);
+  std::complex<float> cf(3.3, 4.4);
+  cf = cd;
+  cd = cf;
+  EXPECT_EQ(cd*=2, std::complex<double>(6.6,8.8));
+  EXPECT_EQ(cf*=2, std::complex<float>(6.6,8.8));
+  EXPECT_EQ(conj(conj(d)), d);
+  EXPECT_EQ(conj(d + e), conj(d) + conj(e));
+  EXPECT_EQ(conj(d * e), conj(d) * conj(e));
+  EXPECT_EQ(a, abs(a) * exp(dualf(0,1) * arg(a)));
+  //EXPECT_EQ(d, abs(d) * exp(dualcf(0,1) * arg(d)));
+  //EXPECT_EQ(conj(cf * d), conj(cf) * conj(d));
+  //EXPECT_EQ(abs(conj(d)*d), abs(d) * abs(conj(d)));
 }
 
 // simple types
