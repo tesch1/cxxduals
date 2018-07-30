@@ -29,7 +29,7 @@
 // which this file is based.
 //
 // The cxxdual package is available on github, bug reports and feature
-// additions welcome.
+// additions are welcome.
 //
 //  https://github.com/tesch1/cxxduals
 //
@@ -55,7 +55,6 @@
 #endif
 
 #ifdef __CUDACC__
-// /////////////// Stuff missing in CUDA ///////////////////
 #define DUAL_DEVICE_FUNC __host__ __device__
 #define DUAL_STD_MATH(FUNC) using ::FUNC
 #include <float.h>
@@ -526,20 +525,39 @@ public:
    * \f[
    * (a + b \epsilon) * (c + d \epsilon)
    * \f]
+   *
+   * \f[
+   * 
+   * \begin{pmatrix}
+   * a & b \\
+   * 0 & a \\
+   * \end{pmatrix}
+   *
+   * \begin{pmatrix}
+   * c & d \\
+   * 0 & c \\
+   * \end{pmatrix}
+   * =
+   * \begin{pmatrix}
+   * ac & ad+bc \\
+   * 0  & ac    \\
+   * \end{pmatrix}
+   * 
+   * \f]
    */
   template<typename _Up>
   DUAL_DEVICE_FUNC
   dual<_Tp> &
   operator*=(const dual<_Up> & rhs)
   {
-    _Tp tf0, tf1;
-    _Tp rf0, rf1;
-    tf0 = _f0;
-    tf1 = _f1;
-    rf0 = rhs.rpart();
-    rf1 = rhs.epart();
-    _f0 = tf0 * rf0;
-    _f1 = tf0 * rf1 + tf1 * rf0;
+    _Tp aa, bb;
+    _Tp cc, dd;
+    aa = _f0;
+    bb = _f1;
+    cc = rhs.rpart();
+    dd = rhs.epart();
+    _f0 = aa * cc;
+    _f1 = aa * dd + bb * cc;
     return *this;
   }
 
@@ -562,6 +580,44 @@ public:
    * \f[
    * (a + b \epsilon) / (c + d \epsilon)
    * \f]
+   *
+   * \f[
+   * 
+   * \begin{pmatrix}
+   * a & b \\
+   * 0 & a \\
+   * \end{pmatrix}
+   *
+   * \begin{pmatrix}
+   * c & d \\
+   * 0 & c \\
+   * \end{pmatrix} ^ {-1}
+   * =
+   * \begin{pmatrix}
+   * a & b \\
+   * 0 & a \\
+   * \end{pmatrix}
+   * \frac{1}{c^2}
+   * \begin{pmatrix}
+   * c  & -d   \\
+   * 0  &  c   \\
+   * \end{pmatrix}
+   * =
+   * \frac{1}{c^2}
+   * \begin{pmatrix}
+   * ac & -ad + bc  \\
+   * 0  & ac        \\
+   * \end{pmatrix}
+   * =
+   * \begin{pmatrix}
+   * a/c & \frac{bc - ad}{c^2}  \\
+   * 0   & a/c                  \\
+   * \end{pmatrix} \\
+   *
+   * = (a/c + \frac{bc - ad}{c^2} \epsilon)
+   *
+   * \f]
+
    */
   template<typename _Up>
   DUAL_DEVICE_FUNC
@@ -573,19 +629,10 @@ public:
 #else
     typedef _Tp higher_t;
 #endif
-#if 0
-    higher_t deriv;
-    deriv = higher_t(-1) * std::pow(higher_t(rhs.rpart()), higher_t(-2));
-    dual<higher_t> inv;
-    inv.rpart() = higher_t(1) / rhs.rpart();
-    inv.epart() = rhs.epart() * deriv;
-    *this *= inv;
-#else
     dual<higher_t> tmp;
     tmp.rpart() = _f0 / rhs.rpart();
     tmp.epart() = (_f1 * rhs.rpart() - _f0 * rhs.epart()) / (rhs.rpart() * rhs.rpart());
     *this = tmp;
-#endif
     return *this;
   }
 
@@ -724,7 +771,7 @@ pow(const dual<_Tp> & xx, const _Up & cc)
 #if 1
 /**
  * \f[
- * pow(a, c + d \epsilon) = a^c + d * a ^ c * \log(a) \epsilon
+ * a ^ {c + d \epsilon} = a^c + d * a ^ c * \log(a) \epsilon
  * \f]
  *
  * by the function derivative argument:
@@ -754,7 +801,7 @@ pow(const _Tp & aa, const dual<_Up> & yy)
 
 /**
  * \f[
- * pow(a + b \epsilon, c + d \epsilon) = a^c + (b c a^{c-1} + d \log(a) a^c)\epsilon
+ * (a + b \epsilon)^{(c + d \epsilon)} = a^c + (b c a^{c-1} + d \log(a) a^c)\epsilon
  * \f]
  */
 template <typename _Tp, typename _Up>
@@ -869,7 +916,7 @@ tan(dual<_Tp> x)
 
 /**
  * \f[
- * \asin(a + b \epsilon) =
+ * \mathrm{asin}(a + b \epsilon) =
  * \f]
  */
 template <typename _Tp>
@@ -892,7 +939,7 @@ asin(dual<_Tp> x)
 #if 0
 /**
  * \f[
- * \acos(a + b \epsilon) =
+ * \mathrm{acos}(a + b \epsilon) =
  * \f]
  */
 template <typename _Tp>
@@ -915,7 +962,7 @@ acos(dual<_Tp> x)
 
 /**
  * \f[
- * \atan(a + b \epsilon) =
+ * \mathrm{atan}(a + b \epsilon) =
  * \f]
  */
 template <typename _Tp>
@@ -936,7 +983,7 @@ atan(dual<_Tp> x)
 
 /**
  * \f[
- * \atan2(a + b \epsilon, c + d \epsilon) =
+ * \mathrm{atan2}(a + b \epsilon, c + d \epsilon) =
  * \f]
  */
 template <typename _Tp>
@@ -958,7 +1005,7 @@ atan2(dual<_Tp> y, dual<_Tp> x)
 
 /**
  * \f[
- * \sqrt(a + b \epsilon) =
+ * \sqrt{a + b \epsilon} =
  * \f]
  */
 template <typename _Tp>
@@ -1067,6 +1114,13 @@ conj(const dual<_Tp> & x)
                    conj(x.epart()));
 }
 
+/**
+ * \f[
+ * i = \sqrt{-1} \\
+ * \mathrm{real}( (e+f*i) + (g+h*i) \epsilon ) = e + g \epsilon
+ * \f]
+ *
+ */
 template <typename _Tp>
 DUAL_DEVICE_FUNC
 dual<_Tp>
@@ -1077,6 +1131,13 @@ real(const dual<_Tp> & x)
                    real(x.epart()));
 }
 
+/**
+ * \f[
+ * i = \sqrt{-1} \\
+ * \mathrm{imag}( (e+f*i) + (g+h*i) \epsilon ) = f + h \epsilon
+ * \f]
+ *
+ */
 template <typename _Tp>
 DUAL_DEVICE_FUNC
 dual<_Tp>
@@ -1095,7 +1156,7 @@ imag(const dual<_Tp> & x)
  * by the function derivative argument: (for real-valued functions)
  * 
  * \f[
- * f(x) = \sqrt{(x^2 + \imag(x)^2)} \\
+ * f(x) = \sqrt{(x^2 + \mathrm{imag}(x)^2)} \\
  * f'(x) = \frac{x}{|x|} f'(x) \\
  * x = a + b \epsilon \\
  * f(a + b \epsilon) = f(a) + b f'(a) \epsilon \\
@@ -1118,7 +1179,7 @@ abs(const dual<_Tp> & x)
 
 /**
  * \f[
- * |a + b \epsilon|^2 = 
+ * |a + b \epsilon|^2 = x
  * \f]
  */
 template <typename _Tp>
