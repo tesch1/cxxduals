@@ -34,6 +34,8 @@
 //  Docs:   http://tesch1.github.io/cxxduals
 //  Source: https://github.com/tesch1/cxxduals
 //
+// #ifndef CXXDUALS_NO_COMPLEX
+//
 #ifndef LIB_CXXDUALS
 #define LIB_CXXDUALS 1
 
@@ -173,11 +175,13 @@ struct common_type<cxxduals::dual<_Tp>, cxxduals::dual<_Up> > {
 
 namespace cxxduals {
 
+#ifndef CXXDUALS_NO_COMPLEX
 /// check if something is complex
 template <class T>
 struct is_complex : std::false_type {};
 template <class T>
 struct is_complex<std::complex<T> > : std::true_type {};
+#endif
 
 /// check if something is dual
 template <class T>
@@ -190,41 +194,39 @@ template <typename _Tp>
 struct dual_traits_basic {
   typedef _Tp scalar_type;
   typedef _Tp value_type;
+  typedef _Tp basic_value_type;
   static const int depth = 0;
   static const int num_elem = 1;
   typedef std::false_type is_nested;
   typedef std::false_type is_dual;
 };
-/// Specialized instances
-template <typename _Tp> struct dual_trait_helper;
-template <> struct dual_trait_helper<float> : public dual_traits_basic<float> {
-  typedef float scalar_type;
-};
-template <> struct dual_trait_helper<double> : public dual_traits_basic<double> {
-  typedef double scalar_type;
-};
-template <> struct dual_trait_helper<long double> : public dual_traits_basic<long double> {
-  typedef long double scalar_type;
-};
+
+/// Specialized instances for the scalars
+template <typename _Tp> struct dual_traits;
+template <> struct dual_traits<float> : public dual_traits_basic<float> {};
+template <> struct dual_traits<double> : public dual_traits_basic<double> {};
+template <> struct dual_traits<long double> : public dual_traits_basic<long double> {};
 
 #ifndef CXXDUALS_NO_COMPLEX
 /// Complex trait helper
 template <typename _Tp>
-struct dual_trait_helper<std::complex<_Tp> > : public dual_traits_basic<_Tp> {
-  typedef _Tp scalar_type;
-  typedef std::complex<_Tp> value_type;
+struct dual_traits<std::complex<_Tp> > : public dual_traits<_Tp> {
+  typedef typename dual_traits<_Tp>::scalar_type scalar_type;
+  typedef _Tp value_type;
+  typedef std::complex<_Tp> basic_value_type;
 };
 #endif // CXXDUALS_NO_COMPLEX
 
 /// Get traits of duals
 template <typename _Tp>
-struct dual_trait_helper<dual<_Tp> > {
-  typedef typename dual_trait_helper<_Tp>::scalar_type scalar_type;
-  typedef typename dual_trait_helper<_Tp>::value_type value_type;
-  static const int depth = dual_trait_helper<_Tp>::depth + 1;
-  static const int num_elem = dual_trait_helper<_Tp>::num_elem * 2;
+struct dual_traits<dual<_Tp> > {
+  typedef typename dual_traits<_Tp>::scalar_type scalar_type;
+  typedef typename dual_traits<_Tp>::value_type value_type;
+  typedef typename dual_traits<_Tp>::basic_value_type basic_value_type;
+  static const int depth = dual_traits<_Tp>::depth + 1;
+  static const int num_elem = dual_traits<_Tp>::num_elem * 2;
   typedef std::true_type is_dual;
-  typedef typename dual_trait_helper<_Tp>::is_dual is_nested;
+  typedef typename dual_traits<_Tp>::is_dual is_nested;
 };
 
 namespace internal {
@@ -273,10 +275,10 @@ private:
 public:
 
   typedef _Tp value_type;
-  typedef typename dual_trait_helper<_Tp>::value_type basic_value_type;
-  typedef typename dual_trait_helper<_Tp>::scalar_type scalar_type;
-  static const int depth = dual_trait_helper<dual<_Tp> >::depth;
-  static const int num_elem = dual_trait_helper<dual<_Tp> >::num_elem;
+  typedef typename dual_traits<_Tp>::basic_value_type basic_value_type;
+  typedef typename dual_traits<_Tp>::scalar_type scalar_type;
+  static const int depth = dual_traits<dual<_Tp> >::depth;
+  static const int num_elem = dual_traits<dual<_Tp> >::num_elem;
 
   /// Constructors
   DUAL_DEVICE_FUNC
@@ -305,6 +307,9 @@ public:
     : _f0(f0), _f1(f1) { }
 
 #if __cplusplus >= 201103L
+  /// List initializer, this is for allowing nested
+  //  duals to have simpler initializers, ie for
+  // dual<dual<double>> x{1,2,3,4}; // 1 + 2*e1 + 3*e2 + 4*e3
   DUAL_DEVICE_FUNC
   dual(std::initializer_list<basic_value_type> ll)
     : _f0(), _f1()
@@ -347,13 +352,13 @@ private:
   private_part(int p, std::true_type) const {
     return p < (num_elem / 2)
                ? _f0.part(p)
-               : _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2));
+               : _f1.part(p - (dual_traits<dual<_Tp> >::num_elem / 2));
   }
 public:
   DUAL_DEVICE_FUNC
   constexpr basic_value_type
   part(int p) const {
-    return private_part(p, typename dual_trait_helper<_Tp>::is_dual());
+    return private_part(p, typename dual_traits<_Tp>::is_dual());
   }
 #else
   /// Real part
@@ -389,7 +394,7 @@ private:
   private_part(int p, std::true_type) {
     return p < (num_elem / 2)
                ? _f0.part(p)
-               : _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2));
+               : _f1.part(p - (dual_traits<dual<_Tp> >::num_elem / 2));
   }
 
 public:
@@ -397,7 +402,7 @@ public:
   DUAL_DEVICE_FUNC
   inline basic_value_type &
   part(int p) {
-    return private_part(p, typename dual_trait_helper<_Tp>::is_dual());
+    return private_part(p, typename dual_traits<_Tp>::is_dual());
   }
 
   /// Real part assignment
@@ -426,7 +431,7 @@ private:
     if (p < (num_elem / 2))
       _f0.part(p, v);
     else
-      _f1.part(p - (dual_trait_helper<dual<_Tp> >::num_elem / 2), v);
+      _f1.part(p - (dual_traits<dual<_Tp> >::num_elem / 2), v);
   }
 
 public:
@@ -435,7 +440,7 @@ public:
   DUAL_DEVICE_FUNC
   inline void
   part(int p, const basic_value_type & v) {
-    private_part(p, v, typename dual_trait_helper<_Tp>::is_dual());
+    private_part(p, v, typename dual_traits<_Tp>::is_dual());
   }
 
   /// Assignment
@@ -544,6 +549,7 @@ public:
   }
 
   /// multiplication
+#ifndef CXXDUALS_NO_COMPLEX
   /**
    * Scalar multiplication when the value_type is complex
    * \f[
@@ -559,6 +565,7 @@ public:
     _f1 *= rhs;
     return *this;
   }
+#endif // CXXDUALS_NO_COMPLEX
 
   /**
    * \f[
@@ -706,6 +713,7 @@ rpart(const _Tp & d)
   return d;
 }
 
+#ifndef CXXDUALS_NO_COMPLEX
 /**
  * \f[
  * rpart((a + b \epsilon) + i*(c + d \epsilon)) = (a + c*i)
@@ -718,6 +726,7 @@ rpart(const std::complex<dual<_Tp> > & d)
 {
   return std::complex<_Tp>(d.real().rpart(), d.imag().rpart());
 }
+#endif
 
 /**
  * \f[
@@ -732,6 +741,12 @@ inline _Tp epart(const dual<_Tp> & d)
 }
 //@}
 
+/**
+ * Random number
+ * \f[
+ * 
+ * \f]
+ */
 template <typename _Tp,
           typename _Tpf = typename internal::nocx_filter<_Tp>::test>
 DUAL_DEVICE_FUNC
@@ -742,33 +757,61 @@ void rand(_Tp & d, _Tp a = 0, _Tp b = 1)
   d = distribution(generator);
 }
 
+#ifndef CXXDUALS_NO_COMPLEX
+/**
+ * Random complex number
+ * \f[
+ * 
+ * \f]
+ */
 template <typename _Tp>
 DUAL_DEVICE_FUNC
-void rand(std::complex<_Tp> & d)
+void rand(std::complex<_Tp> & d,
+          typename dual_traits<std::complex<_Tp> >::scalar_type a = 0,
+          typename dual_traits<std::complex<_Tp> >::scalar_type b = 1)
 {
-  _Tp a;
-  rand(a);
-  d.real(a);
-  rand(a);
-  d.imag(a);
+  _Tp x;
+  rand(x, a, b);
+  d.real(x);
+  rand(x, a, b);
+  d.imag(x);
 }
+#endif
 
+/**
+ * Random dual number
+ * \f[
+ * 
+ * \f]
+ */
 template <typename _Tp>
 DUAL_DEVICE_FUNC
-void rand(dual<_Tp> & d)
+void rand(dual<_Tp> & d,
+          typename dual_traits<dual<_Tp> >::scalar_type a = 0,
+          typename dual_traits<dual<_Tp> >::scalar_type b = 1)
 {
-  rand(d.rpart());
-  rand(d.epart());
+  typename dual_traits<dual<_Tp> >::scalar_type x;
+  for (int ii = 0; ii < dual_traits<dual<_Tp> >::num_elem; ii++) {
+    rand(x, a, b);
+    d.part(ii, x);
+  }
 }
 
+/**
+ * Random dual number (used by Eigen::Random())
+ * \f[
+ * 
+ * \f]
+ */
 template <typename _Tp,
           internal::enable_if_t<is_dual<_Tp>::value>* = nullptr>
 DUAL_DEVICE_FUNC
 _Tp
-random()
+random(typename dual_traits<_Tp>::scalar_type a = 0,
+       typename dual_traits<_Tp>::scalar_type b = 1)
 {
   _Tp d;
-  rand(d);
+  rand(d, a, b);
   return d;
 }
 
@@ -822,7 +865,10 @@ struct identity_t { typedef T type; };
     dual<_Tp> d = lhs;                                          \
     d OP##= rhs;                                                \
     return d;                                                   \
-  }\
+  }
+
+#ifndef CXXDUALS_NO_COMPLEX
+#define DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(OP)                  \
   template <typename _Tp>                                       \
   DUAL_DEVICE_FUNC                                              \
   inline std::complex<dual<_Tp>>                                     \
@@ -859,26 +905,32 @@ struct identity_t { typedef T type; };
     d OP##= rhs;                                                \
     return d;                                                   \
   }
-  
+#else
+#define DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(OP)
+#endif
 
 //@{
 ///  Addition
 DUALH_DEFINE_BASIC_OP_TEMPLATES(+)
+DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(+)
 //@}
 
 //@{
 ///  Subtraction
 DUALH_DEFINE_BASIC_OP_TEMPLATES(-)
+DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(-)
 //@}
 
 //@{
 ///  Multiplication
 DUALH_DEFINE_BASIC_OP_TEMPLATES(*)
+DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(*)
 //@}
 
 //@{
 ///  Division
 DUALH_DEFINE_BASIC_OP_TEMPLATES(/)
+DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(/)
 //@}
 
 #undef DUALH_DEFINE_BASIC_OP_TEMPLATES
@@ -1273,6 +1325,7 @@ min(_Tp x1, dual<_Tp> x2)
   return x1 <= x2.rpart() ? dual<_Tp>(x1) : x2;
 }
 
+#ifndef CXXDUALS_NO_COMPLEX
 /**
  * Complex Conjugation
  * \f[
@@ -1288,6 +1341,7 @@ conj(const dual<std::complex<_Tp> > & x)
   DUAL_STD_MATH(conj);
   return dual<std::complex<_Tp>>(conj(x.rpart()), conj(x.epart()));
 }
+#endif
 
 /**
  * Dual Conjugation
@@ -1303,6 +1357,7 @@ dconj(const dual<_Tp> & x)
   return dual<_Tp>(x.rpart(), -x.epart());
 }
 
+#ifndef CXXDUALS_NO_COMPLEX
 /**
  * Coupled Conjugation
  * \f[
@@ -1348,6 +1403,7 @@ adconj(const dual<std::complex<_Tp> > & x)
 {
   return dual<std::complex<_Tp> >(x.epart(), -x.rpart());
 }
+#endif
 
 /**
  * \f[
@@ -1424,6 +1480,7 @@ abs(const dual<_Tp> & x)
   //                 (x.rpart() / abs(x.rpart())) * x.epart() * x.epart());
 }
 
+#ifndef CXXDUALS_NO_COMPLEX
 template <typename _Tp>
 DUAL_DEVICE_FUNC
 inline
@@ -1437,6 +1494,7 @@ abs(const dual<std::complex<_Tp> > & x)
   //return dual<typename dual<_Tp>::scalar_type>(abs(x.rpart()),
   //                                             (x.rpart() / abs(x.rpart())) * x.epart() * x.epart());
 }
+#endif
 
 /**
  * \f[
@@ -1621,7 +1679,7 @@ operator<<(std::basic_ostream<_CharT, _Traits> & os, const cxxduals::dual<_Tp> &
   s.imbue(os.getloc());
   s.precision(os.precision());
   s << "(" << rhs.rpart()
-    << " + e" << dual_trait_helper<dual<_Tp> >::depth << "*" << rhs.epart()
+    << " + e" << dual_traits<dual<_Tp> >::depth << "*" << rhs.epart()
     << ")";
   return os << s.str();
 #elif 1
@@ -1704,6 +1762,8 @@ template<typename T, typename BinaryOp>
 struct ScalarBinaryOpTraits<T, cxxduals::dual<T>, BinaryOp > {
   typedef cxxduals::dual<T> ReturnType;
 };
+
+#ifndef CXXDUALS_NO_COMPLEX
 template<typename T, typename BinaryOp>
 struct ScalarBinaryOpTraits<T, cxxduals::dual<std::complex<T> >, BinaryOp > {
   typedef cxxduals::dual<std::complex<T> > ReturnType;
@@ -1716,11 +1776,14 @@ template<typename T, typename BinaryOp>
 struct ScalarBinaryOpTraits<std::complex<T>, std::complex<cxxduals::dual<T> >, BinaryOp > {
   typedef std::complex<cxxduals::dual<T> > ReturnType;
 };
+#endif
 
 template<typename T, typename BinaryOp>
 struct ScalarBinaryOpTraits<cxxduals::dual<T>, T, BinaryOp> {
   typedef cxxduals::dual<T> ReturnType;
 };
+
+#ifndef CXXDUALS_NO_COMPLEX
 template<typename T, typename BinaryOp>
 struct ScalarBinaryOpTraits<cxxduals::dual<std::complex<T> >, T, BinaryOp> {
   typedef cxxduals::dual<std::complex<T> > ReturnType;
@@ -1733,6 +1796,7 @@ template<typename T, typename BinaryOp>
 struct ScalarBinaryOpTraits<std::complex<cxxduals::dual<T> >, std::complex<T>, BinaryOp> {
   typedef std::complex<cxxduals::dual<T> > ReturnType;
 };
+#endif
 
 } // namespace Eigen
 
@@ -1745,10 +1809,12 @@ template<typename Scalar>
 struct CwiseRpartOp {
   const Scalar operator()(const Scalar & x) const { return x; }
   const Scalar operator()(const cxxduals::dual<Scalar> & x) const { return rpart(x); }
+#ifndef CXXDUALS_NO_COMPLEX
   const std::complex<Scalar> operator()(const std::complex<Scalar> & x) const { return x; }
   const std::complex<Scalar> operator()(const std::complex<cxxduals::dual<Scalar> > & x) const {
     return std::complex<Scalar>(rpart(x.real()), rpart(x.imag()));
   }
+#endif
 };
 
 /** define a custom template unary functor
@@ -1757,10 +1823,12 @@ struct CwiseRpartOp {
 template<typename Scalar>
 struct CwiseEpartOp {
   const Scalar operator()(const cxxduals::dual<Scalar> & x) const { return epart(x); }
+#ifndef CXXDUALS_NO_COMPLEX
   const std::complex<Scalar> operator()(const std::complex<Scalar> & x) const { return x; }
   const std::complex<Scalar> operator()(const std::complex<cxxduals::dual<Scalar> > & x) const {
     return std::complex<Scalar>(epart(x.real()), epart(x.imag()));
   }
+#endif
 };
 
 }
@@ -1770,10 +1838,11 @@ struct CwiseEpartOp {
 // End Eigen Support
 //////////////////////////////////////////////////////////////////////
 
+#ifndef CXXDUALS_NO_COMPLEX
 
 namespace cxxduals {
 
-/// Make workign with std::complex<> nubmers suck less...
+/// Make working with std::complex<> nubmers suck less... allow promotion.
 #define COMPLEX_OPS(OP)                                                 \
   template <typename _Tp>                                               \
   std::complex<_Tp>                                                     \
@@ -1798,5 +1867,7 @@ COMPLEX_OPS(/)
 #endif
 
 }
+
+#endif // CXXDUALS_NO_COMPLEX
 
 #endif // LIB_CXXDUALS

@@ -32,40 +32,40 @@
 template <typename DUALTYPE>
 void construct()
 {
-  typedef typename DUALTYPE::value_type Scalar;
+  typedef typename DUALTYPE::value_type Value;
 
-  DUALTYPE x = (Scalar)1.1;
-  EXPECT_EQ(x.rpart(), (Scalar)1.1);
-  EXPECT_EQ(rpart(x), (Scalar)1.1);
-  EXPECT_EQ(x.epart(), (Scalar)0.0);
-  EXPECT_EQ(epart(x), (Scalar)0.0);
+  DUALTYPE x = (Value)1.1;
+  EXPECT_EQ(x.rpart(), (Value)1.1);
+  EXPECT_EQ(rpart(x), (Value)1.1);
+  EXPECT_EQ(x.epart(), (Value)0.0);
+  EXPECT_EQ(epart(x), (Value)0.0);
 
   DUALTYPE z(1.1);
-  EXPECT_EQ(z.rpart(), (Scalar)1.1);
-  EXPECT_EQ(rpart(z), (Scalar)1.1);
-  EXPECT_EQ(z.epart(), (Scalar)0.0);
-  EXPECT_EQ(epart(z), (Scalar)0.0);
+  EXPECT_EQ(z.rpart(), (Value)1.1);
+  EXPECT_EQ(rpart(z), (Value)1.1);
+  EXPECT_EQ(z.epart(), (Value)0.0);
+  EXPECT_EQ(epart(z), (Value)0.0);
 
   DUALTYPE y(1.1, 2.2);
-  EXPECT_EQ(y.rpart(), (Scalar)1.1);
-  EXPECT_EQ(rpart(y), (Scalar)1.1);
-  EXPECT_EQ(y.epart(), (Scalar)2.2);
-  EXPECT_EQ(epart(y), (Scalar)2.2);
+  EXPECT_EQ(y.rpart(), (Value)1.1);
+  EXPECT_EQ(rpart(y), (Value)1.1);
+  EXPECT_EQ(y.epart(), (Value)2.2);
+  EXPECT_EQ(epart(y), (Value)2.2);
 
   DUALTYPE w(1.1, 2.2);
-  EXPECT_EQ(w.rpart(), (Scalar)1.1);
-  EXPECT_EQ(w.epart(), (Scalar)2.2);
+  EXPECT_EQ(w.rpart(), (Value)1.1);
+  EXPECT_EQ(w.epart(), (Value)2.2);
 
   DUALTYPE a{1.1, 2.2};
-  EXPECT_EQ(a.rpart(), (Scalar)1.1);
-  EXPECT_EQ(a.part(0), (Scalar)1.1);
-  EXPECT_EQ(a.part(1), (Scalar)2.2);
+  EXPECT_EQ(a.rpart(), (Value)1.1);
+  EXPECT_EQ(a.part(0), (Value)1.1);
+  EXPECT_EQ(a.part(1), (Value)2.2);
 }
 
 template <typename DUALTYPE>
 void equality()
 {
-  typedef typename DUALTYPE::value_type Scalar;
+  typedef typename DUALTYPE::value_type Value;
   DUALTYPE d{1.1, 2.2};
   DUALTYPE e{1.1, 2.2};
   DUALTYPE f{1.1, 2.21};
@@ -78,19 +78,19 @@ void equality()
   EXPECT_EQ(e, f);
   EXPECT_NE(f, g);
   EXPECT_NE(f, h);
-  EXPECT_NE(f, (Scalar)1.2);
-  EXPECT_NE((Scalar)1.2, f);
+  EXPECT_NE(f, (Value)1.2);
+  EXPECT_NE((Value)1.2, f);
   EXPECT_EQ(j*j, k);
   DUALTYPE res{9.,6.};
-  DU_EXPECT_NEAR(pow(j,(Scalar)2.0), res);
-  DUALTYPE res2{3., (Scalar)(0.5*pow(9,-0.5))};
+  DU_EXPECT_NEAR(pow(j,(Value)2.0), res);
+  DUALTYPE res2{3., (Value)(0.5*pow(9,-0.5))};
   DU_EXPECT_NEAR(sqrt(l), res2 );
 }
 
 template <typename DUALTYPE>
 void compare()
 {
-  typedef typename DUALTYPE::value_type Scalar;
+  typedef typename DUALTYPE::value_type Value;
   DUALTYPE d{1.1, 2.2};
   DUALTYPE e{1.1, 2.2};
   DUALTYPE f{1.1, 2.21};
@@ -99,32 +99,32 @@ void compare()
   DUALTYPE j{3, 1};
   DUALTYPE k{9, 6};
   DUALTYPE l{9, 1};
-  MY_EXPECT_NEAR(epart(sqrt(l)), (Scalar)(0.5*pow(9,-0.5)));
-  MY_EXPECT_NEAR(epart(pow(j,(Scalar)2.0)), (Scalar)6.0);
-  EXPECT_GT((Scalar)1.2, d);
-  EXPECT_GT(d,(Scalar)1.0);
+  MY_EXPECT_NEAR(epart(sqrt(l)), (Value)(0.5*pow(9,-0.5)));
+  MY_EXPECT_NEAR(epart(pow(j,(Value)2.0)), (Value)6.0);
+  EXPECT_GT((Value)1.2, d);
+  EXPECT_GT(d,(Value)1.0);
   EXPECT_GT(g,f);
-  EXPECT_LT((Scalar)1.0, d);
-  EXPECT_LT(d,(Scalar)1.2);
+  EXPECT_LT((Value)1.0, d);
+  EXPECT_LT(d,(Value)1.2);
   EXPECT_LT(f,g);
-  EXPECT_LE(d,(Scalar)1.1);
-  EXPECT_LE((Scalar)1.1,d);
+  EXPECT_LE(d,(Value)1.1);
+  EXPECT_LE((Value)1.1,d);
   EXPECT_LE(f,g);
   EXPECT_LE(f,e);
-  EXPECT_GE(d,(Scalar)1.1);
-  EXPECT_GE((Scalar)1.1,d);
+  EXPECT_GE(d,(Value)1.1);
+  EXPECT_GE((Value)1.1,d);
   EXPECT_GE(g,f);
   EXPECT_GE(e,f);
   EXPECT_EQ(abs(h), g);
   EXPECT_EQ(abs(-h), g);
   EXPECT_EQ(-abs(h), h);
-  EXPECT_EQ(abs(h), (Scalar)2.2);
-  EXPECT_EQ(+abs(h), (Scalar)2.2);
-  EXPECT_EQ(-abs(h), (Scalar)-2.2);
-  EXPECT_TRUE(max(f,(Scalar)2.2) == (Scalar)2.2);
-  EXPECT_TRUE(max((Scalar)2.2,f) == (Scalar)2.2);
-  EXPECT_TRUE(min(f,(Scalar)2.2) == f);
-  EXPECT_TRUE(min((Scalar)2.2,f) == f);
+  EXPECT_EQ(abs(h), (Value)2.2);
+  EXPECT_EQ(+abs(h), (Value)2.2);
+  EXPECT_EQ(-abs(h), (Value)-2.2);
+  EXPECT_TRUE(max(f,(Value)2.2) == (Value)2.2);
+  EXPECT_TRUE(max((Value)2.2,f) == (Value)2.2);
+  EXPECT_TRUE(min(f,(Value)2.2) == f);
+  EXPECT_TRUE(min((Value)2.2,f) == f);
   EXPECT_TRUE(max(f,g) == g);
   EXPECT_TRUE(max(g,f) == g);
   EXPECT_TRUE(min(f,g) == f);
@@ -134,19 +134,19 @@ void compare()
 template <typename DUALTYPE>
 void arithmetic()
 {
-  typedef typename DUALTYPE::value_type Scalar;
+  typedef typename DUALTYPE::value_type Value;
   DUALTYPE a, b;
-  a = (Scalar)1;
-  b = (Scalar)2;
+  a = (Value)1;
+  b = (Value)2;
   b = a;
   a = b;
   b = a;
-  a = b + (Scalar)1.0; // 2
+  a = b + (Value)1.0; // 2
   //a = b + 1.0; // 2
-  a = (Scalar)1.0 + b; // 2
+  a = (Value)1.0 + b; // 2
   a = a + a; // 4
   a = a + b; // 5
-  EXPECT_EQ(a, (Scalar)5);
+  EXPECT_EQ(a, (Value)5);
   // +
   // -
   // *
@@ -162,27 +162,27 @@ template <typename T> bool isnormal(const std::complex<T> & v)
 template <typename DUALTYPE>
 void transcendental()
 {
-  typedef typename DUALTYPE::value_type Scalar;
+  typedef typename DUALTYPE::value_type Value;
 
   for (int ii = -10; ii < 10; ii++) {
     double S = ii / 5.0;
-    Scalar x = ii / 5.0;
+    Value x = ii / 5.0;
     DUALTYPE xx(ii / 5.0, 1);
     using std::pow;
     // pow
-    DUALTYPE res(pow(x,4), Scalar(4.) * (Scalar)pow(x,3));
+    DUALTYPE res(pow(x,4), Value(4.) * (Value)pow(x,3));
     DU_EXPECT_NEAR(pow(xx,4), res);
-    res = DUALTYPE(pow(3,x), pow((Scalar)3,x)*log((Scalar)3));
-    DU_EXPECT_NEAR(pow((Scalar)3.,xx), res);
+    res = DUALTYPE(pow(3,x), pow((Value)3,x)*log((Value)3));
+    DU_EXPECT_NEAR(pow((Value)3.,xx), res);
     //std::cerr << "x=" << x << " x^2 = " << pow(x,2) << "\n";
-    //Scalar y =  pow(x,pow(x,2));
+    //Value y =  pow(x,pow(x,2));
     //std::cerr << "x=" << x << " x^x^2 = " << y << "\n";
     //std::cerr << "xx=" << xx << "\n";
-    res = DUALTYPE(pow(x,(Scalar)pow(x,2)),
-                   pow(x,(Scalar)pow(x,2) - (Scalar)1) * (Scalar)pow(x, 2) +
-                   (Scalar)2 * x * (Scalar)pow(x,pow(x,2)) * log(x));
+    res = DUALTYPE(pow(x,(Value)pow(x,2)),
+                   pow(x,(Value)pow(x,2) - (Value)1) * (Value)pow(x, 2) +
+                   (Value)2 * x * (Value)pow(x,pow(x,2)) * log(x));
     //std::cerr << "res=" << res << "\n";
-    if (cxxduals::is_complex<Scalar>::value ? S != 0. : S > 0.) {
+    if (cxxduals::is_complex<Value>::value ? S != 0. : S > 0.) {
       DU_EXPECT_NEAR(pow(xx,pow(xx,2)), res);
     }
     else
@@ -191,10 +191,10 @@ void transcendental()
     // log
     // exp
     DUALTYPE B(0, ii);
-    EXPECT_EQ(B.rpart(), (Scalar)0);
-    EXPECT_EQ(B.epart(), (Scalar)ii);
-    EXPECT_EQ(rpart(exp(B)), (Scalar)1);
-    EXPECT_EQ(epart(exp(B)), (Scalar)ii);
+    EXPECT_EQ(B.rpart(), (Value)0);
+    EXPECT_EQ(B.epart(), (Value)ii);
+    EXPECT_EQ(rpart(exp(B)), (Value)1);
+    EXPECT_EQ(epart(exp(B)), (Value)ii);
     // sin
     // cos
     // tan

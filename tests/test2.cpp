@@ -48,7 +48,7 @@ struct pike_f1 {
   template <typename TYPE>
   TYPE
   f(const TYPE & x) {
-    typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
+    typedef typename dual_traits<TYPE>::scalar_type fp_t;
     return exp(x) / sqrt(pow(sin(x), fp_t(3)) + pow(cos(x), fp_t(3)));
   }
 
@@ -56,7 +56,7 @@ struct pike_f1 {
   template <typename TYPE>
   TYPE
   df(const TYPE & x) {
-    typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
+    typedef typename dual_traits<TYPE>::scalar_type fp_t;
     return (exp(x) * (3 * cos(x) + 5*cos(3*x) + 9 * sin(x) + sin(3*x))) /
       (8 * pow(pow(sin(x), fp_t(3)) + pow(cos(x), (fp_t)3.), (fp_t)(3./2.)));
   }
@@ -65,7 +65,7 @@ struct pike_f1 {
   template <typename TYPE>
   TYPE
   ddf(const TYPE & x) {
-    typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
+    typedef typename dual_traits<TYPE>::scalar_type fp_t;
     return (exp(x) * (fp_t(130.) - fp_t(12) * cos(fp_t(2)*x) + 30*cos(fp_t(4)*x) 
                       + fp_t(12.)*cos(fp_t(6)*x)
                       - fp_t(111.)*sin(fp_t(2)*x) + fp_t(48.)*sin(fp_t(4.)*x) + fp_t(5.)*sin(fp_t(6.)*x))) /
@@ -87,7 +87,7 @@ struct pike_f1 {
   template <typename TYPE>
   TYPE
   dddf(const TYPE & x) {
-    typedef typename dual_trait_helper<TYPE>::scalar_type fp_t;
+    typedef typename dual_traits<TYPE>::scalar_type fp_t;
     return exp(x)*fp_t(1.0)
       / pow(sin(x)
             + pow(cos(x),fp_t(3.0))
