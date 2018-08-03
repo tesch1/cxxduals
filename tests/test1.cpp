@@ -306,12 +306,12 @@ TEST(basic, construction) {
   rand(a);
   rand(d);
   rand(e);
-  std::complex<double> cd(3.3, 4.4);
-  std::complex<float> cf(3.3, 4.4);
+  std::complex<double> cd(3.5, 4.25);
+  std::complex<float> cf(3.5, 4.25);
   cf = cd;
   cd = cf;
-  EXPECT_EQ(cd*=2, std::complex<double>(6.6,8.8));
-  EXPECT_EQ(cf*=2, std::complex<float>(6.6,8.8));
+  EXPECT_EQ(cd*=2, std::complex<double>(7,8.5));
+  EXPECT_EQ(cf*=2, std::complex<float>(7,8.5));
   EXPECT_EQ(conj(conj(d)), d);
   EXPECT_EQ(conj(d + e), conj(d) + conj(e));
   EXPECT_EQ(conj(d * e), conj(d) * conj(e));

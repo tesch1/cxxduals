@@ -1346,8 +1346,10 @@ conj(const dual<std::complex<_Tp> > & x)
 /**
  * Dual Conjugation
  * \f[
- * 
+ * i = \sqrt{-1} \\
+ * \mathrm{real}( (e+f*i) + (g+h*i) \epsilon ) = e + g \epsilon
  * \f]
+ *
  */
 template <typename _Tp>
 DUAL_DEVICE_FUNC
