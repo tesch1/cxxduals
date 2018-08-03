@@ -26,6 +26,7 @@ include_directories ("${EIGEN3_INCLUDE_DIRS}")
 
 add_executable (differentiation differentiation.cpp)
 add_executable (printing printing.cpp)
-add_executable (complex complex.cpp)
+#add_executable (complex complex.cpp)
 add_executable (eigen eigen.cpp)
+add_dependencies (eigen eigenX)
 
