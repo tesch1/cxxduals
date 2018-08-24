@@ -14,6 +14,7 @@ var classcxxduals_1_1dual =
     [ "epart", "classcxxduals_1_1dual.html#ac7a6635c15301316a70ea96082506a71", null ],
     [ "operator _Tp", "classcxxduals_1_1dual.html#ae4343a3574d2161b3f74898e07d8a9ec", null ],
     [ "operator*=", "classcxxduals_1_1dual.html#a488d7548f431343a587db9406c5d18de", null ],
+    [ "operator*=", "classcxxduals_1_1dual.html#a4650fadd2bdc12042d0c087f5d3ec721", null ],
     [ "operator*=", "classcxxduals_1_1dual.html#af7ffb7493c35b0ba53f22ae8ad7f8fb3", null ],
     [ "operator+", "classcxxduals_1_1dual.html#aefa6b3dfc58fb95de2271c3af9c583ac", null ],
     [ "operator+=", "classcxxduals_1_1dual.html#af701e3ffe24324f3cae4ae12dccdcbdd", null ],

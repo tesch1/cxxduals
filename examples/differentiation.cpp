@@ -85,17 +85,17 @@ int main(int argc, char **argv)
             << c << "\n"
             << d << "\n";
 
-  std::cout << "double<> depth:" << dual_trait_helper<double>::depth
-            << " num_elem: " << dual_trait_helper<double>::num_elem
-            << " is_nested: " << dual_trait_helper<double>::is_nested::value
+  std::cout << "double<> depth:" << dual_traits<double>::depth
+            << " num_elem: " << dual_traits<double>::num_elem
+            << " is_nested: " << dual_traits<double>::is_nested::value
             << "\n";
-  std::cout << "dual<> depth:" << dual_trait_helper<DUALTYPE>::depth
-            << " num_elem: " << dual_trait_helper<DUALTYPE>::num_elem
-            << " is_nested: " << dual_trait_helper<DUALTYPE>::is_nested::value
+  std::cout << "dual<> depth:" << dual_traits<DUALTYPE>::depth
+            << " num_elem: " << dual_traits<DUALTYPE>::num_elem
+            << " is_nested: " << dual_traits<DUALTYPE>::is_nested::value
             << "\n";
-  std::cout << "dual<dual<>> depth:" << dual_trait_helper<HDUALTYPE>::depth
-            << " num_elem: " << dual_trait_helper<HDUALTYPE>::num_elem
-            << " is_nested: " << dual_trait_helper<HDUALTYPE>::is_nested::value
+  std::cout << "dual<dual<>> depth:" << dual_traits<HDUALTYPE>::depth
+            << " num_elem: " << dual_traits<HDUALTYPE>::num_elem
+            << " is_nested: " << dual_traits<HDUALTYPE>::is_nested::value
             << "\n";
 
   {

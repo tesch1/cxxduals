@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structcxxduals_1_1internal_1_1common__type_3_01___tp_00_01dual_3_01___up_01_4_01_4.html" title="cxxduals::internal\l::common_type\&lt; _Tp,\l dual\&lt; _Up \&gt; \&gt;" alt="" coords="5,5,171,61"/>
+<area shape="rect" id="node2" href="$structcxxduals_1_1internal_1_1is__arithmetic.html" title="cxxduals::internal\l::is_arithmetic\&lt; _Tp \&gt;" alt="" coords="160,5,328,47"/>
+<area shape="rect" id="node3" href="$structcxxduals_1_1internal_1_1is__arithmetic_3_01std_1_1complex_3_01___tp_01_4_01_4.html" title="cxxduals::internal\l::is_arithmetic\&lt; std\l::complex\&lt; _Tp \&gt; \&gt;" alt="" coords="167,71,321,127"/>
 </map>
