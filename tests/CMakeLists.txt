@@ -1,9 +1,9 @@
 
 # https://gist.github.com/johnb003/65982fdc7a1274fdb023b0c68664ebe4
 
-# 3.9 adds support for "GoogleTest" which enumerates the tests inside
+# 3.10 adds support for "GoogleTest" which enumerates the tests inside
 # of the code and adds them to ctest.
-cmake_minimum_required (VERSION 3.9)
+cmake_minimum_required (VERSION 3.10)
 
 # Configure google-test as a downloadable library.
 include (External_GTest.cmake)
