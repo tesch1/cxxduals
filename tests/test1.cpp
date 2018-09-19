@@ -280,6 +280,9 @@ TESTALL(arithmetic)
 TESTALL(transcendental)
 
 TEST(basic, construction) {
+  typedef std::complex<duald> cduald;
+  typedef std::complex<dualf> cdualf;
+
   dualf a;
   dualf b(1);
   dualf c(1,2);
@@ -319,6 +322,17 @@ TEST(basic, construction) {
   //EXPECT_EQ(d, abs(d) * exp(dualcf(0,1) * arg(d)));
   //EXPECT_EQ(conj(cf * d), conj(cf) * conj(d));
   //EXPECT_EQ(abs(conj(d)*d), abs(d) * abs(conj(d)));
+
+  EXPECT_TRUE(cxxduals::internal::is_arithmetic<float>::value);
+  EXPECT_TRUE(cxxduals::internal::is_arithmetic<double>::value);
+  EXPECT_TRUE(cxxduals::internal::is_arithmetic<complexf>::value);
+  EXPECT_TRUE(cxxduals::internal::is_arithmetic<complexd>::value);
+  EXPECT_TRUE(cxxduals::internal::is_arithmetic<cdualf>::value);
+  EXPECT_TRUE(cxxduals::internal::is_arithmetic<cduald>::value);
+  EXPECT_TRUE(cxxduals::is_complex<complexf>::value);
+  EXPECT_TRUE(cxxduals::is_complex<complexd>::value);
+  EXPECT_TRUE(cxxduals::is_complex<cdualf>::value);
+  EXPECT_TRUE(cxxduals::is_complex<cduald>::value);
 }
 
 // simple types

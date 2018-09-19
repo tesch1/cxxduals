@@ -180,7 +180,7 @@ namespace cxxduals {
 template <class T>
 struct is_complex : std::false_type {};
 template <class T>
-struct is_complex<std::complex<T> > : std::true_type {};
+struct is_complex<std::complex<T> > : public std::true_type {};
 #endif
 
 /// check if something is dual
@@ -260,7 +260,7 @@ template <> struct arg_filter<std::complex<long double> > { typedef int test; };
 template <typename _Xp>
 struct arg_filter<std::complex<_Xp> > : public arg_filter<_Xp> { typedef int test; };
 #endif // 1
-template <typename _Tp> struct is_arithmetic<std::complex<_Tp> > : public std::is_arithmetic<_Tp> {};
+template <typename _Tp> struct is_arithmetic<std::complex<_Tp> > : public std::integral_constant<bool, true> {};
 #endif // CXXDUALS_NO_COMPLEX
 
 }
@@ -1014,7 +1014,7 @@ pow(const dual<_Tp> & xx, const _Up & cc)
  * \f]
  */
 template <typename _Tp, typename _Up,
-          typename std::enable_if<internal::is_arithmetic<_Tp>{}, int>::type = 0>
+          internal::enable_if_t<internal::is_arithmetic<_Tp>::value>* = nullptr>
 DUAL_DEVICE_FUNC
 dual<_Up>
 pow(const _Tp & aa, const dual<_Up> & yy)
