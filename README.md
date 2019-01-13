@@ -94,13 +94,14 @@ See the examples in tests/* and examples/*
 
 ## History
 
-This started as a dual-number class implementation by Jeff A. Fike
-found here:
+Although it has diverged significantly, this started as a dual-number
+class implementation by Jeff A. Fike found here:
 [http://adl.stanford.edu/hyperdual/](http://adl.stanford.edu/hyperdual/).
 
 It's been generalized for nesting, cleaned up for easier use in C++,
-and been made suitable for use in
-[Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page).
+and made suitable for use in
+[Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page)
+matrices.
 
 ## References
 
@@ -118,6 +119,12 @@ and been made suitable for use in
 - https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/jet.h
 - https://github.com/dtecta/motion-toolkit/blob/master/moto/Dual.hpp
 - https://github.com/JuliaDiff/DualNumbers.jl
+- https://github.com/KyushuUniversityMathematics/iPad-ProbeDeformer/blob/master/iPad-ProbeDeformer/DCN.h
+
+## Acknowledgements
+
+This work was supported by DFG/ANR grant (?) and the TUM School of
+Education.
 
 ## License
 
