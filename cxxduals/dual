@@ -280,25 +280,30 @@ public:
   static const int depth = dual_traits<dual<_Tp> >::depth;
   static const int num_elem = dual_traits<dual<_Tp> >::num_elem;
 
-  /// Constructors
+  /// Constructor - no initialization
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual()
     : _f0(), _f1() { }
 
+  /// Constructor - specify real part, zero dual part
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual(const _Tp & f0)
-    : _f0(f0), _f1() { }
+    : _f0(f0), _f1(0) { }
 
+  /// Constructor - specify real and dual parts
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual(const _Tp & f0, const _Tp & f1)
     : _f0(f0), _f1(f1) { }
 
+  /// Construct from similar dual<> \todo restrict to depth<f0> == depth<_Tp>
   template <typename _Up,
             typename _Ux = typename internal::arg_filter<_Up>::test >
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual(const _Up & f0)
-    : _f0(f0), _f1() { }
+    : _f0(f0), _f1(0) { }
 
+  /// Construct from similar dual<>
+  /// \todo restrict to (depth<f0> == depth<_Tp> and depth<f1> == depth<_Tp>)
   template <typename _Up, typename _Vp, 
             typename _Ux = typename internal::arg_filter<_Up>::test,
             typename _Vx = typename internal::arg_filter<_Vp>::test >
@@ -324,10 +329,14 @@ public:
   }
 #endif
 
+  /// We're friends with all other duals (\todo ...of equal depth)
+  template<typename _Up> friend class dual<_Up>::dual;
+
+  /// Copy constructor from dual of diff type \todo restrict to dual<>s of same depth
   template<typename _Up>
   DUAL_DEVICE_FUNC
   dual(const dual<_Up> & rhs)
-    : _f0(rhs.rpart()), _f1(rhs.epart()) { }
+    : _f0(rhs._f0), _f1(rhs._f1) { }
 
 #if __cplusplus >= 201103L
   /// Real part
@@ -341,12 +350,15 @@ public:
   epart() const { return _f1; }
 
 private:
+  /// Helper for `constexpr part(int) const`
   DUAL_DEVICE_FUNC
   constexpr basic_value_type
   private_part(int p, std::false_type) const {
     // p had better be either 0 or 1
     return p == 0 ? _f0 : _f1;
   }
+
+  /// Helper for `constexpr part(int) const`
   DUAL_DEVICE_FUNC
   constexpr basic_value_type
   private_part(int p, std::true_type) const {
@@ -354,13 +366,17 @@ private:
                ? _f0.part(p)
                : _f1.part(p - (dual_traits<dual<_Tp> >::num_elem / 2));
   }
+
 public:
+  /// Part-wise access, for nested duals
   DUAL_DEVICE_FUNC
   constexpr basic_value_type
   part(int p) const {
     return private_part(p, typename dual_traits<_Tp>::is_dual());
   }
+
 #else
+
   /// Real part
   DUAL_DEVICE_FUNC
   inline const _Tp &
@@ -370,6 +386,7 @@ public:
   DUAL_DEVICE_FUNC
   inline const _Tp &
   epart() const { return _f1; }
+
 #endif
 
   /// Real part
@@ -383,12 +400,14 @@ public:
   epart() { return _f1; }
 
 private:
+  /// Helper for `inline part(int)`
   DUAL_DEVICE_FUNC
   inline basic_value_type &
   private_part(int p, std::false_type) {
     return p == 0 ? _f0 : _f1;
   }
 
+  /// Helper for `inline part(int)`
   DUAL_DEVICE_FUNC
   inline basic_value_type &
   private_part(int p, std::true_type) {
@@ -399,6 +418,7 @@ private:
 
 public:
 
+  /// Part-wise access
   DUAL_DEVICE_FUNC
   inline basic_value_type &
   part(int p) {
@@ -416,6 +436,7 @@ public:
   epart(_Tp f1) { _f1 = f1; }
 
 private:
+  /// Helper for part-wise assignment
   DUAL_DEVICE_FUNC
   inline void
   private_part(int p, const basic_value_type & v, std::false_type) {
@@ -425,6 +446,7 @@ private:
       _f1 = v;
   }
 
+  /// Helper for part-wise assignment
   DUAL_DEVICE_FUNC
   inline void
   private_part(int p, const basic_value_type & v, std::true_type) {
@@ -450,11 +472,11 @@ public:
   inline dual<_Tp> &
   operator=(const _Up & f0) { _f0 = f0; _f1 = _Tp(); return *this; }
 
-  /// Assignment from another dual<>
+  /// Assignment from another dual<> \todo restrict to depth<_Up> == depth<_Tp>
   template<typename _Up>
   DUAL_DEVICE_FUNC
   inline dual<_Tp> &
-  operator=(const dual<_Up> & rhs) { _f0 = rhs.rpart(); _f1 = rhs.epart(); return *this; }
+  operator=(const dual<_Up> & rhs) { _f0 = rhs._f0; _f1 = rhs._f1; return *this; }
 
   // Operations
 
@@ -462,7 +484,7 @@ public:
   DUAL_DEVICE_FUNC
   explicit operator _Tp () const { return rpart(); }
 
-  /// unitary
+  /// unitary plus - passthrough
   DUAL_DEVICE_FUNC
   dual<_Tp>
   operator+() const { return *this; }

@@ -14,23 +14,23 @@ include_directories (${CMAKE_SOURCE_DIR}/)
 
 # test binaries
 add_executable (test1 test1.cpp)
-target_link_libraries (test1 ${GTEST_LIBRARY})
-
 add_executable (test2 test2.cpp)
+add_executable (test3 test3.cpp)
+
+target_link_libraries (test1 ${GTEST_LIBRARY})
 target_link_libraries (test2 ${GTEST_LIBRARY})
+target_link_libraries (test3 ${GTEST_LIBRARY})
 
 # individual tests
 include (GoogleTest)
-gtest_discover_tests (test1
-  TEST_LIST   test1_targets
-)
-gtest_discover_tests (test2
-  TEST_LIST   test2_targets
-)
+gtest_discover_tests (test1 TEST_LIST test1_targets)
+gtest_discover_tests (test2 TEST_LIST test2_targets)
+gtest_discover_tests (test3 TEST_LIST test3_targets)
 
 # set each target to timeout if not finished within 10 sec
 set_tests_properties (${test1_targets} PROPERTIES TIMEOUT 10)
 set_tests_properties (${test2_targets} PROPERTIES TIMEOUT 10)
+set_tests_properties (${test3_targets} PROPERTIES TIMEOUT 10)
 
 # CUDA
 if (CUDA_FOUND)
