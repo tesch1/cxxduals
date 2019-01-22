@@ -123,15 +123,12 @@ matrices.
 
 ## Acknowledgements
 
-This work was supported by DFG/ANR grant (?) and the TUM School of
-Education.
+This work was partially supported by DFG/ANR grant (?) and the TUM
+School of Education.
 
 ## License
 
 MIT, same as the original Fike code.
 
 ## Please report (and/or fix) any problems you find!
-
-Once a good amount of test coverage is in place there should be
-numbered releases.
 

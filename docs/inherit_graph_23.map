@@ -1,4 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node2" href="$structcxxduals_1_1is__complex.html" title="check if something is complex " alt="" coords="144,5,344,32"/>
-<area shape="rect" id="node3" href="$structcxxduals_1_1is__dual.html" title="check if something is dual " alt="" coords="158,56,330,83"/>
+<area shape="rect" id="node2" href="$structcxxduals_1_1is__complex_3_01std_1_1complex_3_01_t_01_4_01_4.html" title="cxxduals::is_complex\l\&lt; std::complex\&lt; T \&gt; \&gt;" alt="" coords="137,5,312,47"/>
+<area shape="rect" id="node3" href="$structcxxduals_1_1is__dual_3_01dual_3_01_t_01_4_01_4.html" title="cxxduals::is_dual\&lt;\l dual\&lt; T \&gt; \&gt;" alt="" coords="152,71,297,112"/>
 </map>

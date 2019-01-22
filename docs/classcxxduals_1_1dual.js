@@ -1,7 +1,7 @@
 var classcxxduals_1_1dual =
 [
-    [ "basic_value_type", "classcxxduals_1_1dual.html#a80a0a1c1046adcab28ee7e94edb18fce", null ],
-    [ "scalar_type", "classcxxduals_1_1dual.html#a4d6c98a0fd50ed3b09f3a65afd897e64", null ],
+    [ "basic_value_type", "classcxxduals_1_1dual.html#a98afc0ab253915923cd53e0ddce95e6a", null ],
+    [ "scalar_type", "classcxxduals_1_1dual.html#abde40421f220867d3f6e65f8225cda7a", null ],
     [ "value_type", "classcxxduals_1_1dual.html#a993d144ce0adf0ae45357ec0fd67b558", null ],
     [ "dual", "classcxxduals_1_1dual.html#a3ca465c9f658e10a2a1a7028421cc17f", null ],
     [ "dual", "classcxxduals_1_1dual.html#aded6b512b24eac7bb3037ecfb97b96bb", null ],
@@ -35,6 +35,7 @@ var classcxxduals_1_1dual =
     [ "rpart", "classcxxduals_1_1dual.html#a34d3d456ce796be1645a224b14a1fba8", null ],
     [ "rpart", "classcxxduals_1_1dual.html#ae7d5324e001fcc53f07e45b947c0ac73", null ],
     [ "rpart", "classcxxduals_1_1dual.html#abd3391a0962bc2c646c38a72c8ec3eca", null ],
+    [ "dual< _Up >::dual", "classcxxduals_1_1dual.html#a0a989e9884176badd6ec42d98fc13888", null ],
     [ "_f0", "classcxxduals_1_1dual.html#a08e7a957e4677bd7639b10d44dbcbdff", null ],
     [ "_f1", "classcxxduals_1_1dual.html#a5316f1e3f15c884eaa388f99948ca86f", null ]
 ];

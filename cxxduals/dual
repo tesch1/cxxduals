@@ -771,7 +771,7 @@ inline _Tp epart(const dual<_Tp> & d)
 //@}
 
 /**
- * Random number
+ * Random number in [a, b) - wrapper around std::default_random_engine
  * \f[
  * 
  * \f]
@@ -808,7 +808,7 @@ void rand(std::complex<_Tp> & d,
 #endif
 
 /**
- * Random dual number
+ * Random dual number with parts in [a, b)
  * \f[
  * 
  * \f]
