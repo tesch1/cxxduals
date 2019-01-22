@@ -189,26 +189,38 @@ struct is_dual : std::false_type {};
 template <class T>
 struct is_dual<dual<T> > : std::true_type {};
 
-/// Useful type trait extraction for templpated types
+namespace internal {
+/// Useful type trait extraction for templpated types, helper for _Tp
+/// being a basic type (float, double, ...).  Used by dual_traits<>.
 template <typename _Tp>
 struct dual_traits_basic {
-  typedef _Tp scalar_type;
-  typedef _Tp value_type;
-  typedef _Tp basic_value_type;
-  static const int depth = 0;
-  static const int num_elem = 1;
-  typedef std::false_type is_nested;
-  typedef std::false_type is_dual;
+  typedef _Tp scalar_type;              ///< The intrinsic scalar type (double, float,...)
+  typedef _Tp value_type;               ///< The type of part(), rpart() and epart()
+  typedef _Tp basic_value_type;         ///< Used to differentiate complex/dual types
+  static const int depth = 0;           ///< Depth of nested duals, a
+                                        ///  dual<double> is 0, a
+                                        ///  dual<dual<double>> is 1
+  static const int num_elem = 1;        ///< How many scalar parts the dual has (2^depth)
+  typedef std::false_type is_nested;    ///< Is this a nested dual?
+  typedef std::false_type is_dual;      ///< Is _Tp even a dual?
 };
+}
 
-/// Specialized instances for the scalars
+/// Get trait information about a dual number (see
+/// internal::dual_traits_basic for traits)
 template <typename _Tp> struct dual_traits;
-template <> struct dual_traits<float> : public dual_traits_basic<float> {};
-template <> struct dual_traits<double> : public dual_traits_basic<double> {};
-template <> struct dual_traits<long double> : public dual_traits_basic<long double> {};
+
+/// Specialization of dual_traits for float
+template <> struct dual_traits<float> : public internal::dual_traits_basic<float> {};
+
+/// Specialization of dual_traits for double
+template <> struct dual_traits<double> : public internal::dual_traits_basic<double> {};
+
+/// Specialization of dual_traits for long double
+template <> struct dual_traits<long double> : public internal::dual_traits_basic<long double> {};
 
 #ifndef CXXDUALS_NO_COMPLEX
-/// Complex trait helper
+/// Complex dual traits
 template <typename _Tp>
 struct dual_traits<std::complex<_Tp> > : public dual_traits<_Tp> {
   typedef typename dual_traits<_Tp>::scalar_type scalar_type;
@@ -221,7 +233,7 @@ struct dual_traits<std::complex<_Tp> > : public dual_traits<_Tp> {
 template <typename _Tp>
 struct dual_traits<dual<_Tp> > {
   typedef typename dual_traits<_Tp>::scalar_type scalar_type;
-  typedef typename dual_traits<_Tp>::value_type value_type;
+  typedef _Tp value_type;
   typedef typename dual_traits<_Tp>::basic_value_type basic_value_type;
   static const int depth = dual_traits<_Tp>::depth + 1;
   static const int num_elem = dual_traits<_Tp>::num_elem * 2;
@@ -230,17 +242,18 @@ struct dual_traits<dual<_Tp> > {
 };
 
 namespace internal {
-/// filter to exclude complex
+/// filter to exclude complex from templated arguments
 template <typename _Tp> struct nocx_filter;
 template <> struct nocx_filter<int> { typedef int test; };
 template <> struct nocx_filter<float> { typedef int test; };
 template <> struct nocx_filter<double> { typedef int test; };
 template <> struct nocx_filter<long double> { typedef int test; };
 
+/// Filter to enable tempated arg if a condition B is met
 template< bool B, class T = void >
 using enable_if_t = typename std::enable_if<B,T>::type;
 
-/// filter to only allow basic types in templated constructor
+/// Filter to only allow basic types in templated arg type
 template <typename _Tp> struct arg_filter;
 template <> struct arg_filter<int> { typedef int test; };
 template <> struct arg_filter<float> { typedef int test; };
@@ -274,7 +287,10 @@ private:
 
 public:
 
+  /// Type of rpart() and epart()
   typedef _Tp value_type;
+
+  // 
   typedef typename dual_traits<_Tp>::basic_value_type basic_value_type;
   typedef typename dual_traits<_Tp>::scalar_type scalar_type;
   static const int depth = dual_traits<dual<_Tp> >::depth;
@@ -734,7 +750,8 @@ rpart(const dual<_Tp> & d)
  * rpart(a) = a
  * \f]
  */
-template <typename _Tp>
+template <typename _Tp,
+          typename _Tpf = typename internal::arg_filter<_Tp>::test>
 DUAL_DEVICE_FUNC
 inline _Tp
 rpart(const _Tp & d)
@@ -768,6 +785,21 @@ inline _Tp epart(const dual<_Tp> & d)
 {
   return d.epart();
 }
+
+/**
+ * \f[
+ * epart(a) = 0
+ * \f]
+ */
+template <typename _Tp,
+          typename _Tpf = typename internal::arg_filter<_Tp>::test>
+DUAL_DEVICE_FUNC
+inline _Tp
+epart(const _Tp & d)
+{
+  return _Tp(0);
+}
+
 //@}
 
 /**
