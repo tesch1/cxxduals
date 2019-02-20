@@ -129,7 +129,7 @@ typedef dual<std::complex<double> > dualcd;
 typedef dual<std::complex<long double> > dualcld;
 #endif // CXXDUALS_NO_COMPLEX
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || defined(_WIN32)
 template <class _Tp> using hyperdual = dual<dual<_Tp> >;
 typedef hyperdual<float> hyperdualf;
 typedef hyperdual<double> hyperduald;
@@ -327,7 +327,7 @@ public:
   CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Vp & f1)
     : _f0(f0), _f1(f1) { }
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || defined(_WIN32)
   /// List initializer, this is for allowing nested
   //  duals to have simpler initializers, ie for
   // dual<dual<double>> x{1,2,3,4}; // 1 + 2*e1 + 3*e2 + 4*e3
@@ -354,7 +354,7 @@ public:
   dual(const dual<_Up> & rhs)
     : _f0(rhs._f0), _f1(rhs._f1) { }
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || defined(_WIN32)
   /// Real part
   DUAL_DEVICE_FUNC
   constexpr _Tp 
@@ -708,7 +708,7 @@ public:
   dual<_Tp> &
   operator/=(const dual<_Up> & rhs)
   {
-#if __cplusplus > 199711L
+#if __cplusplus > 199711L || defined(_WIN32)
     typedef decltype(_Tp(1) * _Up(1)) higher_t;
 #else
     typedef _Tp higher_t;
