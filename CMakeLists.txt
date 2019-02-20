@@ -40,8 +40,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif ()
 ExternalProject_Add (eigenX
   PREFIX eigenX
-  URL http://bitbucket.org/eigen/eigen/get/3.3.4.tar.bz2
-  URL_HASH MD5=a7aab9f758249b86c93221ad417fbe18
+  URL http://bitbucket.org/eigen/eigen/get/3.3.7.tar.bz2
+  URL_HASH MD5=05b1f7511c93980c385ebe11bd3c93fa
   DOWNLOAD_DIR "$ENV{HOME}/Downloads"
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
