@@ -23,7 +23,7 @@ addons:
     - clang
 
 before_install:
-  - pip install --user cpp-coveralls
+  - [ $TRAVIS_OS_NAME != windows ] && pip install --user cpp-coveralls
   - ${CXX} --version;
 
 install:
@@ -35,4 +35,4 @@ script:
   - cmake --build . --target test
 
 after_success:
-  - if [ "$CXX" = "g++-4.9" ]; coveralls --exclude lib --exclude tests --gcov-options '\-lp' ; fi
+  - [ $TRAVIS_OS_NAME != windows ] && coveralls --exclude lib --exclude tests --gcov-options '\-lp'
