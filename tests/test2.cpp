@@ -27,6 +27,7 @@
 #include <complex>
 #include <cmath>
 #include <cxxduals/dual>
+#include <Eigen/Dense>
 
 #include "test_helpers.h"
 
@@ -115,11 +116,11 @@ fike_example1()
   pike_f1 f1;
   typedef dual<UNOTYPE> DUALTYPE;
   typedef dual<dual<UNOTYPE> > HDUALTYPE;
-  srand48(1);
 
   for (int ii = 0; ii < reps; ii++) {
     // pick a random x
-    UNOTYPE x = drand48() * 10;
+    Eigen::Matrix<double,1,1> rand = Eigen::Matrix<double,1,1>::Random();
+    UNOTYPE x = UNOTYPE(rand(0,0)) * 10;
     // calculate f, f' and f'' and f''' analytically at x
     UNOTYPE f = f1.f(x);
     UNOTYPE fp = f1.df(x);
