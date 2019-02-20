@@ -31,6 +31,7 @@ gtest_discover_tests (test3 TEST_LIST test3_targets)
 set_tests_properties (${test1_targets} PROPERTIES TIMEOUT 10)
 set_tests_properties (${test2_targets} PROPERTIES TIMEOUT 10)
 set_tests_properties (${test3_targets} PROPERTIES TIMEOUT 10)
+#-ftest-coverage
 
 # CUDA
 if (CUDA_FOUND)
