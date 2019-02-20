@@ -346,7 +346,7 @@ public:
 #endif
 
   /// We're friends with all other duals (\todo ...of equal depth)
-  template<typename _Up> friend class dual<_Up>::dual;
+  template<typename _Up> friend class dual;
 
   /// Copy constructor from dual of diff type \todo restrict to dual<>s of same depth
   template<typename _Up>
