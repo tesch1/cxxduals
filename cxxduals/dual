@@ -52,7 +52,7 @@
 #endif
 
 // check if constexpr exists
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || defined(_WIN32)
 #define CXXDUALS_CONSTEXPR constexpr
 #else
 #define CXXDUALS_CONSTEXPR const
