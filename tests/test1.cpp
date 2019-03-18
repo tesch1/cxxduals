@@ -153,6 +153,23 @@ void arithmetic()
   // /
 }
 
+template <typename DUALTYPE>
+void numeric_limits()
+{
+#ifndef CXXDUALS_NO_LIMITS
+  typedef typename DUALTYPE::value_type Value;
+
+  EXPECT_EQ(std::numeric_limits<Value>::min(), std::numeric_limits<DUALTYPE>::min());
+  EXPECT_EQ(std::numeric_limits<Value>::max(), std::numeric_limits<DUALTYPE>::max());
+  EXPECT_EQ(std::numeric_limits<Value>::epsilon(), std::numeric_limits<DUALTYPE>::epsilon());
+  EXPECT_EQ(std::numeric_limits<Value>::round_error(), std::numeric_limits<DUALTYPE>::round_error());
+  EXPECT_EQ(std::numeric_limits<Value>::infinity(), std::numeric_limits<DUALTYPE>::infinity());
+  //EXPECT_EQ(std::numeric_limits<Value>::quiet_NaN(), std::numeric_limits<DUALTYPE>::min());
+  //EXPECT_EQ(std::numeric_limits<Value>::signaling_NaN(), std::numeric_limits<DUALTYPE>::min());
+  EXPECT_EQ(std::numeric_limits<Value>::denorm_min(), std::numeric_limits<DUALTYPE>::denorm_min());
+#endif
+}
+
 using std::isnormal;
 template <typename T> bool isnormal(const std::complex<T> & v)
 {
@@ -277,6 +294,7 @@ TESTALL(construct)
 TESTALL(equality)
 TESTREAL(compare)
 TESTALL(arithmetic)
+TESTALL(numeric_limits)
 TESTALL(transcendental)
 
 TEST(basic, construction) {

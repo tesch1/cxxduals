@@ -148,7 +148,7 @@ typedef hyperdual<std::complex<long double> > hyperdualcld;
 //! by C++03 17.4.3.1/1, and C++11 18.3.2.3/1
 #ifndef CXXDUALS_NO_LIMITS
 namespace std {
-#if 0
+#if 1
 template<typename _Tp>
 struct numeric_limits<cxxduals::dual<_Tp> > : public numeric_limits<_Tp> {
   typedef cxxduals::dual<_Tp> T;
@@ -348,8 +348,9 @@ public:
   /// We're friends with all other duals (\todo ...of equal depth)
   template<typename _Up> friend class dual;
 
-  /// Copy constructor from dual of diff type \todo restrict to dual<>s of same depth
-  template<typename _Up>
+  /// Copy constructor from dual of diff type
+  template<typename _Up,
+           internal::enable_if_t<dual_traits<dual<_Up> >::depth <= depth>* = nullptr>
   DUAL_DEVICE_FUNC
   dual(const dual<_Up> & rhs)
     : _f0(rhs._f0), _f1(rhs._f1) { }
