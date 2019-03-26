@@ -277,6 +277,66 @@ void casting()
   //dual<TYPE2> f = a;
 }
 
+TEST (basic, dual_traits) {
+  EXPECT_EQ(cxxduals::dual_traits<float>::depth, 0);
+  EXPECT_EQ(cxxduals::dual_traits<std::complex<float>>::depth, 0);
+  EXPECT_EQ(cxxduals::dual_traits<dualf>::depth, 1);
+  EXPECT_EQ(cxxduals::dual_traits<dual<dual<float> > >::depth, 2);
+
+  EXPECT_EQ(cxxduals::dual_traits<float>::num_elem, 1);
+  EXPECT_EQ(cxxduals::dual_traits<std::complex<float>>::num_elem, 1);
+  EXPECT_EQ(cxxduals::dual_traits<dualf>::num_elem, 2);
+  EXPECT_EQ(cxxduals::dual_traits<dualcf>::num_elem, 2);
+  EXPECT_EQ(cxxduals::dual_traits<dual<dual<float> > >::num_elem, 4);
+
+  typedef std::is_same<cxxduals::dual_traits<float>::scalar_type, float> result1;
+  EXPECT_TRUE(result1::value);
+  typedef std::is_same<cxxduals::dual_traits<float>::value_type, float> result2;
+  EXPECT_TRUE(result2::value);
+  typedef std::is_same<cxxduals::dual_traits<float>::basic_value_type, float> result3;
+  EXPECT_TRUE(result3::value);
+
+  typedef std::is_same<cxxduals::dual_traits<std::complex<float> >::scalar_type, float> result4;
+  EXPECT_TRUE(result4::value);
+  typedef std::is_same<cxxduals::dual_traits<std::complex<float> >::value_type, std::complex<float>> result5;
+  EXPECT_TRUE(result5::value);
+  typedef std::is_same<cxxduals::dual_traits<std::complex<float> >::basic_value_type, float> result6;
+  EXPECT_TRUE(result6::value);
+
+  typedef std::is_same<cxxduals::dual_traits<dualf>::scalar_type, float> result7;
+  EXPECT_TRUE(result7::value);
+  typedef std::is_same<cxxduals::dual_traits<dualf>::value_type, std::complex<float>> result8;
+  EXPECT_TRUE(result8::value);
+  typedef std::is_same<cxxduals::dual_traits<dualf>::basic_value_type, float> result9;
+  EXPECT_TRUE(result9::value);
+
+  typedef std::is_same<cxxduals::dual_traits<dualcf>::scalar_type, float> resulta;
+  EXPECT_TRUE(resulta::value);
+  typedef std::is_same<cxxduals::dual_traits<dualcf>::value_type, std::complex<float>> resultb;
+  EXPECT_TRUE(resultb::value);
+  typedef std::is_same<cxxduals::dual_traits<dualcf>::basic_value_type, std::complex<float>> resultc;
+  EXPECT_TRUE(resultc::value);
+
+  typedef std::is_same<cxxduals::dual_traits<dual<dualcf>>::scalar_type, float> resultd;
+  EXPECT_TRUE(resultd::value);
+  typedef std::is_same<cxxduals::dual_traits<dual<dualcf>>::value_type, dualcf> resulte;
+  EXPECT_TRUE(resulte::value);
+  typedef std::is_same<cxxduals::dual_traits<dual<dualcf>>::basic_value_type, std::complex<float>> resultf;
+  EXPECT_TRUE(resultf::value);
+
+#if 0
+  scalar_type;              ///< The intrinsic scalar type (double, float,...)
+  typedef Tp value_type;               ///< The type of part(), rpart() and epart()
+  typedef Tp basic_value_type;         ///< Used to differentiate complex/dual types
+  static const int depth = 0;           ///< Depth of nested duals, a
+                                        ///  dual<double> is 0, a
+                                        ///  dual<dual<double>> is 1
+  static const int num_elem = 1;        ///< How many basiv_value_type parts the dual has (2^depth)
+  typedef std::false_type is_nested;    ///< Is this a nested dual?
+  typedef std::false_type is_dual;      ///< Is Tp even a dual?
+#endif
+}
+
 #ifndef __CUDACC__
 TEST (generic, generic)
 {
@@ -284,7 +344,7 @@ TEST (generic, generic)
   dualcf b;
   takes_dualcd_ref(a);
   //takes_dualcd(b);
-  takes_dualcd(dualcd(b));
+  //takes_dualcd(dualcd(b));
   //takes_dualcd_ref(dualcd(b));
 }
 #endif
@@ -316,8 +376,8 @@ TEST(basic, construction) {
   hyperdualf i(1,2);
 
   hyperdualcf j;
-  hyperdualcf k(1);
-  hyperdualcf l(1,2);
+  hyperdualcf k{1};
+  hyperdualcf l{1,2};
 
   std::complex<dual<double>> m;
   
@@ -340,6 +400,15 @@ TEST(basic, construction) {
   //EXPECT_EQ(d, abs(d) * exp(dualcf(0,1) * arg(d)));
   //EXPECT_EQ(conj(cf * d), conj(cf) * conj(d));
   //EXPECT_EQ(abs(conj(d)*d), abs(d) * abs(conj(d)));
+
+  EXPECT_TRUE(cxxduals::is_dual<dualf>::value);
+  EXPECT_TRUE(cxxduals::is_dual<duald>::value);
+  EXPECT_TRUE(cxxduals::is_dual<dualcf>::value);
+  EXPECT_TRUE(cxxduals::is_dual<dualcd>::value);
+  EXPECT_FALSE(cxxduals::is_dual<float>::value);
+  EXPECT_FALSE(cxxduals::is_dual<double>::value);
+  EXPECT_FALSE(cxxduals::is_dual<cduald>::value);
+  EXPECT_FALSE(cxxduals::is_dual<cduald>::value);
 
   EXPECT_TRUE(cxxduals::internal::is_arithmetic<float>::value);
   EXPECT_TRUE(cxxduals::internal::is_arithmetic<double>::value);
