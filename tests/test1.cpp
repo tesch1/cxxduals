@@ -341,6 +341,15 @@ TEST(basic, construction) {
   //EXPECT_EQ(conj(cf * d), conj(cf) * conj(d));
   //EXPECT_EQ(abs(conj(d)*d), abs(d) * abs(conj(d)));
 
+  EXPECT_TRUE(cxxduals::is_dual<dualf>::value);
+  EXPECT_TRUE(cxxduals::is_dual<duald>::value);
+  EXPECT_TRUE(cxxduals::is_dual<dualcf>::value);
+  EXPECT_TRUE(cxxduals::is_dual<dualcd>::value);
+  EXPECT_FALSE(cxxduals::is_dual<float>::value);
+  EXPECT_FALSE(cxxduals::is_dual<double>::value);
+  EXPECT_FALSE(cxxduals::is_dual<cduald>::value);
+  EXPECT_FALSE(cxxduals::is_dual<cduald>::value);
+
   EXPECT_TRUE(cxxduals::internal::is_arithmetic<float>::value);
   EXPECT_TRUE(cxxduals::internal::is_arithmetic<double>::value);
   EXPECT_TRUE(cxxduals::internal::is_arithmetic<complexf>::value);
