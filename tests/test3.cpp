@@ -24,6 +24,7 @@
 #include "gtest/gtest.h"
 #include <Eigen/Dense>
 #include <cxxduals/dual>
+#include <unsupported/Eigen/MatrixFunctions>
 
 #include "test_helpers.h"
 
@@ -51,6 +52,44 @@ TEST(Eigen, construction)
   emtx<dualcf> edcf;
   emtx<cduald> ecdd;
   emtx<cdualf> ecdf;
+}
+
+TEST(Eigen, expm)
+{
+  emtx<double> ed;
+  emtx<float> ef;
+  emtx<complexd> ecd;
+  emtx<complexf> ecf;
+
+  emtx<duald> edd;
+  emtx<dualf> edf;
+  emtx<dualcd> edcd;
+  emtx<dualcf> edcf;
+  emtx<cduald> ecdd;
+  emtx<cdualf> ecdf;
+
+  ed.setZero();
+  ef.setZero();
+  ecd.setZero();
+  ecf.setZero();
+
+  edf.setZero();
+  edcd.setZero();
+  edcf.setZero();
+  ecdd.setZero();
+  ecdf.setZero();
+
+  EXPECT_EQ(emtx<double>::Identity(), ed.exp());
+  EXPECT_EQ(emtx<float>::Identity(), ef.exp());
+  EXPECT_EQ(emtx<complexd>::Identity(), ecd.exp());
+  EXPECT_EQ(emtx<complexf>::Identity(), ecf.exp());
+
+  EXPECT_EQ(emtx<duald>::Identity(), edd.exp());
+  EXPECT_EQ(emtx<dualf>::Identity(), edf.exp());
+  EXPECT_EQ(emtx<dualcd>::Identity(), edcd.exp());
+  EXPECT_EQ(emtx<dualcf>::Identity(), edcf.exp());
+  EXPECT_EQ(emtx<cduald>::Identity(), ecdd.exp());
+  EXPECT_EQ(emtx<cdualf>::Identity(), ecdf.exp());
 }
 
 int main(int argc, char **argv)
