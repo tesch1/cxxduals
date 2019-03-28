@@ -301,6 +301,7 @@ public:
   CXXDUALS_CONSTEXPR dual()
     : _f0(), _f1() { }
 
+#if __cpp_constexpr >= 201304
   /// Constructor - specify real part, zero dual part
   DUAL_DEVICE_FUNC
 #if __cpp_constexpr >= 201304 // c++14
