@@ -310,7 +310,8 @@ public:
     : _f0(f0) { _f1.fill(0); }
 
   /// Constructor - specify real and dual parts
-  template <internal::enable_if_t<Ne == 1>* = nullptr>
+  template <unsigned Nee = Ne,
+            internal::enable_if_t<Nee == 1>* = nullptr>
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual(const Tp & f0, const Tp & f1)
     : _f0(f0), _f1{f1} { }
@@ -339,7 +340,8 @@ public:
     : _f0(f0), _f1(f1) { }
 
   /// Construct from compatible parts, if Ne==1
-  template <internal::enable_if_t<Ne == 1>* = nullptr,
+  template <unsigned Nee = Ne,
+            internal::enable_if_t<Nee == 1>* = nullptr,
             typename _Up,
             typename _Vp,
             internal::enable_if_t<dual_traits<_Up>::depth == depth-1>* = nullptr,
@@ -382,15 +384,15 @@ public:
   rpart() { return _f0; }
 
   /// Dual (epsilon) part
-  template <typename X,
-            internal::enable_if_t<Ne == 1>* = nullptr>
+  template <unsigned Nee = Ne,
+            internal::enable_if_t<Nee == 1>* = nullptr>
   DUAL_DEVICE_FUNC
   inline Tp &
   epart() { return _f1[0]; }
 
   /// Dual (epsilon) part
-  template <typename X,
-            internal::enable_if_t<Ne != 1>* = nullptr>
+  template <unsigned Nee = Ne,
+            internal::enable_if_t<Nee != 1>* = nullptr>
   DUAL_DEVICE_FUNC
   inline Tp1 &
   epart() { return _f1; }
