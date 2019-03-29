@@ -43,6 +43,7 @@
 #include <ctgmath>
 #include <sstream>
 #include <limits>
+#include <valarray>
 #include <type_traits>
 #include <initializer_list>
 #include <random>
@@ -277,17 +278,24 @@ class dual {
   static_assert(Ne >= 1, "dual numbers must have at least one epsilon part");
 private:
   Tp _f0;
-  std::array<Tp,Ne> _f1;
+  //std::array<Tp,Ne> _f1;
+  std::valarray<Tp> _f1;
   typedef dual<Tp, Ne> dual_type;
+
+  /// Apply a function to all elements of _f1 and return the result
+  template <typename At>
+  std::valarray<At> f1_apply( At func(const Tp &) ) const {
+    std::valarray<At> res(Ne);
+    for (unsigned ii = 0; ii < Ne; ii++)
+      res[ii] = func(_f1[ii]);
+    return res;
+  }
 
 public:
 
-  class marray : public std::array<Tp,Ne> {
-  };
-
   /// Type of rpart() and epart()
   typedef Tp value_type;
-  typedef std::array<Tp,Ne> Tp1;
+  typedef typeof(_f1) Tp1;
 
   // 
   typedef typename dual_traits<Tp>::basic_value_type basic_value_type;
@@ -299,16 +307,15 @@ public:
   /// Constructor - no initialization
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual()
-    : _f0(), _f1() { }
+    : _f0(), _f1(Ne) { }
 
-#if __cpp_constexpr >= 201304
   /// Constructor - specify real part, zero dual part
   DUAL_DEVICE_FUNC
 #if __cpp_constexpr >= 201304 // c++14
   CXXDUALS_CONSTEXPR
 #endif
   dual(const Tp & f0)
-    : _f0(f0) { _f1.fill(0); }
+    : _f0(f0), _f1((Tp)0, (size_t)Ne) {}
 
   /// Constructor - specify real and dual parts
   template <unsigned Nee = Ne,
@@ -320,7 +327,7 @@ public:
   /// Constructor - specify real and dual parts
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual(const Tp & f0, const Tp1 & f1)
-    : _f0(f0), _f1{f1} { }
+    : _f0(f0), _f1(f1) { }
 
   /// Construct from lower dual<>
   template <typename _Up,
@@ -331,7 +338,7 @@ public:
   CXXDUALS_CONSTEXPR
 #endif
   dual(const _Up & f0)
-    : _f0(f0) { _f1.fill(0); }
+    : _f0(f0), _f1((Tp)0, (size_t)Ne) {}
 
   /// Construct from compatible parts
   template <typename _Up,
@@ -380,28 +387,20 @@ public:
     : _f0(rhs._f0), _f1(rhs._f1) { }
 
   /// Real part
-  DUAL_DEVICE_FUNC
-  inline Tp &
-  rpart() { return _f0; }
+  DUAL_DEVICE_FUNC       Tp & rpart()       { return _f0; }
+  DUAL_DEVICE_FUNC const Tp & rpart() const { return _f0; }
 
   /// Dual (epsilon) part
-  template <unsigned Nee = Ne,
-            internal::enable_if_t<Nee == 1>* = nullptr>
-  DUAL_DEVICE_FUNC
-  inline Tp &
-  epart() { return _f1[0]; }
+  DUAL_DEVICE_FUNC Tp & epart(unsigned en = 0) { return _f1[en]; }
 
-  /// Dual (epsilon) part
-  template <unsigned Nee = Ne,
-            internal::enable_if_t<Nee != 1>* = nullptr>
-  DUAL_DEVICE_FUNC
-  inline Tp1 &
-  epart() { return _f1; }
+  /// Dual (epsilon) part const
+  DUAL_DEVICE_FUNC const Tp & epart(unsigned en = 0) const { return _f1[en]; }
 
-  /// Dual (epsilon) part
-  DUAL_DEVICE_FUNC
-  inline Tp 
-  epart(unsigned en) const { return _f1[en]; }
+  /// Dual (epsilon) parts
+  DUAL_DEVICE_FUNC Tp1 & eparts() { return _f1; }
+
+  /// Dual (epsilon) parts const
+  DUAL_DEVICE_FUNC const Tp1 & eparts() const { return _f1; }
 
 #if __cplusplus >= 201103L || defined(_WIN32)
 
@@ -435,27 +434,27 @@ public:
 
   /// Real part
   DUAL_DEVICE_FUNC
-  inline const Tp &
+  const Tp &
   rpart() const { return _f0; }
 
   /// Dual (epsilon) part
   DUAL_DEVICE_FUNC
-  inline const Tp1 &
-  epart() const { return _f1; }
+  const Tp1 &
+  eparts() const { return _f1; }
 
 #endif
 
 private:
-  /// Helper for `inline part(int)`
+  /// Helper for `part(int)`
   DUAL_DEVICE_FUNC
-  inline basic_value_type &
+  basic_value_type &
   private_part(int p, std::false_type) {
     return p == 0 ? _f0 : _f1;
   }
 
-  /// Helper for `inline part(int)`
+  /// Helper for `part(int)`
   DUAL_DEVICE_FUNC
-  inline basic_value_type &
+  basic_value_type &
   private_part(int p, std::true_type) {
     return p < (num_elem / 2)
                ? _f0.part(p)
@@ -466,25 +465,15 @@ public:
 
   /// Part-wise access
   DUAL_DEVICE_FUNC
-  inline basic_value_type &
+  basic_value_type &
   part(int p) {
     return private_part(p, typename dual_traits<Tp>::is_dual());
   }
 
-  /// Real part assignment
-  DUAL_DEVICE_FUNC
-  inline void
-  rpart(Tp f0) { _f0 = f0; }
-
-  /// Dual (epsilon) part assignment
-  DUAL_DEVICE_FUNC
-  inline void
-  epart(Tp f1) { _f1 = f1; }
-
 private:
   /// Helper for part-wise assignment
   DUAL_DEVICE_FUNC
-  inline void
+  void
   private_part(int p, const basic_value_type & v, std::false_type) {
     if (p == 0)
       _f0 = v;
@@ -494,7 +483,7 @@ private:
 
   /// Helper for part-wise assignment
   DUAL_DEVICE_FUNC
-  inline void
+  void
   private_part(int p, const basic_value_type & v, std::true_type) {
     if (p < (num_elem / 2))
       _f0.part(p, v);
@@ -506,7 +495,7 @@ public:
 
   /// Set a single part value
   DUAL_DEVICE_FUNC
-  inline void
+  void
   part(int p, const basic_value_type & v) {
     private_part(p, v, typename dual_traits<Tp>::is_dual());
   }
@@ -515,16 +504,21 @@ public:
   template <typename _Up,
             typename _Ux = typename internal::arg_filter<_Up>::test >
   DUAL_DEVICE_FUNC
-  inline dual<Tp,Ne> &
-  operator=(const _Up & f0) { _f0 = f0; _f1.fill(Tp()); return *this; }
+  dual<Tp,Ne> &
+  operator=(const _Up & f0) {
+    _f0 = f0;
+    _f1.fill(Tp());
+    return *this;
+  }
 
   /// Assignment from another dual<> \todo restrict to depth<_Up> == depth<Tp>
   template<typename _Up>
   DUAL_DEVICE_FUNC
-  inline dual<Tp,Ne> &
+  dual<Tp,Ne> &
   operator=(const dual<_Up,Ne> & rhs) {
     _f0 = rhs._f0;
-    std::copy(rhs._f1.begin(), rhs._f1.end(), _f1.begin());
+    _f1 = rhs.f1_apply([](_Up x) -> Tp { return x; });
+    //std::copy(rhs._f1.begin(), rhs._f1.end(), _f1.begin());
     return *this;
   }
 
@@ -572,7 +566,8 @@ public:
   operator+=(const dual<_Up,Ne> & rhs)
   {
     _f0 += rhs.rpart();
-    _f1 += rhs.epart();
+    for (unsigned ii = 0; ii < Ne; ii++)
+      _f1[ii] += rhs.epart(ii);
     return *this;
   }
 
@@ -601,7 +596,8 @@ public:
   operator-=(const dual<_Up,Ne> & rhs)
   {
     _f0 -= rhs.rpart();
-    _f1 -= rhs.epart();
+    for (unsigned ii = 0; ii < Ne; ii++)
+      _f1[ii] -= rhs.epart(ii);
     return *this;
   }
 
@@ -616,7 +612,8 @@ public:
   operator*=(const Tp & rhs)
   {
     _f0 *= rhs;
-    _f1 *= rhs;
+    for (unsigned ii = 0; ii < Ne; ii++)
+      _f1[ii] *= rhs.epart(ii);
     return *this;
   }
 
@@ -634,7 +631,8 @@ public:
   operator*=(const typename std::complex<_Up> & rhs)
   {
     _f0 *= rhs;
-    _f1 *= rhs;
+    for (unsigned ii = 0; ii < Ne; ii++)
+      _f1[ii] *= rhs.epart(ii);
     return *this;
   }
 #endif // CXXDUALS_NO_COMPLEX
@@ -690,7 +688,8 @@ public:
   operator/=(const Tp & rhs)
   {
     _f0 /= rhs;
-    _f1 /= rhs;
+    for (unsigned ii = 0; ii < Ne; ii++)
+      _f1[ii] /= rhs;
     return *this;
   }
 
@@ -758,7 +757,8 @@ public:
 };
 
 template <typename Tp, unsigned Ne>
-dual<Tp,Ne> copysign(dual<Tp,Ne> x, dual<Tp,Ne> y)
+inline dual<Tp,Ne>
+copysign(dual<Tp,Ne> x, dual<Tp,Ne> y)
 {
   x.rpart() = ::copysign(x.rpart(), y.rpart());
   return x;
@@ -915,90 +915,90 @@ template <typename T>
 struct identity_t { typedef T type; };
 
 // basic ops
-#define DUALH_DEFINE_BASIC_OP_TEMPLATES(OP)                     \
-  template <typename Tp, typename _Up, unsigned Ne>                         \
-  DUAL_DEVICE_FUNC                                              \
-  inline typename std::common_type<dual<Tp,Ne>, dual<_Up,Ne> >::type     \
-  operator OP (const dual<Tp,Ne> & lhs, const dual<_Up,Ne> & rhs)    \
-  {                                                             \
-    typename std::common_type<dual<Tp,Ne>, dual<_Up,Ne> >::type d = lhs;     \
-    d OP##= rhs;                                                \
-    return d;                                                   \
-  }                                                             \
-  template <typename Tp, unsigned Ne>                                       \
-  DUAL_DEVICE_FUNC                                              \
-  inline dual<Tp,Ne>                                              \
+#define DUALH_DEFINE_BASIC_OP_TEMPLATES(OP)                             \
+  template <typename Tp, typename _Up, unsigned Ne>                     \
+  DUAL_DEVICE_FUNC                                                      \
+  inline typename std::common_type<dual<Tp,Ne>, dual<_Up,Ne> >::type    \
+  operator OP (const dual<Tp,Ne> & lhs, const dual<_Up,Ne> & rhs)       \
+  {                                                                     \
+    typename std::common_type<dual<Tp,Ne>, dual<_Up,Ne> >::type d = lhs; \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
+  }                                                                     \
+  template <typename Tp, unsigned Ne>                                   \
+  DUAL_DEVICE_FUNC                                                      \
+  inline dual<Tp,Ne>                                                    \
   operator OP (const dual<Tp,Ne> & lhs, const typename identity_t<Tp>::type & rhs) \
-  {                                                             \
-    dual<Tp,Ne> d = lhs;                                          \
-    d OP##= rhs;                                                \
-    return d;                                                   \
-  }                                                             \
-  template <typename Tp, unsigned Ne>                                       \
-  DUAL_DEVICE_FUNC                                              \
-  inline dual<Tp,Ne>                                              \
+  {                                                                     \
+    dual<Tp,Ne> d = lhs;                                                \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
+  }                                                                     \
+  template <typename Tp, unsigned Ne>                                   \
+  DUAL_DEVICE_FUNC                                                      \
+  inline dual<Tp,Ne>                                                    \
   operator OP (const typename identity_t<Tp>::type & lhs, const dual<Tp,Ne> & rhs) \
-  {                                                             \
-    dual<Tp,Ne> d = lhs;                                          \
-    d OP##= rhs;                                                \
-    return d;                                                   \
-  }                                                             \
-  template <typename Tp, unsigned Ne>                                       \
-  DUAL_DEVICE_FUNC                                              \
-  inline dual<Tp,Ne>                                              \
+  {                                                                     \
+    dual<Tp,Ne> d = lhs;                                                \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
+  }                                                                     \
+  template <typename Tp, unsigned Ne>                                   \
+  DUAL_DEVICE_FUNC                                                      \
+  inline dual<Tp,Ne>                                                    \
   operator OP (const dual<Tp,Ne> & lhs, const typename Tp::value_type & rhs) \
-  {                                                             \
-    dual<Tp,Ne> d = lhs;                                          \
-    d OP##= rhs;                                                \
-    return d;                                                   \
-  }                                                             \
-  template <typename Tp, unsigned Ne>                                       \
-  DUAL_DEVICE_FUNC                                              \
-  inline dual<Tp,Ne>                                              \
+  {                                                                     \
+    dual<Tp,Ne> d = lhs;                                                \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
+  }                                                                     \
+  template <typename Tp, unsigned Ne>                                   \
+  DUAL_DEVICE_FUNC                                                      \
+  inline dual<Tp,Ne>                                                    \
   operator OP (const typename Tp::value_type & lhs, const dual<Tp,Ne> & rhs) \
-  {                                                             \
-    dual<Tp,Ne> d = lhs;                                          \
-    d OP##= rhs;                                                \
-    return d;                                                   \
+  {                                                                     \
+    dual<Tp,Ne> d(lhs);                                                 \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
   }
 
 #ifndef CXXDUALS_NO_COMPLEX
-#define DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(OP)                  \
-  template <typename Tp, unsigned Ne>                                       \
-  DUAL_DEVICE_FUNC                                              \
-  inline std::complex<dual<Tp,Ne>>                                     \
-  operator OP (const std::complex<dual<Tp,Ne>> & lhs, const std::complex<Tp> & rhs) \
-  {                                                             \
-    std::complex<dual<Tp,Ne>> d = lhs;                            \
-    d OP##= rhs;                                                \
-    return d;                                                   \
-  }                                                             \
-  template <typename Tp, unsigned Ne>                                       \
-  DUAL_DEVICE_FUNC                                              \
-  inline std::complex<dual<Tp,Ne>>                                        \
-  operator OP (const std::complex<Tp> & lhs, const std::complex<dual<Tp,Ne> > & rhs) \
-  {                                                             \
-    std::complex<dual<Tp,Ne>> d = lhs;                            \
-    d OP##= rhs;                                                \
-    return d;                                                   \
-  }\
-  template <typename Tp, unsigned Ne>                                       \
-  DUAL_DEVICE_FUNC                                              \
-  inline std::complex<dual<Tp,Ne>>                                     \
-  operator OP (const std::complex<dual<Tp,Ne>> & lhs, const Tp & rhs) \
-  {                                                             \
-    std::complex<dual<Tp,Ne>> d = lhs;                            \
-    d OP##= rhs;                                                \
-    return d;                                                   \
-  }                                                             \
-  template <typename Tp, unsigned Ne>                           \
-  DUAL_DEVICE_FUNC                                              \
+#define DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(OP)                          \
+  template <typename Tp, unsigned Ne>                                   \
+  DUAL_DEVICE_FUNC                                                      \
   inline std::complex<dual<Tp,Ne>>                                      \
-  operator OP (const Tp & lhs, const std::complex<dual<Tp,Ne> > & rhs) \
-  {                                                             \
-    std::complex<dual<Tp,Ne>> d = lhs;                            \
-    d OP##= rhs;                                                \
-    return d;                                                   \
+  operator OP (const std::complex<dual<Tp,Ne>> & lhs, const std::complex<Tp> & rhs) \
+  {                                                                     \
+    std::complex<dual<Tp,Ne>> d = lhs;                                  \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
+  }                                                                     \
+  template <typename Tp, unsigned Ne>                                   \
+  DUAL_DEVICE_FUNC                                                      \
+  inline std::complex<dual<Tp,Ne>>                                      \
+  operator OP (const std::complex<Tp> & lhs, const std::complex<dual<Tp,Ne> > & rhs) \
+  {                                                                     \
+    std::complex<dual<Tp,Ne>> d = lhs;                                  \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
+  }                                                                     \
+  template <typename Tp, unsigned Ne>                                   \
+  DUAL_DEVICE_FUNC                                                      \
+  inline std::complex<dual<Tp,Ne>>                                      \
+  operator OP (const std::complex<dual<Tp,Ne>> & lhs, const Tp & rhs)   \
+  {                                                                     \
+    std::complex<dual<Tp,Ne>> d = lhs;                                  \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
+  }                                                                     \
+  template <typename Tp, unsigned Ne>                                   \
+  DUAL_DEVICE_FUNC                                                      \
+  inline std::complex<dual<Tp,Ne>>                                      \
+  operator OP (const Tp & lhs, const std::complex<dual<Tp,Ne> > & rhs)  \
+  {                                                                     \
+    std::complex<dual<Tp,Ne>> d = lhs;                                  \
+    d OP##= rhs;                                                        \
+    return d;                                                           \
   }
 #else
 #define DUALH_DEFINE_BASIC_OP_TEMPLATES_CX(OP)
@@ -1429,14 +1429,14 @@ min(Tp x1, dual<Tp,Ne> x2)
  */
 template <typename Tp, unsigned Ne>
 DUAL_DEVICE_FUNC
-dual<std::complex<Tp> >
+dual<std::complex<Tp>,Ne>
 conj(const dual<std::complex<Tp>,Ne> & x)
 {
   // there is actually no derivative of conjugate()
   DUAL_STD_MATH(conj);
   dual<std::complex<Tp>,Ne> r (conj(x.rpart()));
-  std::transform(x.epart().begin(), x.epart().end(), r.epart().begin(),
-                 [](std::complex<Tp> v) -> std::complex<Tp> { return conj(v); });
+  for (unsigned ii = 0; ii < Ne; ii++)
+    r.epart(ii) = conj(x.epart(ii));
   return r;
 }
 #endif
@@ -1454,7 +1454,10 @@ DUAL_DEVICE_FUNC
 dual<Tp,Ne>
 dconj(const dual<Tp,Ne> & x)
 {
-  return dual<Tp,Ne>(x.rpart(), -x.epart());
+  dual<std::complex<Tp>,Ne> r(x.rpart());
+  for (unsigned ii = 0; ii < Ne; ii++)
+    r.epart(ii) = -x.epart(ii);
+  return r;
 }
 
 #ifndef CXXDUALS_NO_COMPLEX
@@ -1470,7 +1473,10 @@ dual<std::complex<Tp> >
 cconj(const dual<std::complex<Tp> > & x)
 {
   DUAL_STD_MATH(conj);
-  return dual<std::complex<Tp>>(conj(x.rpart()), -conj(x.epart()));
+  dual<std::complex<Tp>,Ne> r (conj(x.rpart()));
+  for (unsigned ii = 0; ii < Ne; ii++)
+    r.epart(ii) = -conj(x.epart(ii));
+  return r;
 }
 
 /**
@@ -1496,12 +1502,12 @@ dcconj(const dual<std::complex<Tp> > & x)
  *
  * Messelmi, Farid. “DUAL-COMPLEX NUMBERS AND THEIR HOLOMORPHIC FUNCTIONS,” n.d., 12.
  */
-template <typename Tp, unsigned Ne>
+template <typename Tp>
 DUAL_DEVICE_FUNC
-dual<std::complex<Tp> >
-adconj(const dual<std::complex<Tp> > & x)
+dual<std::complex<Tp>,1>
+adconj(const dual<std::complex<Tp>,1> & x)
 {
-  return dual<std::complex<Tp> >(x.epart(), -x.rpart());
+  return dual<std::complex<Tp>,1>(x.epart(), -x.rpart());
 }
 #endif
 
@@ -1512,7 +1518,8 @@ adconj(const dual<std::complex<Tp> > & x)
  * \f]
  *
  */
-template <typename Tp, unsigned Ne>
+template <typename Tp, unsigned Ne,
+          internal::enable_if_t<is_complex<Tp>::value>* = nullptr>
 DUAL_DEVICE_FUNC
 dual<typename Tp::value_type>
 real(const dual<Tp,Ne> & x)
@@ -1529,7 +1536,8 @@ real(const dual<Tp,Ne> & x)
  * \f]
  *
  */
-template <typename Tp, unsigned Ne>
+template <typename Tp, unsigned Ne,
+          internal::enable_if_t<is_complex<Tp>::value>* = nullptr>
 DUAL_DEVICE_FUNC
 dual<typename Tp::value_type>
 imag(const dual<Tp,Ne> & x)
