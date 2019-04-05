@@ -47,6 +47,7 @@
 #include <type_traits>
 #include <initializer_list>
 #include <random>
+#include <functional>
 
 #ifndef CXXDUALS_NO_COMPLEX
 #include <complex>
@@ -207,6 +208,9 @@ struct dual_traits_basic {
 /// internal::dual_traits_basic for traits)
 template <typename Ts> struct dual_traits;
 
+/// Specialization of dual_traits for int
+template <> struct dual_traits<int> : public internal::dual_traits_basic<float> {};
+
 /// Specialization of dual_traits for float
 template <> struct dual_traits<float> : public internal::dual_traits_basic<float> {};
 
@@ -284,11 +288,15 @@ private:
 
   /// Apply a function to all elements of _f1 and return the result
   template <typename At>
-  std::valarray<At> f1_apply( At func(const Tp &) ) const {
+  std::valarray<At> f1_apply(std::function<At(Tp const &)> func) const {
     std::valarray<At> res(Ne);
     for (unsigned ii = 0; ii < Ne; ii++)
       res[ii] = func(_f1[ii]);
     return res;
+  }
+  template <typename At>
+  std::valarray<At> f1_cast() const {
+    return this->f1_apply<At>([](Tp x) -> At { return x; });
   }
 
 public:
@@ -331,14 +339,13 @@ public:
 
   /// Construct from lower dual<>
   template <typename _Up,
-            internal::enable_if_t<std::is_same<_Up, dual_type>::value >* = nullptr,
-            internal::enable_if_t<dual_traits<_Up>::depth == depth-1>* = nullptr>
+            internal::enable_if_t<dual_traits<dual<_Up>>::depth < depth>* = nullptr>
   DUAL_DEVICE_FUNC
 #if __cpp_constexpr >= 201304
   CXXDUALS_CONSTEXPR
 #endif
   dual(const _Up & f0)
-    : _f0(f0), _f1((Tp)0, (size_t)Ne) {}
+    : _f0(Tp(f0)), _f1((Tp)0, (size_t)Ne) {}
 
   /// Construct from compatible parts
   template <typename _Up,
@@ -356,7 +363,7 @@ public:
             internal::enable_if_t<dual_traits<_Vp>::depth == depth-1>* = nullptr>
   DUAL_DEVICE_FUNC
   CXXDUALS_CONSTEXPR dual(const _Up & f0, const _Vp & f1)
-    : _f0(f0), _f1{(Tp)f1} { }
+    : _f0(f0), _f1{f1} { }
 
 #if __cplusplus >= 201103L || defined(_WIN32)
   /// List initializer, this is for allowing nested
@@ -381,23 +388,23 @@ public:
 
   /// Copy constructor from dual of diff type
   template<typename _Up,
-           internal::enable_if_t<dual_traits<dual<_Up> >::depth <= depth>* = nullptr>
+           internal::enable_if_t<dual_traits<dual<_Up> >::depth == depth>* = nullptr>
   DUAL_DEVICE_FUNC
   dual(const dual<_Up, Ne> & rhs)
-    : _f0(rhs._f0), _f1(rhs._f1) { }
+    : _f0(Tp(rhs._f0)) { _f1 = rhs.template f1_cast<Tp>(); }
 
   /// Real part
   DUAL_DEVICE_FUNC       Tp & rpart()       { return _f0; }
   DUAL_DEVICE_FUNC const Tp & rpart() const { return _f0; }
 
   /// Dual (epsilon) part
-  DUAL_DEVICE_FUNC Tp & epart(unsigned en = 0) { return _f1[en]; }
+  DUAL_DEVICE_FUNC       Tp & epart(unsigned en = 0)       { return _f1[en]; }
 
   /// Dual (epsilon) part const
   DUAL_DEVICE_FUNC const Tp & epart(unsigned en = 0) const { return _f1[en]; }
 
   /// Dual (epsilon) parts
-  DUAL_DEVICE_FUNC Tp1 & eparts() { return _f1; }
+  DUAL_DEVICE_FUNC       Tp1 & eparts()       { return _f1; }
 
   /// Dual (epsilon) parts const
   DUAL_DEVICE_FUNC const Tp1 & eparts() const { return _f1; }
@@ -502,22 +509,23 @@ public:
 
   /// Assignment
   template <typename _Up,
-            typename _Ux = typename internal::arg_filter<_Up>::test >
+            internal::enable_if_t<dual_traits<_Up>::depth < depth>* = nullptr>
   DUAL_DEVICE_FUNC
   dual<Tp,Ne> &
   operator=(const _Up & f0) {
     _f0 = f0;
-    _f1.fill(Tp());
+    _f1 = Tp(0);
     return *this;
   }
 
   /// Assignment from another dual<> \todo restrict to depth<_Up> == depth<Tp>
-  template<typename _Up>
+  template<typename _Up,
+           internal::enable_if_t<dual_traits<dual<_Up> >::depth == depth>* = nullptr>
   DUAL_DEVICE_FUNC
   dual<Tp,Ne> &
   operator=(const dual<_Up,Ne> & rhs) {
     _f0 = rhs._f0;
-    _f1 = rhs.f1_apply([](_Up x) -> Tp { return x; });
+    _f1 = rhs.template f1_apply<Tp>([](_Up x) -> Tp { return Tp(x); });
     //std::copy(rhs._f1.begin(), rhs._f1.end(), _f1.begin());
     return *this;
   }
@@ -560,7 +568,8 @@ public:
    * (a + b \epsilon) + (c + d \epsilon)
    * \f]
    */
-  template<typename _Up>
+  template<typename _Up,
+           internal::enable_if_t<dual_traits<dual<_Up> >::depth == depth>* = nullptr>
   DUAL_DEVICE_FUNC
   dual<Tp,Ne> &
   operator+=(const dual<_Up,Ne> & rhs)
@@ -590,7 +599,8 @@ public:
    * (a + b \epsilon) - (c + d \epsilon)
    * \f]
    */
-  template<typename _Up>
+  template<typename _Up,
+           internal::enable_if_t<dual_traits<dual<_Up> >::depth == depth>* = nullptr>
   DUAL_DEVICE_FUNC
   dual<Tp,Ne> &
   operator-=(const dual<_Up,Ne> & rhs)
@@ -612,8 +622,7 @@ public:
   operator*=(const Tp & rhs)
   {
     _f0 *= rhs;
-    for (unsigned ii = 0; ii < Ne; ii++)
-      _f1[ii] *= rhs.epart(ii);
+    _f1 *= rhs;
     return *this;
   }
 
@@ -631,8 +640,7 @@ public:
   operator*=(const typename std::complex<_Up> & rhs)
   {
     _f0 *= rhs;
-    for (unsigned ii = 0; ii < Ne; ii++)
-      _f1[ii] *= rhs.epart(ii);
+    _f1 *= rhs;
     return *this;
   }
 #endif // CXXDUALS_NO_COMPLEX
@@ -661,7 +669,8 @@ public:
    * 
    * \f]
    */
-  template<typename _Up>
+  template<typename _Up,
+           internal::enable_if_t<dual_traits<dual<_Up> >::depth == depth>* = nullptr>
   DUAL_DEVICE_FUNC
   dual<Tp,Ne> &
   operator*=(const dual<_Up,Ne> & rhs)
@@ -688,8 +697,7 @@ public:
   operator/=(const Tp & rhs)
   {
     _f0 /= rhs;
-    for (unsigned ii = 0; ii < Ne; ii++)
-      _f1[ii] /= rhs;
+    _f1 /= rhs;
     return *this;
   }
 
@@ -736,21 +744,15 @@ public:
    * \f]
 
    */
-  template<typename _Up>
+  template<typename _Up,
+           internal::enable_if_t<dual_traits<dual<_Up> >::depth == depth>* = nullptr>
   DUAL_DEVICE_FUNC
   dual<Tp,Ne> &
   operator/=(const dual<_Up,Ne> & rhs)
   {
-#if __cplusplus > 199711L || defined(_WIN32)
-    typedef decltype(Tp(1) * _Up(1)) higher_t;
-#else
-    typedef Tp higher_t;
-#endif
-    //assert(rhs.rpart() != 0); // exclude non-field numbers
-    dual<higher_t,Ne> tmp;
-    tmp.rpart() = _f0 / rhs.rpart();
-    tmp.epart() = (_f1 * rhs.rpart() - _f0 * rhs.epart()) / (rhs.rpart() * rhs.rpart());
-    *this = tmp;
+    for (unsigned ii = 0; ii < Ne; ii++)
+      _f1[ii] = (_f1[ii] * rhs.rpart() - _f0 * rhs.epart(ii)) / (rhs.rpart() * rhs.rpart());
+    _f0 = _f0 / rhs.rpart();
     return *this;
   }
 
