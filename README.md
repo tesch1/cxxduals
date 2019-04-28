@@ -1,4 +1,4 @@
-# UPDATE: started over from scratch: https://gitlab.com/tesch1/cppduals
+# UPDATE: deprecated in favor of: [cppduals](https://tesch1.gitlab.io/cppduals/)
 
 ## cxxduals
 

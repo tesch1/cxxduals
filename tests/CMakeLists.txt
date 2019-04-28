@@ -21,6 +21,10 @@ target_link_libraries (test1 ${GTEST_LIBRARY})
 target_link_libraries (test2 ${GTEST_LIBRARY})
 target_link_libraries (test3 ${GTEST_LIBRARY})
 
+add_dependencies (test1 eigenX)
+add_dependencies (test2 eigenX)
+add_dependencies (test3 eigenX)
+
 # individual tests
 include (GoogleTest)
 gtest_discover_tests (test1 TEST_LIST test1_targets)
