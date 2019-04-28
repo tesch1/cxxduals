@@ -1,3 +1,5 @@
+# UPDATE: started over from scratch: https://gitlab.com/tesch1/cppduals
+
 ## cxxduals
 
 *Under Construction!*
